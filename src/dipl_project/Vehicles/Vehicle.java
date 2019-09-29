@@ -39,7 +39,7 @@ public class Vehicle {
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
-        iv=new ImageView(new Image("/dipl_project/Resources/auto-01.png"));
+        iv=new ImageView(new Image("/dipl_project/Resources/vehicles/auto-01.png"));
         iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
