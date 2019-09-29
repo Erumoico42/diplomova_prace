@@ -35,7 +35,7 @@ public class Dipl_project extends Application {
     }
     public static void loadRules()
     {
-        rbr=new RuleBaseReader("C:\\Users\\Honza\\Desktop\\mgr\\rules_v1.rb");
+        rbr=new RuleBaseReader("src/dipl_project/Resources/fuzzyRules/rules_follow.rb");
         ruc=new RulesCalculator(rbr.getOutputVariable(), rbr.getFuzzyRules());
     }
     public static RulesCalculator getRUC() {
