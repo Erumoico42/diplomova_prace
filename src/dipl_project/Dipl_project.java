@@ -11,6 +11,7 @@ import dipl_project.Roads.RoadSegment;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import dipl_project.Vehicles.Animation;
+import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -23,8 +24,8 @@ public class Dipl_project extends Application {
     private static DrawControll dc;
     private static RoadCreator rc;
     private static Animation anim;
-    private static RuleBaseReader rbr;
-    private static RulesCalculator ruc;
+    private static RuleBaseReader rbrFollow,rbrCross;
+    private static RulesCalculator rcFollow,rcCross;
     @Override
     public void start(Stage primaryStage) {
         rc=new RoadCreator();
@@ -35,11 +36,14 @@ public class Dipl_project extends Application {
     }
     public static void loadRules()
     {
-        rbr=new RuleBaseReader("src/dipl_project/Resources/fuzzyRules/rules_follow.rb");
-        ruc=new RulesCalculator(rbr.getOutputVariable(), rbr.getFuzzyRules());
+        
+        rbrFollow=new RuleBaseReader("Resources/fuzzyRules/rules_follow.rb");
+        rcFollow=new RulesCalculator(rbrFollow.getOutputVariable(), rbrFollow.getFuzzyRules());
+        rbrCross=new RuleBaseReader("Resources/fuzzyRules/rules_cross.rb");
+        rcCross=new RulesCalculator(rbrCross.getOutputVariable(), rbrCross.getFuzzyRules());
     }
-    public static RulesCalculator getRUC() {
-        return ruc;
+    public static RulesCalculator getRcFollow() {
+        return rcFollow;
     }
     public static DrawControll getDC()
     {
@@ -56,6 +60,10 @@ public class Dipl_project extends Application {
 
     public static Animation getAnim() {
         return anim;
+    }
+
+    public static RulesCalculator getRcCross() {
+        return rcCross;
     }
     
     
