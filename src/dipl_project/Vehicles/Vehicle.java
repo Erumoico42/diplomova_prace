@@ -39,7 +39,7 @@ public class Vehicle {
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
-        iv=new ImageView(new Image("/dipl_project/Resources/vehicles/auto-01.png"));
+        iv=new ImageView(new Image(Dipl_project.class.getResource("/vehicles/auto-01.png").toString()));
         iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -54,10 +54,13 @@ public class Vehicle {
         actualSegment=startSegment;
         generateStreet(startSegment);
         setPoints();
+        
         controlRectangle=new Rectangle(width,height, Color.TRANSPARENT);
         controlRectangle.setX(x0-width/2);
         controlRectangle.setY(y0-height/2);
         animation.addVehicle(this);
+        move(0);
+        move(0.01);
     }
     private void generateStreet(RoadSegment start)
     {
@@ -245,8 +248,10 @@ public class Vehicle {
                 if(nextVeh!=null && nextVeh!=this)
                 {
                     double dActVeh=actDist-getTime()-1;
+                    double dNextVeh=nextDist-nextVeh.getTime()-1;
                     carFound=true;
-                    fuzzySpeed(dActVeh, getSpeed());
+                    if(fuzzyCrossStop(dActVeh-dNextVeh, getSpeed()-nextVeh.getSpeed()))
+                        fuzzySpeed(dActVeh, getSpeed());
                 }
                 else if(nextDist<10)
                 {
@@ -263,15 +268,23 @@ public class Vehicle {
     }
     private void fuzzySpeed(double distance, double speed)
     {
-        double sp=Dipl_project.getRUC().calculateByValues(Math.round(speed*10000)/100, distance+1);
+        double sp=Dipl_project.getRcFollow().calculateByValues(Math.round(speed*10000)/100, distance+1);
         setForce(sp/1000);
+    }
+    private boolean fuzzyCrossStop(double distance, double speed)
+    {
+        double sp=Dipl_project.getRcCross().calculateByValues(Math.round(speed*10000)/100, distance+1);
+        if(sp<1)
+            return true;
+        else
+            return false;
     }
     private boolean findNextCar()
     {
         boolean carFound=false;
-        for (int i = 0; i < 10; i++) {
-            if(road.size()>i){
-                RoadSegment rsNext=road.get(i);
+        for (int actDist = 0; actDist < 10; actDist++) {
+            if(road.size()>actDist){
+                RoadSegment rsNext=road.get(actDist);
                 if(!carFound)
                 {
                     if(rsNext.getVehicle()!=null && rsNext.getVehicle()!=this)
@@ -279,17 +292,23 @@ public class Vehicle {
 
                         double speedNextCar=rsNext.getVehicle().getSpeed();
                         double tNextCar=rsNext.getVehicle().getTime();
-                        double dist=i+tNextCar-getTime();
+                        double dist=actDist+tNextCar-getTime();
                         fuzzySpeed(dist, getSpeed()-speedNextCar);
                         carFound=true;
                         break;
                     }else if(!rsNext.getCheckPoints().isEmpty())
                     {
-                        for (RoadSegment cp : rsNext.getCheckPoints()) {
-                            for (RoadSegment uN : cp.getRsNext()) {
-                                findCarCross(uN, 1, i+1);                        
+                        if(actDist>2 && actDist<6)
+                            fuzzySpeed(actDist-getTime()+1, getSpeed());
+                        else
+                        {
+                            for (RoadSegment cp : rsNext.getCheckPoints()) {
+                                for (RoadSegment uN : cp.getRsNext()) {
+                                    findCarCross(uN, 1, actDist+1);                        
+                                }
                             }
                         }
+                        
                         carFound=true;
                         break;
                     }
