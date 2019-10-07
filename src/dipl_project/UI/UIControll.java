@@ -139,7 +139,18 @@ public class UIControll {
                 Dipl_project.getRC().findIntersects();
             }
         });
-        root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect);
+        
+        Button btnReload=new Button("Reload");
+        btnReload.setLayoutX(250);
+        btnReload.setLayoutY(10);
+        btnReload.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dipl_project.loadRules();
+            }
+        });
+        
+        root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect, btnReload);
     }
     public RoadSegment getRandomStart()
     {
