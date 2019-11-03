@@ -10,6 +10,7 @@ import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Vehicles.Vehicle;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.event.ActionEvent;
@@ -19,6 +20,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
@@ -31,7 +34,8 @@ public class UIControll {
     private Group root;
     private Scene scene;
     private int initialSizeX=900, initialSizeY=600;
-    
+    private ContextMenu popupRight;
+    private MenuItem split, remove;
     private Canvas canvas;
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
@@ -114,7 +118,10 @@ public class UIControll {
     {
         root.getChildren().removeAll(nodes);
     }
-    
+    public List<Connect> getConnects()
+    {
+        return connects;
+    }
     private void initComponents()
     {
         canvas=new Canvas(initialSizeX, initialSizeY);
@@ -140,17 +147,29 @@ public class UIControll {
             }
         });
         
-        Button btnReload=new Button("Reload");
-        btnReload.setLayoutX(250);
-        btnReload.setLayoutY(10);
-        btnReload.setOnAction(new EventHandler<ActionEvent>() {
+        popupRight=new ContextMenu();
+        split=new MenuItem("Rozdělit");
+        split.setDisable(true);
+        split.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Dipl_project.loadRules();
+                Dipl_project.getDC().getActualConnect().splitConnect();
             }
         });
-        
-        root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect, btnReload);
+        remove=new MenuItem("Odstranit");
+        remove.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dipl_project.getDC().getActualConnect().removeConnect();
+            }
+        });
+        popupRight.getItems().addAll(split, remove);
+        root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect);
+    }
+    public void showPopUp(Point loc, Connect con)
+    {
+        //split.setDisable(!con.canSplit());;
+        popupRight.show(root, primaryStage.getX()+loc.getX(), primaryStage.getY()+loc.getY());
     }
     public RoadSegment getRandomStart()
     {
