@@ -51,6 +51,7 @@ public  class DrawControll {
                 {
                     if(actualConnect==null){
                         actualConnect=newConnect(event.getX(), event.getY());
+                        actualConnect.select();
                     }
                     else
                     {
@@ -64,7 +65,9 @@ public  class DrawControll {
             @Override
             public void handle(MouseEvent event) {
                 if(actualConnect!=null)
+                {
                     actualConnect.move(event.getX(), event.getY());
+                }
             }
         });
         ui.getPrimaryStage().widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
@@ -85,7 +88,6 @@ public  class DrawControll {
         Connect connect=new Connect(new Point((int)x, (int)y));
         ui.addConnect(connect);
         connects.add(connect);
-        
         return connect;
     }
     public void setActualConnect(Connect connect)
@@ -104,8 +106,9 @@ public  class DrawControll {
             actualCurve=curve;
             actualConnect.deselect();
             actualConnect=endConnect;
-            actualConnect.select();
+            
         }
+        endConnect.select();
     }
 
     public MyCurve getActualCurve() {

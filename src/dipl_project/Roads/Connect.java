@@ -33,6 +33,7 @@ public class Connect {
     private Connect connectToConnect;
     private boolean tryConnect=false;
     private boolean selected=false;
+    private boolean dragged=false;
     private DrawControll dc=Dipl_project.getDC();
     public Connect(Point location)
     {
@@ -47,6 +48,7 @@ public class Connect {
             @Override
             public void handle(MouseEvent event) {
                 move(event.getX(), event.getY());
+                dragged=true;
             }
         });
         connect.setOnMouseReleased(new EventHandler<MouseEvent>() {
@@ -55,8 +57,9 @@ public class Connect {
                 if(tryConnect)
                 {
                     connectConnects();
-                }
                     
+                }
+                   
             }
         });
         connect.setOnMouseClicked(new EventHandler<MouseEvent>() {
@@ -64,10 +67,11 @@ public class Connect {
             public void handle(MouseEvent event) {
                 if(event.getButton()==MouseButton.PRIMARY)
                 {
-                    if(selected)
+                    if(selected && !dragged)
                         deselect();
                     else
                         select();
+                    dragged=false; 
                 }
                 else if(event.getButton()==MouseButton.SECONDARY)
                 {
@@ -151,13 +155,13 @@ public class Connect {
     public void deselect()
     {
         selected=false;
-        connect.setFill(Color.BLUE);
+        
         dc.setActualConnect(null);
         setDefSkin();
     }
     public void setDefSkin()
     {
-        
+        connect.setFill(Color.BLUE);
         connect.setStroke(null);
         connect.setRadius(5);
     }
@@ -189,14 +193,14 @@ public class Connect {
         for (Connect con : ui.getConnects()) {
             if(!con.equals(thisConnect))
             {
-                if(Shape.intersect(con.getConnect(), connect).getBoundsInLocal().getWidth()>1)
+                if(Shape.intersect(con.getConnect(), connect).getBoundsInLocal().getWidth()>0.5)
                 {
                     selectToConnect(con);
                     break;
                 }
                 else
                 {
-                    con.deselect();
+                    con.setDefSkin();
                     tryConnect=false;
                 }
                     
@@ -204,7 +208,6 @@ public class Connect {
             else
             {
                 tryConnect=false;
-                con.deselect();
             }
                 
             

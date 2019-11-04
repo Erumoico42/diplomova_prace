@@ -85,19 +85,23 @@ public class RoadCreator {
                 for (MyCurve endCurve : connect.getEndCurves()) {
                     RoadSegment rsEnd=endCurve.getLastCurveSegment();
                     RoadSegment rsStart=startCurve.getFirstCurveSegment();
-                    double angle;            
-                    if(!rsStart.getRsNext().isEmpty())
+                    double angle; 
+                    if(rsStart!=null)
                     {
-                        RoadSegment rsStartNext=rsStart.getRsNext().get(0);
-                        angle=MyMath.angle(rsStartNext.getP0(), rsStartNext.getP1());
-                        Point p21=MyMath.rotate(rsStartNext.getP0(), 15, angle);
-                        rsStart.setP2(p21); 
+                        if(rsStart.getRsNext()!=null && !rsStart.getRsNext().isEmpty())
+                        {
+                            RoadSegment rsStartNext=rsStart.getRsNext().get(0);
+                            angle=MyMath.angle(rsStartNext.getP0(), rsStartNext.getP1());
+                            Point p21=MyMath.rotate(rsStartNext.getP0(), 15, angle);
+                            rsStart.setP2(p21); 
+                        }
+
+                        angle=MyMath.angle(rsStart.getP0(), rsStart.getP1());
+                        Point p21=MyMath.rotate(rsStart.getP0(), 15, angle);
+                        rsEnd.setP2(p21); 
+                        connectSegments(rsEnd,rsStart);
                     }
-                    
-                    angle=MyMath.angle(rsStart.getP0(), rsStart.getP1());
-                    Point p21=MyMath.rotate(rsStart.getP0(), 15, angle);
-                    rsEnd.setP2(p21); 
-                    connectSegments(rsEnd,rsStart);  
+                      
                 }
                 
             }
