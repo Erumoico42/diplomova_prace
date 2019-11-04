@@ -134,7 +134,7 @@ public class RoadSegment {
         for (RoadSegment segment : rsLast) {
             segment.getRsNext().remove(this);
         }
-        rsNext.clear();
+        rsLast.clear();
     }
     public void removeSegment()
     {

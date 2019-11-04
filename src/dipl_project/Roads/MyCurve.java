@@ -55,6 +55,14 @@ public class MyCurve {
         dc.newRoad();
     }
 
+    public void setStartConnect(Connect startConnect) {
+        this.startConnect = startConnect;
+    }
+
+    public void setEndConnect(Connect endConnect) {
+        this.endConnect = endConnect;
+    }
+    
     public int getId() {
         return id;
     }

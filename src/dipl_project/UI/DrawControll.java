@@ -47,24 +47,38 @@ public  class DrawControll {
         canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(event.getButton()==MouseButton.PRIMARY)
+                if(!ui.isPopupShown())
                 {
-                    if(actualConnect==null){
-                        actualConnect=newConnect(event.getX(), event.getY());
-                    }
-                    else
+                    if(event.getButton()==MouseButton.PRIMARY)
                     {
-                        Connect newConnect=newConnect(event.getX(), event.getY());
-                        newCurve(newConnect);
+                        if(actualConnect==null){
+                            actualConnect=newConnect(event.getX(), event.getY());
+                            actualConnect.select();
+                        }
+                        else
+                        {
+                            Connect newConnect=newConnect(event.getX(), event.getY());
+                            newCurve(newConnect);
+                        }
                     }
-                }
+                }else
+                    ui.hidePopUp();
+                    
             }
         });
         canvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(actualConnect!=null)
-                    actualConnect.move(event.getX(), event.getY());
+                if(!ui.isPopupShown())
+                {
+                    if(actualConnect!=null)
+                    {
+                        actualConnect.move(event.getX(), event.getY());
+                    }
+                }
+                else
+                    ui.hidePopUp();
+                    
             }
         });
         ui.getPrimaryStage().widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
@@ -85,7 +99,6 @@ public  class DrawControll {
         Connect connect=new Connect(new Point((int)x, (int)y));
         ui.addConnect(connect);
         connects.add(connect);
-        
         return connect;
     }
     public void setActualConnect(Connect connect)
@@ -104,8 +117,9 @@ public  class DrawControll {
             actualCurve=curve;
             actualConnect.deselect();
             actualConnect=endConnect;
-            actualConnect.select();
+            
         }
+        endConnect.select();
     }
 
     public MyCurve getActualCurve() {
