@@ -24,6 +24,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 /**
  *
@@ -33,9 +34,10 @@ public class UIControll {
     private Stage primaryStage;
     private Group root;
     private Scene scene;
+    private boolean popupShown=false;
     private int initialSizeX=900, initialSizeY=600;
-    private ContextMenu popupRight;
-    private MenuItem split, remove;
+    private ContextMenu popupClick;
+    private MenuItem popupSplit, popupRemove;
     private Canvas canvas;
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
@@ -147,29 +149,46 @@ public class UIControll {
             }
         });
         
-        popupRight=new ContextMenu();
-        split=new MenuItem("Rozdělit");
-        split.setDisable(true);
-        split.setOnAction(new EventHandler<ActionEvent>() {
+        popupClick=new ContextMenu();
+        popupSplit=new MenuItem("Rozdělit");
+        popupSplit.setDisable(true);
+        popupSplit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Dipl_project.getDC().getActualConnect().splitConnect();
             }
         });
-        remove=new MenuItem("Odstranit");
-        remove.setOnAction(new EventHandler<ActionEvent>() {
+        popupRemove=new MenuItem("Odstranit");
+
+        popupClick.setOnHiding(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                popupShown=false;
+            }
+        });
+        popupRemove.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Dipl_project.getDC().getActualConnect().removeConnect();
             }
         });
-        popupRight.getItems().addAll(split, remove);
+        popupClick.getItems().addAll(popupSplit, popupRemove);
         root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect);
     }
     public void showPopUp(Point loc, Connect con)
     {
         //split.setDisable(!con.canSplit());;
-        popupRight.show(root, primaryStage.getX()+loc.getX(), primaryStage.getY()+loc.getY());
+        popupShown=true;
+        popupClick.show(root, primaryStage.getX()+loc.getX()+9, primaryStage.getY()+loc.getY()+30);
+    }
+    public void hidePopUp()
+    {
+        popupShown=false;
+        popupClick.hide();
+    }
+    public boolean isPopupShown()
+    {
+        return popupShown;
     }
     public RoadSegment getRandomStart()
     {

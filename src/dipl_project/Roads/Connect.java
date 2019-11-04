@@ -193,7 +193,7 @@ public class Connect {
         for (Connect con : ui.getConnects()) {
             if(!con.equals(thisConnect))
             {
-                if(Shape.intersect(con.getConnect(), connect).getBoundsInLocal().getWidth()>0.5)
+                if(Shape.intersect(con.getConnect(), connect).getBoundsInLocal().getWidth()>0.1)
                 {
                     selectToConnect(con);
                     break;
