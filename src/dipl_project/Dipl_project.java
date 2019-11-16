@@ -39,7 +39,7 @@ public class Dipl_project extends Application {
         
         rbrFollow=new RuleBaseReader("Resources/fuzzyRules/rules_follow.rb");
         rcFollow=new RulesCalculator(rbrFollow.getOutputVariable(), rbrFollow.getFuzzyRules());
-        rbrCross=new RuleBaseReader("Resources/fuzzyRules/rules_cross.rb");
+        rbrCross=new RuleBaseReader("Resources/fuzzyRules/rules_cross_v3.rb");
         rcCross=new RulesCalculator(rbrCross.getOutputVariable(), rbrCross.getFuzzyRules());
     }
     public static RulesCalculator getRcFollow() {

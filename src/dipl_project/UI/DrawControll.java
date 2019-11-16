@@ -8,6 +8,7 @@ package dipl_project.UI;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.RoadCreator;
+import dipl_project.Roads.RoadSegment;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ public  class DrawControll {
     private Canvas canvas;
     private Connect actualConnect;
     private MyCurve actualCurve;
+    private RoadSegment actualRS;
     private List<Connect> connects=new ArrayList<>();
     private List<MyCurve> curves=new ArrayList<>();
     private int idCurve=0;
@@ -85,11 +87,13 @@ public  class DrawControll {
             double oldWidth=canvas.getWidth();
             double newWidth=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setWidth(oldWidth+newWidth);
+            ui.updateCPsPosition();
         });
         ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             double oldHeight=canvas.getHeight();
             double newHeight=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setHeight(oldHeight+newHeight);
+            ui.updateCPsPosition();
         });
                 
     }
@@ -128,6 +132,14 @@ public  class DrawControll {
     
     public Connect getActualConnect() {
         return actualConnect;
+    }
+
+    public RoadSegment getActualRS() {
+        return actualRS;
+    }
+
+    public void setActualRS(RoadSegment actualRS) {
+        this.actualRS = actualRS;
     }
     
 }
