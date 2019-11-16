@@ -250,7 +250,7 @@ public class Vehicle {
                     double dActVeh=actDist-getTime()-1;
                     double dNextVeh=nextDist-nextVeh.getTime()-1;
                     carFound=true;
-                    if(fuzzyCrossStop(dActVeh-dNextVeh, getSpeed()-nextVeh.getSpeed()))
+                    if(fuzzyCrossStop(dNextVeh, nextVeh.getSpeed(), dActVeh, getSpeed()))
                         fuzzySpeed(dActVeh, getSpeed());
                 }
                 else if(nextDist<10)
@@ -271,9 +271,9 @@ public class Vehicle {
         double sp=Dipl_project.getRcFollow().calculateByValues(Math.round(speed*10000)/100, distance+1);
         setForce(sp/1000);
     }
-    private boolean fuzzyCrossStop(double distance, double speed)
+    private boolean fuzzyCrossStop(double distanceB, double speedB, double distanceA, double speedA)
     {
-        double sp=Dipl_project.getRcCross().calculateByValues(Math.round(speed*10000)/100, distance+1);
+        double sp=Dipl_project.getRcCross().calculateByValues(Math.round(speedB*10000)/100, distanceB+1, distanceA, Math.round(speedA*10000)/100);
         if(sp<1)
             return true;
         else

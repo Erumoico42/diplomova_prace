@@ -192,7 +192,15 @@ public class UIControll {
                 setVisibleCPs(false, null);
             }
         });
-        
+        Button btnReload=new Button("Reload");
+        btnReload.setLayoutX(400);
+        btnReload.setLayoutY(10);
+        btnReload.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dipl_project.loadRules();
+            }
+        });
         popupClick=new ContextMenu();
         popupSplit=new MenuItem("Rozdělit");
         popupSplit.setDisable(true);
@@ -217,7 +225,7 @@ public class UIControll {
             }
         });
         popupClick.getItems().addAll(popupSplit, popupRemove);
-        root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect, selectedCPs, btnHideAutoFound, checkBoxNewCP);
+        root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect, selectedCPs, btnHideAutoFound, checkBoxNewCP, btnReload);
     }
     public void showPopUp(Point loc, Connect con)
     {
