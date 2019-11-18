@@ -6,8 +6,10 @@
 package dipl_project.UI;
 
 import dipl_project.Dipl_project;
+import dipl_project.Roads.Arrow;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
+import dipl_project.Roads.MyMath;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
@@ -97,7 +99,10 @@ public class UIControll {
                 curve.getEndControll().getControll(),
                 curve.getCurve(), 
                 curve.getEndControll().getLine(), 
-                curve.getStartControll().getLine());
+                curve.getStartControll().getLine(), curve.getStartArrow().getArrow(), curve.getEndArrow().getArrow());
+        for (Arrow arrow : curve.getArows()) {
+            removeComponents(arrow.getArrow());
+        }
     }
     public void removeRoadSegment(RoadSegment rs)
     {
@@ -109,7 +114,12 @@ public class UIControll {
         connects.remove(connect);
         removeComponents(connect.getConnect());
     }
-    private void addComponentsDown(Node...nodes)
+    public void moveComponentUp(Node node)
+    {
+        root.getChildren().remove(node);
+        addComponent(node);
+    }
+    public void addComponentsDown(Node...nodes)
     {
         for (Node node : nodes) {
             root.getChildren().add(0, node);
@@ -164,9 +174,7 @@ public class UIControll {
         btnAdd.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //System.out.println(startSegments.size());
                 Vehicle veh=new Vehicle(getRandomStart());
-                //System.out.println(startSegments.get(0).getRsNext().get(0).getRsNext().get(0).getRsNext().size());
                 
             }
         });
@@ -198,7 +206,7 @@ public class UIControll {
         btnReload.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Dipl_project.loadRules();
+                //Dipl_project.loadRules();
             }
         });
         popupClick=new ContextMenu();

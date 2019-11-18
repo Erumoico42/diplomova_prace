@@ -7,6 +7,8 @@ package dipl_project.Roads;
 
 import java.awt.Point;
 import java.util.List;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -30,7 +32,19 @@ public class Controll {
         line=new Line(connect.getX(), connect.getY(), location.getX(), location.getY());
         line.getStrokeDashArray().addAll(7d, 7d);
         line.setStroke(Color.DODGERBLUE);
-        controll = new Circle(location.getX(), location.getY(), 4, Color.RED);
+        controll = new Circle(location.getX(), location.getY(), 5, Color.RED);
+        controll.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                controll.setRadius(7);
+            }
+        });
+        controll.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                controll.setRadius(5);
+            }
+        });
         
     }
     public void move(double x, double y)

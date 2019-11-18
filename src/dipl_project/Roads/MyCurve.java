@@ -31,6 +31,8 @@ public class MyCurve {
     private CubicCurve curve;
     private Point p0, p1, p2, p3;
     private int id;
+    private Arrow startArrow, endArrow;
+    private List<Arrow> arrows=new ArrayList<>();
     private boolean mainRoad=false;
     private DrawControll dc=Dipl_project.getDC();
     public MyCurve(Connect startConnect, Connect endConnect)
@@ -43,6 +45,8 @@ public class MyCurve {
         p2=new Point();
         p3=endConnect.getLocation();
         
+        
+        
         startControll=new Controll(startConnect, p1, this);
         endControll=new Controll(endConnect, p2, this);
         this.startConnect=startConnect;
@@ -53,8 +57,34 @@ public class MyCurve {
         curve.setFill(null);
         controllHandlers();
         dc.newRoad();
+        startArrow=new Arrow(MyMath.angle(p1, p0), p0.getX(), p0.getY());
+        endArrow=new Arrow(MyMath.angle(p3, p2), p3.getX(), p3.getY());
     }
 
+    public Arrow getEndArrow() {
+        return endArrow;
+    }
+    public Arrow getStartArrow() {
+        return startArrow;
+    }
+
+    public List<Arrow> getArows() {
+        return arrows;
+    }
+
+    public void addArrow(Arrow arrow) {
+        arrows.add(arrow);
+    }
+    public void removeArrow(Arrow arrow) {
+        arrows.remove(arrow);
+        Dipl_project.getUI().removeComponents(arrow.getArrow());
+    }
+    public void removeArrowAt(int i) {
+        Dipl_project.getUI().removeComponents(arrows.get(i).getArrow());
+        arrows.remove(i);
+        
+    }
+    
     public void setStartConnect(Connect startConnect) {
         this.startConnect = startConnect;
     }
@@ -137,6 +167,7 @@ public class MyCurve {
         curve.setControlX1(x);
         curve.setControlY1(y);
         dc.newRoad();
+        startArrow.moveArrow(p0.getX(), p0.getY(), MyMath.angle(p1, p0));
     }
     public void moveEndControll(double x, double y)
     {
@@ -145,6 +176,7 @@ public class MyCurve {
         curve.setControlX2(x);
         curve.setControlY2(y);
         dc.newRoad();
+        endArrow.moveArrow(p3.getX(), p3.getY(), MyMath.angle(p3, p2));
         
     }
     private void autoMoveControlls()
@@ -168,6 +200,7 @@ public class MyCurve {
         curve.setStartX(x);
         curve.setStartY(y);
         dc.newRoad();
+        startArrow.moveArrow(x, y, MyMath.angle(p1, p0));
     }
     public void moveEndConnect(double x, double y)
     {
@@ -175,6 +208,7 @@ public class MyCurve {
         curve.setEndX(x);
         curve.setEndY(y);
         dc.newRoad();
+        endArrow.moveArrow(x, y, MyMath.angle(p3, p2));
     }
     public Controll getStartControll() {
         return startControll;
