@@ -6,6 +6,7 @@
 package dipl_project.Vehicles;
 
 import dipl_project.Dipl_project;
+import dipl_project.Roads.Arrow;
 import dipl_project.Roads.MyMath;
 import dipl_project.Roads.RoadSegment;
 import java.awt.Point;
@@ -35,7 +36,7 @@ public class Vehicle {
     private final ImageView iv;
     private final double MAX_SPEED=0.07, MAX_FORCE=0.0008;
     private double speed=MAX_SPEED, force=MAX_FORCE, time=0;
-    
+    private Arrow arrow;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
@@ -59,8 +60,10 @@ public class Vehicle {
         controlRectangle.setX(x0-width/2);
         controlRectangle.setY(y0-height/2);
         animation.addVehicle(this);
+        arrow = new Arrow(angle, xLast, yLast);
         move(0);
         move(0.01);
+        
     }
     private void generateStreet(RoadSegment start)
     {

@@ -6,6 +6,8 @@
 package dipl_project.Roads;
 
 import java.awt.Point;
+import java.util.Vector;
+import javafx.scene.shape.CubicCurve;
 
 /**
  *
@@ -39,5 +41,23 @@ public class MyMath {
         double y=Math.sin(angle)*length;
         pp.setLocation(x+p1.getX(),y+p1.getY());
         return pp;
+    }
+    public static Point getCurvePointAtT(Point p0, Point p1, Point p2, Point p3, double time)
+    {
+        
+        Point p01=getLinePointAtT(p0, p1, time);
+        Point p11=getLinePointAtT(p1, p2, time);
+        Point p21=getLinePointAtT(p2, p3, time);
+        Point p12=getLinePointAtT(p01, p11, time);
+        Point p22=getLinePointAtT(p11, p21, time);
+        
+        Point pRet=getLinePointAtT(p12, p22, time);
+        return pRet;
+    }
+    public static Point getLinePointAtT(Point p0, Point p1, double time)
+    {
+        Point u= new Point((int)(p1.getX()-p0.getX()), (int)(p1.getY()-p0.getY()));
+        Point pRet=new Point((int)(p0.getX()+(time*u.getX())),(int)(p0.getY()+(time*u.getY())));
+        return pRet;
     }
 }

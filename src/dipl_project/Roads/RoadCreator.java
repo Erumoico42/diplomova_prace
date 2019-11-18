@@ -19,10 +19,11 @@ import javafx.scene.shape.Shape;
  */
 public class RoadCreator {
     private Point pOld, pNew;
-    private final double SEG_LENGTH=30;
+    private final double SEG_LENGTH=30, ARROW_LENGHT_MIN=120;
     private RoadSegment lastRS, newRS;
     private MyCurve actualCurve;
     private boolean newCurve;
+    private double curveLength=0;
     private int curveSegmentsSize=0;
     private List<RoadSegment> startSegments=new ArrayList<>();
     private List<RoadSegment> curveSegments;
@@ -270,6 +271,8 @@ public class RoadCreator {
         int y3=3*((int)p1.getY()-(int)p2.getY())+(int)p3.getY()-y0;
         int xfirst=(int)p0.getX();
         int yfirst=(int)p0.getY();
+        
+        curveLength=0;
         for(float t = 0; t <= 1; t +=0.01) {
             float t2=t*t;
             float t3=t2*t;
@@ -278,6 +281,39 @@ public class RoadCreator {
             line(xfirst, yfirst,x,y);
             xfirst=x;
             yfirst=y;   
+        }
+        setArrows();
+    }
+    private void setArrows()
+    {
+        int countOfArrows=(int)(curveLength/ARROW_LENGHT_MIN);
+        List<Arrow> arrows = actualCurve.getArows();
+        List<RoadSegment> segments = actualCurve.getCurveSegments();
+        if(countOfArrows>0)
+        {
+            for (int i = 1; i <= countOfArrows; i++) {
+                double time=(1/((double)countOfArrows+1))*i;
+                
+                RoadSegment seg = segments.get((int)(segments.size()*time));
+                Point p=MyMath.getLinePointAtT(seg.getP0(),seg.getP3(), 0.4);
+                Point p1=MyMath.getLinePointAtT(seg.getP0(),seg.getP3(), 0.5);
+                double angle=MyMath.angle(p1, p);
+                if(arrows.size()<countOfArrows)
+                {
+                    actualCurve.addArrow(new Arrow(angle, p.getX(), p.getY()));
+                }
+                else
+                {
+                    arrows.get(i-1).moveArrow(p.getX(), p.getY(), angle);
+                }
+                    
+            }
+        }
+        if(arrows.size()>countOfArrows)
+        {
+            for (int i = arrows.size(); i > countOfArrows; i--) {
+                actualCurve.removeArrowAt(i-1);
+            }
         }
     }
     public void line(int xA, int yA, int xB, int yB)
@@ -307,6 +343,7 @@ public class RoadCreator {
                     dxy += dx;
                     y1 +=py;
                 }
+                curveLength++;
                 newSegment(x1, y1);
             }
         }   
