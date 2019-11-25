@@ -8,6 +8,7 @@ package dipl_project;
 import dipl_project.Fuzzy.*;
 import dipl_project.Roads.RoadCreator;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Simulation.SimulationControll;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import dipl_project.Vehicles.Animation;
@@ -26,12 +27,14 @@ public class Dipl_project extends Application {
     private static Animation anim;
     private static RuleBaseReader rbrFollow,rbrCross;
     private static RulesCalculator rcFollow,rcCross;
+    private static SimulationControll sc;
     @Override
     public void start(Stage primaryStage) {
         rc=new RoadCreator();
         ui=new UIControll(primaryStage);
         dc=new DrawControll(ui, rc);
         anim=new Animation();
+        sc=new SimulationControll();
         loadRules();
     }
     public static void loadRules()
@@ -41,6 +44,7 @@ public class Dipl_project extends Application {
         rcFollow=new RulesCalculator(rbrFollow.getOutputVariable(), rbrFollow.getFuzzyRules());
         rbrCross=new RuleBaseReader("Resources/fuzzyRules/rules_cross_v3.rb");
         rcCross=new RulesCalculator(rbrCross.getOutputVariable(), rbrCross.getFuzzyRules());
+        
     }
     public static RulesCalculator getRcFollow() {
         return rcFollow;
@@ -65,6 +69,11 @@ public class Dipl_project extends Application {
     public static RulesCalculator getRcCross() {
         return rcCross;
     }
+
+    public static SimulationControll getSc() {
+        return sc;
+    }
+    
     
     
     /**
