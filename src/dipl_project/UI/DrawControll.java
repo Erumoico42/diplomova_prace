@@ -5,6 +5,7 @@
  */
 package dipl_project.UI;
 
+import dipl_project.Dipl_project;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.RoadCreator;
@@ -17,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 
 /**
  *
@@ -25,7 +27,7 @@ import javafx.scene.input.MouseEvent;
 public  class DrawControll {
     private UIControll ui;
     private RoadCreator rc;
-    private Canvas canvas;
+    private Canvas canvas, backgroundCanvas;
     private Connect actualConnect;
     private MyCurve actualCurve;
     private RoadSegment actualRS;
@@ -37,6 +39,7 @@ public  class DrawControll {
         this.ui=ui;
         this.rc=rc;
         this.canvas=ui.getCanvas();
+        backgroundCanvas=ui.getBackgroundCanvas();
         initHandlers();
     }
     public void newRoad()
@@ -73,9 +76,12 @@ public  class DrawControll {
             public void handle(MouseEvent event) {
                 if(!ui.isPopupShown())
                 {
-                    if(actualConnect!=null)
+                    if(event.getButton()==MouseButton.PRIMARY)
                     {
-                        actualConnect.move(event.getX(), event.getY());
+                        if(actualConnect!=null)
+                        {
+                            actualConnect.move(event.getX(), event.getY());
+                        }
                     }
                 }
                 else
@@ -87,17 +93,47 @@ public  class DrawControll {
             double oldWidth=canvas.getWidth();
             double newWidth=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setWidth(oldWidth+newWidth);
+            backgroundCanvas.setWidth(oldWidth+newWidth);
             ui.updateCPsPosition();
         });
         ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             double oldHeight=canvas.getHeight();
             double newHeight=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setHeight(oldHeight+newHeight);
+            backgroundCanvas.setHeight(oldHeight+newHeight);
             ui.updateCPsPosition();
         });
-                
+        backgroundCanvas.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                BackgroundControll.backgroundClick(event.getX(), event.getY());
+                    
+            }
+        });
+        backgroundCanvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                if(event.getButton()==MouseButton.PRIMARY)
+                {
+                    BackgroundControll.moveBackground(event.getX(), event.getY());
+                }
+                else if(event.getButton()==MouseButton.SECONDARY)
+                {
+                    BackgroundControll.rotateBackground(event.getX(), event.getY());
+                }
+            }
+        });
+        backgroundCanvas.setOnScroll(new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                BackgroundControll.zoomBackground(event.getDeltaY());
+            }
+        });
     }
-
+    public void loadTemp()
+    {
+        BackgroundControll.setBackground(idCurve, idCurve, idCurve, 5, 5, Dipl_project.class.getResource("/gregorova-30dubna.png").toString());
+    }
     private Connect newConnect(double x, double y)
     {
         Connect connect=new Connect(new Point((int)x, (int)y));

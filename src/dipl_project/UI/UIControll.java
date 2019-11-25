@@ -11,6 +11,7 @@ import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.MyMath;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Simulation.SimulationControll;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -25,12 +26,16 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 /**
  *
@@ -40,17 +45,19 @@ public class UIControll {
     private Stage primaryStage;
     private Group root;
     private Scene scene;
-    private boolean popupShown=false, addCP=false;
+    private boolean popupShown=false, addCP=false, runGenerator=false;
     private int initialSizeX=900, initialSizeY=600;
     private ContextMenu popupClick;
     private MenuItem popupSplit, popupRemove;
-    private Canvas canvas;
+    private Canvas canvas, backgroundCanvas;
     private ListView<HBox> selectedCPs;
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
     private List<RoadSegment> startSegments=new ArrayList<>();
     private List<Connect> connects=new ArrayList<>();
-    private CheckBox checkBoxNewCP;
+    private CheckBox checkBoxNewCP, editBackground;;
+    private Button btnRemoveBackhround;
+    private SimulationControll sc = Dipl_project.getSc();;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); 
@@ -122,13 +129,19 @@ public class UIControll {
     public void addComponentsDown(Node...nodes)
     {
         for (Node node : nodes) {
-            root.getChildren().add(0, node);
-        }
-        
+            root.getChildren().add(1, node);
+        }  
+    }
+    public void addBackground(ImageView bg)
+    {
+        root.getChildren().add(0, bg);
+        editBackground.setSelected(true);
+        btnRemoveBackhround.setDisable(false);
+        backgroundCanvas.setVisible(true);
     }
     public void addComponent(Node node)
     {
-        root.getChildren().add(root.getChildren().indexOf(selectedCPs)-1, node);
+        root.getChildren().add(root.getChildren().size()-2, node);
     }
     public void addComponents(Node...nodes)
     {
@@ -167,20 +180,48 @@ public class UIControll {
         selectedCPs.setLayoutY(40);
         selectedCPs.setVisible(false);
         canvas=new Canvas(initialSizeX, initialSizeY);
+        backgroundCanvas=new Canvas(initialSizeX, initialSizeY-100);
+        backgroundCanvas.setLayoutY(100);
+        backgroundCanvas.setVisible(false);
         updateCPsPosition();
-        Button btnAdd=new Button("Přidat");
+        Slider generatorSize=new Slider(1, 150, 10);
+        Button btnAdd=new Button("Spustit");
         btnAdd.setLayoutX(100);
         btnAdd.setLayoutY(10);
+        
         btnAdd.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Vehicle veh=new Vehicle(getRandomStart());
                 
+                if(runGenerator)
+                {
+                    Dipl_project.getSc().stopAnimation();
+                    runGenerator=false;
+                    btnAdd.setText("Spustit");
+                }
+                else
+                {
+                    Dipl_project.getSc().startSimulation();
+                    runGenerator=true;
+                    btnAdd.setText("Zastavit");
+                }
+                    
             }
+        });
+        
+        generatorSize.setLayoutX(35);
+        generatorSize.setLayoutY(50);
+        Label lblGenerSize=new Label("10");
+        lblGenerSize.setLayoutX(10);
+        lblGenerSize.setLayoutY(50);
+        generatorSize.valueProperty().addListener((observable, oldValue, newValue)->{
+            Dipl_project.getSc().changeGenerateSize(newValue.intValue());
+            lblGenerSize.setText(String.valueOf(newValue.intValue()));
         });
         Button btnCheckIntersect=new Button("Zkontrolovat");
         btnCheckIntersect.setLayoutX(10);
         btnCheckIntersect.setLayoutY(10);
+        btnCheckIntersect.setDisable(true);
         btnCheckIntersect.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -201,12 +242,12 @@ public class UIControll {
             }
         });
         Button btnReload=new Button("Reload");
-        btnReload.setLayoutX(400);
+        btnReload.setLayoutX(550);
         btnReload.setLayoutY(10);
         btnReload.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                //Dipl_project.loadRules();
+                Dipl_project.loadRules();
             }
         });
         popupClick=new ContextMenu();
@@ -232,8 +273,42 @@ public class UIControll {
                 Dipl_project.getDC().getActualConnect().removeConnect();
             }
         });
+        editBackground=new CheckBox("Editovat pozadí");
+        editBackground.setLayoutX(320);
+        editBackground.setLayoutY(10);
+        editBackground.setDisable(true);
+        editBackground.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                backgroundCanvas.setVisible(editBackground.isSelected());
+            }
+        });
+        Button btnLoadBackground=new Button("Načíst pozadí");
+         btnLoadBackground.setLayoutX(320);
+         btnLoadBackground.setMinWidth(100);
+        btnLoadBackground.setLayoutY(30);
+        btnLoadBackground.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                BackgroundControll.loadImage();
+            }
+        });
+        btnRemoveBackhround=new Button("X");
+        btnRemoveBackhround.setLayoutX(420);
+        btnRemoveBackhround.setLayoutY(30);
+        btnRemoveBackhround.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                editBackground.setSelected(false);
+                backgroundCanvas.setVisible(false);
+                root.getChildren().remove(0);
+                btnRemoveBackhround.setDisable(true);
+                editBackground.setDisable(true);
+            }
+        });
         popupClick.getItems().addAll(popupSplit, popupRemove);
-        root.getChildren().addAll(canvas, btnAdd, btnCheckIntersect, selectedCPs, btnHideAutoFound, checkBoxNewCP, btnReload);
+        root.getChildren().addAll(canvas, btnAdd, generatorSize,lblGenerSize, btnCheckIntersect,
+                btnHideAutoFound, checkBoxNewCP, editBackground,  btnLoadBackground,btnReload, btnRemoveBackhround, selectedCPs, backgroundCanvas);
     }
     public void showPopUp(Point loc, Connect con)
     {
@@ -288,6 +363,13 @@ public class UIControll {
     {
         return popupShown;
     }
+    public void newVehicle()
+    {
+        RoadSegment rs=getRandomStart();
+        if(rs!=null)
+            new Vehicle(rs);
+        
+    }
     public RoadSegment getRandomStart()
     {
         List<RoadSegment> sstoGen=new ArrayList<>();
@@ -302,7 +384,21 @@ public class UIControll {
             if(ret!=null)
             {
                 if(ret.getVehicle()!=null)
+                {
                     next=true;
+                }
+                else
+                {
+                    for (RoadSegment rs : ret.getRsNext()) {
+                        if(rs.getVehicle()!=null)
+                            next=true;
+                        for (RoadSegment rss : rs.getRsNext()) {
+                            if(rss.getVehicle()!=null)
+                                next=true;
+                        }
+                    }
+                }
+                    
             }
             else
                 next=true;
@@ -319,9 +415,15 @@ public class UIControll {
     public Canvas getCanvas() {
         return canvas;
     }
-
+    public Canvas getBackgroundCanvas() {
+        return backgroundCanvas;
+    }
     public Stage getPrimaryStage() {
         return primaryStage;
+    }
+
+    public CheckBox getEditBackground() {
+        return editBackground;
     }
     
 }

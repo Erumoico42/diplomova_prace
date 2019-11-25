@@ -52,7 +52,7 @@ AntVariable2
  UserTerm
   name=too close
   type=trapezoid
-  parameters= 0 0 0.5 2
+  parameters= 0 0 0.2 2
  End_UserTerm
  UserTerm
   name=close
@@ -74,13 +74,13 @@ End_AntVariable2
 SucVariable1
  name=acceleration
  settings=new
- context=<-7,-2,0,2,7>
+ context=<-7,-2,0,2,6>
  discretization=301
  discretization_left=301
  UserTerm
   name=rapid down
   type=trapezoid
-  parameters= -7 -7 -7 -5.5
+  parameters= -6.5 -6.5 -6.5 -5.5
  End_UserTerm
  UserTerm
   name=zero acc

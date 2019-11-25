@@ -155,7 +155,7 @@ RULES
  "close" "slow" "far" "fast" | "stop"
  "close" "fast" "far" "fast" | "run"
  "far" "too slow" "far" "fast" | "run"
- "far" "slow" "far" "fast" | "stop"
+ "far" "slow" "far" "fast" | "run"
  "far" "fast" "far" "fast" | "stop"
  "too close" "too slow" "too close" "fast" | "run"
  "too close" "slow" "too close" "fast" | "stop"

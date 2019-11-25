@@ -36,15 +36,16 @@ public class RoadSegment {
     private List<RoadSegment> checkPoints=new ArrayList<>();
     private List<RoadSegment> rsNext=new ArrayList<>();
     private List<RoadSegment> rsLast=new ArrayList<>();
+    private List<RoadSegment> rsSameWay=new ArrayList<>();
     private Vehicle vehicle;
     private MyCurve mainCurve;
     private HBox checkPointInfo;
     private Button removeFromCPs;
     private boolean selectedRS=false;
-    private RoadSegment thisSegment;
     private UIControll ui=Dipl_project.getUI();
     private DrawControll dc=Dipl_project.getDC();
     private int id;
+    private double errorDistance=0;
     private Label lblInfo;
     public RoadSegment(Point p0, Point p3) {
         this.p0=p0;
@@ -57,8 +58,6 @@ public class RoadSegment {
                     selectRS();
                 else
                     deselectRS();
-                
-                
             }
         });
         roadSegment.setOnMouseEntered(new EventHandler<MouseEvent>() {
@@ -118,6 +117,10 @@ public class RoadSegment {
     }
     public void selectRS()
     {
+        System.out.println(id+"-"+p3);
+        for (RoadSegment roadSegment1 : rsSameWay) {
+            System.out.println("---"+roadSegment1.getId()+"-"+roadSegment1.getErrorDistance());
+        }
         if(ui.isAddCP())
         {
             if(dc.getActualRS().getCheckPoints().contains(getThisSegment()))
@@ -201,6 +204,14 @@ public class RoadSegment {
     public void setMainCurve(MyCurve mainCurve) {
         this.mainCurve = mainCurve;
     }
+
+    public double getErrorDistance() {
+        return errorDistance;
+    }
+
+    public void setErrorDistance(double errorDistance) {
+        this.errorDistance = errorDistance;
+    }
     
     public void addIntersectedRS(RoadSegment rs)
     {
@@ -257,7 +268,7 @@ public class RoadSegment {
         for (RoadSegment segment : rsNext) {
             segment.getRsLast().remove(this);
         }
-        rsNext.clear();        
+        rsNext.clear();  
     }
     public void removeLast()
     {
@@ -272,6 +283,7 @@ public class RoadSegment {
         Dipl_project.getUI().removeRoadSegment(this);
         removeNext();
         removeLast();
+        clearRsSameWay();
     }
     public void addNextRs(RoadSegment rs)
     {
@@ -316,6 +328,28 @@ public class RoadSegment {
         return p0;
     }
 
+    public List<RoadSegment> getRsSameWay() {
+        return rsSameWay;
+    }
+
+    public void addRsSameWay(RoadSegment rs) {
+        rsSameWay.add(rs);
+    }
+    public void removeRsSameWay(RoadSegment rs)
+    {
+        rsSameWay.remove(rs);
+    }
+    public void clearRsSameWay()
+    {
+        List<RoadSegment> rsHelpRSSW=new ArrayList<>();
+        rsHelpRSSW.addAll(rsSameWay);
+
+        for (RoadSegment rsSW : rsHelpRSSW) {
+            rsSW.removeRsSameWay(getThisSegment());
+        }
+        rsSameWay.clear();
+    }
+    
     public void setP0(Point p0) {
         this.p0 = p0;
         shape.setStartX(p0.getX());
