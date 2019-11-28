@@ -19,7 +19,7 @@ import javafx.scene.shape.Shape;
  */
 public class RoadCreator {
     private Point pOld, pNew;
-    private final double SEG_LENGTH=30, ARROW_LENGHT_MIN=120, COLLISION_DISTANCE=35;
+    private final double SEG_LENGTH=30, ARROW_LENGHT_MIN=120, COLLISION_DISTANCE=30;
     private RoadSegment lastRS, newRS;
     private MyCurve actualCurve;
     private boolean newCurve;

@@ -7,6 +7,7 @@ package dipl_project.UI;
 
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Arrow;
+import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.MyMath;
@@ -334,8 +335,8 @@ public class UIControll {
         () -> {
             selectedCPs.getItems().clear();
             if(rs!=null)
-            for (RoadSegment checkPoint : rs.getCheckPoints()) {
-                addCPToList(checkPoint);
+            for (CheckPoint checkPoint : rs.getCheckPoints()) {
+                addCPToList(checkPoint.getRs());
             }
             
         });
