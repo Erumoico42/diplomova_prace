@@ -153,7 +153,7 @@ public class RoadSegment {
         if(!rsLast.isEmpty() && distanceStart<minMax)
         {
             for (RoadSegment rs : rsToCheck.getRsLast()) {
-                    rs.setRun(distanceStart<distanceEnd);
+                    rs.setRun(false);
                 runSecondary(distanceStart+1, distanceEnd, distanceOld, rs);
             }
         }
@@ -173,6 +173,7 @@ public class RoadSegment {
             RoadSegment actRS=dc.getActualRS();
             CheckPoint cp =actRS.getCPByRS(getThisSegment());
             cp.setDistance(distanceStart);
+            rsToCheck.setRun(true);
             cp.addSecondaryRS(new CheckPoint(rsToCheck, -1));
         }
     }
