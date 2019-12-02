@@ -120,7 +120,7 @@ RULES
  "fast" "far" | "zero acc"
  "equal" "too close" | "down"
  "equal" "close" | "zero acc"
- "equal" "medi" | "up"
+ "equal" "medi" | "zero acc"
  "equal" "far" | "up"
  "slow" "too close" | "zero acc"
  "slow" "close" | "up"
