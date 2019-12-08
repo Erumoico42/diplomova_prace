@@ -57,8 +57,10 @@ public class UIControll {
     private List<RoadSegment> startSegments=new ArrayList<>();
     private List<Connect> connects=new ArrayList<>();
     private CheckBox checkBoxNewCP, editBackground;;
-    private Button btnRemoveBackhround;
+    private Button btnRemoveBackhround, saveEditedCurve;
     private SimulationControll sc = Dipl_project.getSc();;
+    private Slider curveEdit= new Slider(0, 100, 0);
+    private Label lblCurveEdit;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); 
@@ -76,7 +78,22 @@ public class UIControll {
     public List<RoadSegment> getStartSegments() {
         return startSegments;
     }
-
+    public void enableCurveEdit(boolean enable)
+    {
+        curveEdit.setDisable(!enable);
+        lblCurveEdit.setDisable(!enable);
+        saveEditedCurve.setDisable(!enable);
+        if(enable){
+            curveEdit.setValue(0);
+            lblCurveEdit.setText("0");
+        }
+        else if(Dipl_project.getDC().getSelectedCurve()!=null)
+        {
+            Dipl_project.getDC().getSelectedCurve().deselectCurve();
+            Dipl_project.getDC().setSelectedCurve(null);
+        }
+        
+    }
     public void addCurve(MyCurve curve)
     {
         addComponentsDown(curve.getCurve(), curve.getEndControll().getLine(), curve.getStartControll().getLine());
@@ -130,7 +147,7 @@ public class UIControll {
     public void addComponentsDown(Node...nodes)
     {
         for (Node node : nodes) {
-            root.getChildren().add(1, node);
+            root.getChildren().add(2, node);
         }  
     }
     public void addBackground(ImageView bg)
@@ -187,7 +204,7 @@ public class UIControll {
         updateCPsPosition();
         Slider generatorSize=new Slider(1, 150, 10);
         Button btnAdd=new Button("Spustit");
-        btnAdd.setLayoutX(100);
+        btnAdd.setLayoutX(130);
         btnAdd.setLayoutY(10);
         
         btnAdd.setOnAction(new EventHandler<ActionEvent>() {
@@ -243,7 +260,7 @@ public class UIControll {
             }
         });
         Button btnReload=new Button("Reload");
-        btnReload.setLayoutX(550);
+        btnReload.setLayoutX(500);
         btnReload.setLayoutY(10);
         btnReload.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -275,7 +292,7 @@ public class UIControll {
             }
         });
         editBackground=new CheckBox("Editovat pozadí");
-        editBackground.setLayoutX(320);
+        editBackground.setLayoutX(340);
         editBackground.setLayoutY(10);
         editBackground.setDisable(true);
         editBackground.setOnAction(new EventHandler<ActionEvent>() {
@@ -285,7 +302,7 @@ public class UIControll {
             }
         });
         Button btnLoadBackground=new Button("Načíst pozadí");
-         btnLoadBackground.setLayoutX(320);
+         btnLoadBackground.setLayoutX(340);
          btnLoadBackground.setMinWidth(100);
         btnLoadBackground.setLayoutY(30);
         btnLoadBackground.setOnAction(new EventHandler<ActionEvent>() {
@@ -295,7 +312,7 @@ public class UIControll {
             }
         });
         btnRemoveBackhround=new Button("X");
-        btnRemoveBackhround.setLayoutX(420);
+        btnRemoveBackhround.setLayoutX(450);
         btnRemoveBackhround.setLayoutY(30);
         btnRemoveBackhround.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -307,9 +324,33 @@ public class UIControll {
                 editBackground.setDisable(true);
             }
         });
+        
+        curveEdit.setLayoutX(620);
+        curveEdit.setLayoutY(10);
+        lblCurveEdit=new Label("0");
+        lblCurveEdit.setLayoutX(590);
+        lblCurveEdit.setLayoutY(10);
+        curveEdit.valueProperty().addListener((observable, oldValue, newValue)->{
+            //Dipl_project.getSc().changeGenerateSize(newValue.intValue());
+            Dipl_project.getDC().getSelectedCurve().editCurve(newValue.intValue());
+            lblCurveEdit.setText(String.valueOf(newValue.intValue()));
+        });
+        saveEditedCurve=new Button("Uložit");
+        saveEditedCurve.setLayoutX(650);
+        saveEditedCurve.setLayoutY(30);
+        saveEditedCurve.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dipl_project.getDC().getSelectedCurve().deselectCurve();
+                Dipl_project.getDC().setSelectedCurve(null);
+            }
+        });
+        saveEditedCurve.setDisable(true);
+        curveEdit.setDisable(true);
+        saveEditedCurve.setDisable(true);
         popupClick.getItems().addAll(popupSplit, popupRemove);
         root.getChildren().addAll(canvas, btnAdd, generatorSize,lblGenerSize, btnCheckIntersect,
-                btnHideAutoFound, checkBoxNewCP, editBackground,  btnLoadBackground,btnReload, btnRemoveBackhround, selectedCPs, backgroundCanvas);
+                btnHideAutoFound, checkBoxNewCP, editBackground,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, lblCurveEdit, btnRemoveBackhround, selectedCPs, backgroundCanvas);
     }
     public void showPopUp(Point loc, Connect con)
     {
