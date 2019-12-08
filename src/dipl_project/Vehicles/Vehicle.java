@@ -41,7 +41,7 @@ public class Vehicle {
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
-        iv=new ImageView(new Image(Dipl_project.class.getResource("/vehicles/auto-01.png").toString()));
+        iv=new ImageView(new Image(Dipl_project.class.getResource("Resources/vehicles/auto-01.png").toString()));
         iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -234,7 +234,7 @@ public class Vehicle {
         boolean carFoundStreet=findNextCar();
         if(!carFoundStreet)
         {
-            setForce(MAX_FORCE/2);
+            setForce(MAX_FORCE);
         }
         
     }
@@ -268,10 +268,6 @@ public class Vehicle {
                 else if(nextDist<10+minDist && rsNext!=actualSegment)
                 {
                     carFound=findCarCross(rsNext, nextDist+1, actDist, minDist);
-                }
-                if(!carFound)
-                {
-                    setForce(MAX_FORCE/2);
                 }
                     
             }
@@ -338,18 +334,13 @@ public class Vehicle {
                                 {
                                     
                                     for (CheckPoint cp : cps) {
+                                        if(cp.isEnabled())
                                         for (RoadSegment uN : cp.getRs().getRsNext()) {
                                             carFound=findCarCross(uN, 1, actDist+1, cp.getDistance());                        
                                         }
                                     }
                                 }
                             }
-                        }
-                            
-                            
-                        else if(!carFound)
-                        {
-                            setForce(MAX_FORCE/2);
                         }
                     }
                     distMinus=-1;
@@ -364,10 +355,8 @@ public class Vehicle {
         return carFound;
     }
     public void setForce(double force) {
-        if(watch)
-            System.out.println(force);
-        if(force> 0.04 && watch)
-            System.out.println(54/0);
+        if(force>MAX_FORCE)
+            force=MAX_FORCE;
         this.force = force;
     }
     public double getForce()

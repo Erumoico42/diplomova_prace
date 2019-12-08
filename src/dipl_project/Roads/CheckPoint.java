@@ -16,6 +16,7 @@ public class CheckPoint {
     private final RoadSegment rs;
     private int distance=0;
     private List<CheckPoint> secondaryRS=new ArrayList<>();
+    private boolean enabled=true;
     public CheckPoint(RoadSegment rs) {
         this.rs = rs;
     }
@@ -49,6 +50,14 @@ public class CheckPoint {
             srs.getRs().removeSecondaryCheckPointsByRS(rs);
         }
         secondaryRS.clear();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
     
 }

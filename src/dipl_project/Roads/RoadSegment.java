@@ -137,6 +137,7 @@ public class RoadSegment {
                 CheckPoint cp =actRS.getCPByRS(getThisSegment());
                 if(newValue>cp.getDistance()+1)
                     secondaryDistance.getValueFactory().setValue(cp.getDistance());
+                cp.setEnabled(newValue==0);
                 getThisSegment().setRun(true);
                 runSecondary(0, newValue, oldValue, getThisSegment());
                 cp.clearSecondaryRS();
@@ -163,7 +164,9 @@ public class RoadSegment {
         if(!rsLast.isEmpty() && distanceStart<distanceEnd)
         {
             for (RoadSegment rs : rsToCheck.getRsLast()) {
+                rs.setRun(false);
                 findSecondarySegment(distanceStart+1, distanceEnd, rs);
+                
             }
         }
         else
