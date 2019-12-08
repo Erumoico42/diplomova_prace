@@ -74,23 +74,23 @@ End_AntVariable2
 SucVariable1
  name=acceleration
  settings=new
- context=<-7,-2,0,2,6>
+ context=<-6,-2,0,2,6>
  discretization=301
  discretization_left=301
  UserTerm
   name=rapid down
   type=trapezoid
-  parameters= -6.5 -6.5 -6.5 -5.5
+  parameters= -6 -6 -5.4 -4.71
  End_UserTerm
  UserTerm
   name=zero acc
   type=trapezoid
-  parameters= -2.8 -0.7 0.7 2.8
+  parameters= -2.4 -0.6 0.7 2.8
  End_UserTerm
  UserTerm
   name=down
   type=trapezoid
-  parameters= -7 -5.5 -4.2 -2.8
+  parameters= -6 -4.71 -3.6 -2.4
  End_UserTerm
  UserTerm
   name=up
@@ -100,34 +100,34 @@ SucVariable1
  UserTerm
   name=max up
   type=trapezoid
-  parameters= 4.2 5.6 6.3 6.3
+  parameters= 4.2 5.6 6 6
  End_UserTerm
  UserTerm
   name=light down
   type=triang
-  parameters= -4 -2.8 -0.7
+  parameters= -3.43 -2.4 -0.6
  End_UserTerm
 End_SucVariable1
 
 RULES
- "very fast" "too close" | "rapid down"
  "very fast" "close" | "down"
- "very fast" "medi" | "light down"
- "very fast" "far" | "zero acc"
- "fast" "too close" | "down"
  "fast" "close" | "light down"
- "fast" "medi" | "zero acc"
- "fast" "far" | "zero acc"
- "equal" "too close" | "down"
  "equal" "close" | "zero acc"
- "equal" "medi" | "zero acc"
- "equal" "far" | "up"
- "slow" "too close" | "zero acc"
  "slow" "close" | "up"
- "slow" "medi" | "up"
- "slow" "far" | "max up"
- "very slow" "too close" | "up"
  "very slow" "close" | "up"
- "very slow" "medi" | "max up"
+ "very fast" "far" | "zero acc"
+ "fast" "far" | "zero acc"
+ "equal" "far" | "up"
+ "slow" "far" | "max up"
  "very slow" "far" | "max up"
+ "very fast" "medi" | "light down"
+ "fast" "medi" | "zero acc"
+ "equal" "medi" | "zero acc"
+ "slow" "medi" | "up"
+ "very slow" "medi" | "max up"
+ "very fast" "too close" | "rapid down"
+ "fast" "too close" | "down"
+ "equal" "too close" | "down"
+ "slow" "too close" | "zero acc"
+ "very slow" "too close" | "up"
 END_RULES
