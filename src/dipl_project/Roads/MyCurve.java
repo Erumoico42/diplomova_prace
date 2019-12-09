@@ -35,6 +35,7 @@ public class MyCurve {
     private List<Arrow> arrows=new ArrayList<>();
     private boolean mainRoad=false;
     private DrawControll dc=Dipl_project.getDC();
+    private double maxAngleP1, maxAngleP2, dAngleP1, dAngleP2, originalAngleP1, originalAngleP2;
     public MyCurve(Connect startConnect, Connect endConnect)
     {
        
@@ -55,12 +56,66 @@ public class MyCurve {
         curve=new CubicCurve(startConnect.getX(), startConnect.getY(), p1.getX(), p1.getY(), p2.getX(), p2.getY(), endConnect.getX(), endConnect.getY());
         curve.setStroke(Color.BLACK);
         curve.setFill(null);
+        curve.setStrokeWidth(3);
+        curve.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                    selectCurve();
+            }
+        });
+        curve.setOnMouseExited(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                MyCurve selectedCurve=dc.getSelectedCurve();
+                if((selectedCurve!=null && !selectedCurve.equals(getThisCurve())) || selectedCurve==null)
+                    deselectCurve();
+            }
+        });
+        curve.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                MyCurve selectedCurve=dc.getSelectedCurve();
+                if(selectedCurve!=null)
+                {
+                    if(selectedCurve.equals(getThisCurve()))
+                    {
+                        deselectCurve();
+                        dc.setSelectedCurve(null);
+                    }
+                    else
+                    {
+                        selectedCurve.deselectCurve();
+                        dc.setSelectedCurve(getThisCurve());
+                    }
+                    
+                }
+                else{
+                    selectCurve();
+                    dc.setSelectedCurve(getThisCurve());
+                }
+            }
+        });
+        
         controllHandlers();
         dc.newRoad();
         startArrow=new Arrow(MyMath.angle(p1, p0), p0.getX(), p0.getY());
         endArrow=new Arrow(MyMath.angle(p3, p2), p3.getX(), p3.getY());
     }
-
+    public void selectCurve()
+    {
+        curve.setStrokeWidth(5);
+        curve.setStroke(Color.DARKRED);
+        startEditCurve();
+    }
+    public void deselectCurve()
+    {
+         curve.setStrokeWidth(3);
+        curve.setStroke(Color.BLACK);
+    }
+    public MyCurve getThisCurve()
+    {
+        return this;
+    }
     public Arrow getEndArrow() {
         return endArrow;
     }
@@ -108,7 +163,41 @@ public class MyCurve {
     public void setMainRoad(boolean mainRoad) {
         this.mainRoad = mainRoad;
     }
-    
+    private void startEditCurve()
+    {
+        originalAngleP1=MyMath.angle(p0, p1);
+        originalAngleP2=MyMath.angle(p3, p2);
+        System.out.println(".----------");
+        System.out.println(MyMath.angle(p0, p3));
+        System.out.println(MyMath.angle(p3, p0));
+        maxAngleP1=(MyMath.angle(p0, p3)-originalAngleP1);
+        maxAngleP2=(MyMath.angle(p3, p0)-originalAngleP2);
+        System.out.println(maxAngleP1);
+        System.out.println(maxAngleP2);
+        
+        if(maxAngleP1<-Math.PI)
+            maxAngleP1=2*Math.PI+maxAngleP1;
+        else if(maxAngleP1>Math.PI)
+            maxAngleP1=maxAngleP1-2*Math.PI;
+        
+        if(maxAngleP2<-Math.PI)
+            maxAngleP2=2*Math.PI+maxAngleP2;
+        else if(maxAngleP2>Math.PI)
+            maxAngleP2=maxAngleP2-2*Math.PI;
+
+        dAngleP1=maxAngleP1/100;
+        dAngleP2=maxAngleP2/100;
+    }
+    public void editCurve(double percents)
+    {
+        Point newP1=MyMath.rotate(p0, MyMath.length(p0, p1), originalAngleP1+(dAngleP1*percents)+Math.PI);
+        moveStartControll(newP1.getX(), newP1.getY());
+        adaptControlls(startConnect, p1, true);
+        
+        Point newP2=MyMath.rotate(p3, MyMath.length(p3, p2), originalAngleP2+(dAngleP2*percents)+Math.PI);
+        moveEndControll(newP2.getX(), newP2.getY());
+        adaptControlls(endConnect, p2, false);
+    }
     private void controllHandlers()
     {
         startControll.getControll().setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -116,6 +205,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveStartControll(event.getX(),event.getY());
                 adaptControlls(startConnect, p1, true);
+                Dipl_project.getUI().enableCurveEdit(false);
             }
         });
         endControll.getControll().setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -123,6 +213,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveEndControll(event.getX(),event.getY());
                 adaptControlls(endConnect, p2, false);
+                Dipl_project.getUI().enableCurveEdit(false);
             }
         });
     }

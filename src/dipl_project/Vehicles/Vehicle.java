@@ -7,6 +7,7 @@ package dipl_project.Vehicles;
 
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Arrow;
+import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.MyMath;
 import dipl_project.Roads.RoadSegment;
 import java.awt.Point;
@@ -36,15 +37,15 @@ public class Vehicle {
     private final ImageView iv;
     private final double MAX_SPEED=(0.07+(Math.random()*0.03)-0.025), MAX_FORCE=0.0006;
     private double speed=MAX_SPEED/2, force=0.0003, time=0;
-    private Arrow arrow;
+    private boolean watch=false;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
-        iv=new ImageView(new Image(Dipl_project.class.getResource("/vehicles/auto-01.png").toString()));
+        iv=new ImageView(new Image(Dipl_project.class.getResource("Resources/vehicles/auto-01.png").toString()));
         iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(paused)
+                if(watch)
                     play();
                 else
                     pause();
@@ -60,7 +61,6 @@ public class Vehicle {
         controlRectangle.setX(x0-width/2);
         controlRectangle.setY(y0-height/2);
         animation.addVehicle(this);
-        arrow = new Arrow(angle, xLast, yLast);
         move(0);
         move(0.01);
     }
@@ -205,13 +205,15 @@ public class Vehicle {
     }
     private void pause()
     {
-        paused=true;
-        force=-MAX_FORCE;
+        //paused=true;
+        watch=true;
+        //force=-MAX_FORCE;
     }
     private void play()
     {
-        paused=false;
-        force=MAX_FORCE/2;
+        watch=false;
+        //paused=false;
+        //force=MAX_FORCE/2;
     }
 
     public boolean isPaused() {
@@ -237,7 +239,7 @@ public class Vehicle {
         
     }
 
-    private boolean findCarCross(RoadSegment us, int nextDist, double actDist)
+    private boolean findCarCross(RoadSegment us, int nextDist, double actDist, int minDist)
     {
         
         boolean carFound=false;
@@ -250,18 +252,22 @@ public class Vehicle {
                 if(nextVeh!=null && nextVeh!=this)
                 {
                     double dActVeh=actDist-getTime()-1;
-                    double dNextVeh=nextDist-nextVeh.getTime()-1;
-                    carFound=true;
-                    if(fuzzyCrossStop(dNextVeh, nextVeh.getSpeed(), dActVeh, getSpeed()))
+                    if(nextDist<minDist)
+                    {
                         fuzzySpeed(dActVeh, getSpeed());
+                    }
+                    else if(nextDist>minDist)
+                    {
+                        double dNextVeh=nextDist-nextVeh.getTime()-1;
+                        boolean stop=fuzzyCrossStop(dNextVeh, nextVeh.getSpeed(), dActVeh, getSpeed());
+                        if(stop)
+                            fuzzySpeed(dActVeh, getSpeed());
+                    }
+                    carFound=true;
                 }
-                else if(nextDist<10)
+                else if(nextDist<10+minDist && rsNext!=actualSegment)
                 {
-                    carFound=findCarCross(rsNext, nextDist+1, actDist);
-                }
-                else
-                {
-                    setForce(MAX_FORCE);
+                    carFound=findCarCross(rsNext, nextDist+1, actDist, minDist);
                 }
                     
             }
@@ -292,8 +298,9 @@ public class Vehicle {
                 double distMinus=0;
                 double speedMinus=1;
                 rssToCheck.add(rsNext);
-                rssToCheck.addAll(rsNext.getRsSameWay());
-
+                List<RoadSegment> rsSameWay =rsNext.getRsSameWay();
+                if(!rsNext.isRun())
+                    rssToCheck.addAll(rsSameWay);
                 for (RoadSegment rsCheck : rssToCheck) {
                     
                     if(!carFound)
@@ -303,32 +310,40 @@ public class Vehicle {
                             double speedNextCar=rsCheck.getVehicle().getSpeed()*speedMinus;
                             double tNextCar=rsCheck.getVehicle().getTime();
                             double dist=actDist+tNextCar-getTime()+distMinus+rsCheck.getErrorDistance();
-                            if(dist<0.5)
+                            
+                            
+                            if(dist<0.5 || distMinus==-1)
                                 setForce(-MAX_FORCE);
                             fuzzySpeed(dist, getSpeed()-speedNextCar);
-                            carFound=true;
-                        }else if(!rsCheck.getCheckPoints().isEmpty())
+                                carFound=true;
+                            
+                            
+                        }else if(!rsSameWay.contains(rsCheck))
                         {
-                            if(actDist>2 && actDist<6)
-                                fuzzySpeed(actDist-getTime()+1, getSpeed());
-                            else
+                            List<CheckPoint> cps=new ArrayList<>();
+                            cps.addAll(rsCheck.getCheckPoints());
+                            cps.addAll(rsCheck.getSecondaryCheckPoints());
+                            if(!cps.isEmpty())
                             {
-                                for (RoadSegment cp : rsCheck.getCheckPoints()) {
-                                    for (RoadSegment uN : cp.getRsNext()) {
-                                        findCarCross(uN, 1, actDist+1);                        
+
+                                if(actDist>2 && actDist<6)
+                                {
+                                    fuzzySpeed(actDist-getTime()+1, getSpeed());
+                                }  
+                                else
+                                {
+                                    
+                                    for (CheckPoint cp : cps) {
+                                        if(cp.isEnabled())
+                                        for (RoadSegment uN : cp.getRs().getRsNext()) {
+                                            carFound=findCarCross(uN, 1, actDist+1, cp.getDistance());                        
+                                        }
                                     }
                                 }
                             }
-
-                            carFound=true;
-                            break;
-                        }
-                        else if(!carFound)
-                        {
-                            setForce(MAX_FORCE/2);
                         }
                     }
-                    distMinus=0;
+                    distMinus=-1;
                     speedMinus*=0.8;
                 }
                 
@@ -340,6 +355,8 @@ public class Vehicle {
         return carFound;
     }
     public void setForce(double force) {
+        if(force>MAX_FORCE)
+            force=MAX_FORCE;
         this.force = force;
     }
     public double getForce()

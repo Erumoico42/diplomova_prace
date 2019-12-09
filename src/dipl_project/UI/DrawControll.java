@@ -29,7 +29,7 @@ public  class DrawControll {
     private RoadCreator rc;
     private Canvas canvas, backgroundCanvas;
     private Connect actualConnect;
-    private MyCurve actualCurve;
+    private MyCurve actualCurve, selectedCurve;
     private RoadSegment actualRS;
     private List<Connect> connects=new ArrayList<>();
     private List<MyCurve> curves=new ArrayList<>();
@@ -176,6 +176,15 @@ public  class DrawControll {
 
     public void setActualRS(RoadSegment actualRS) {
         this.actualRS = actualRS;
+    }
+
+    public MyCurve getSelectedCurve() {
+        return selectedCurve;
+    }
+
+    public void setSelectedCurve(MyCurve selectedCurve) {
+        this.selectedCurve = selectedCurve;
+        ui.enableCurveEdit(selectedCurve!=null);
     }
     
 }

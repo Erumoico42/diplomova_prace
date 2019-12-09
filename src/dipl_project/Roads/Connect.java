@@ -49,6 +49,7 @@ public class Connect {
             public void handle(MouseEvent event) {
                 move(event.getX(), event.getY());
                 dragged=true;
+                Dipl_project.getUI().enableCurveEdit(false);
             }
         });
         connect.setOnMouseReleased(new EventHandler<MouseEvent>() {
