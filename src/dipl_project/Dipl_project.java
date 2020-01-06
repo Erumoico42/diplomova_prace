@@ -33,6 +33,7 @@ public class Dipl_project extends Application {
         rc=new RoadCreator();
         ui=new UIControll(primaryStage);
         dc=new DrawControll(ui, rc);
+        ui.setDc(dc);
         anim=new Animation();
         sc=new SimulationControll();
         loadRules();
