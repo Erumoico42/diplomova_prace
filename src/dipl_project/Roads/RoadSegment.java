@@ -5,6 +5,7 @@
  */
 package dipl_project.Roads;
 
+import TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
@@ -45,6 +46,7 @@ public class RoadSegment {
     private List<RoadSegment> rsNext=new ArrayList<>();
     private List<RoadSegment> rsLast=new ArrayList<>();
     private List<RoadSegment> rsSameWay=new ArrayList<>();
+    private List<TrafficLight> trafficLights=new ArrayList<>();
     private Vehicle vehicle;
     private MyCurve mainCurve;
     private HBox checkPointInfo;
@@ -223,6 +225,9 @@ public class RoadSegment {
             for (CheckPoint checkPoint : checkPoints) {
                 checkPoint.getRs().setMainRoadSegment();
             }
+            for (TrafficLight trafficLight : trafficLights) {
+                trafficLight.rsSelect();
+            }
         }
                     
             
@@ -246,6 +251,9 @@ public class RoadSegment {
             dc.setActualRS(null);
             for (CheckPoint checkPoint : checkPoints) {
                 checkPoint.getRs().setDefRoadSegment();
+            }
+            for (TrafficLight trafficLight : trafficLights) {
+                trafficLight.deselectTL();
             }
             ui.setAddCP(false);
                     
@@ -295,6 +303,17 @@ public class RoadSegment {
 
     public void setErrorDistance(double errorDistance) {
         this.errorDistance = errorDistance;
+    }
+
+    public List<TrafficLight> getTrafficLights() {
+        return trafficLights;
+    }
+
+    public void addTrafficLight(TrafficLight trafficLight) {
+        trafficLights.add(trafficLight);
+    }
+    public void removeTrafficLight(TrafficLight trafficLight) {
+        trafficLights.remove(trafficLight);
     }
     
     public void addIntersectedRS(RoadSegment rs)

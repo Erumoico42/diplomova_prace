@@ -99,7 +99,7 @@ public class Connect {
                 else if(event.getButton()==MouseButton.SECONDARY)
                 {
                     select();
-                    ui.showPopUp(location, thisConnect);
+                    ui.showPopUp(location);
                 }
             }
         });

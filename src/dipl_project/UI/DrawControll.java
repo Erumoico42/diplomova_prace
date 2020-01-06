@@ -5,6 +5,8 @@
  */
 package dipl_project.UI;
 
+import TrafficLights.TrafficLight;
+import TrafficLights.TrafficLightsConnection;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.Connect;
@@ -19,6 +21,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.shape.Rectangle;
 
 /**
  *
@@ -30,15 +33,21 @@ public  class DrawControll {
     private Canvas canvas, backgroundCanvas;
     private Connect actualConnect;
     private MyCurve actualCurve, selectedCurve;
+    private TrafficLight actualTL;
     private RoadSegment actualRS;
+    private TrafficLightsConnection actualTLConnection;
     private List<Connect> connects=new ArrayList<>();
     private List<MyCurve> curves=new ArrayList<>();
+    private List<TrafficLight> trafficLights=new ArrayList<>();
     private int idCurve=0;
+    private int drawStatus=0;
+    private Rectangle menuBG;
     public DrawControll(UIControll ui, RoadCreator rc)
     {
         this.ui=ui;
         this.rc=rc;
         this.canvas=ui.getCanvas();
+        menuBG=ui.getMenuBG();
         backgroundCanvas=ui.getBackgroundCanvas();
         initHandlers();
     }
@@ -47,6 +56,24 @@ public  class DrawControll {
         rc.createRoad(connects, curves);
         ui.setStartSegments(rc.getStartSegments());
     }
+
+    public TrafficLight getActualTL() {
+        return actualTL;
+    }
+
+    public void setActualTL(TrafficLight actualTL) {
+        this.actualTL = actualTL;
+        ui.enableEditTL(actualTL!=null);
+    }
+    
+    public void setDrawStatus(int drawStatus) {
+        this.drawStatus = drawStatus;
+    }
+
+    public List<TrafficLight> getTrafficLights() {
+        return trafficLights;
+    }
+    
     private void initHandlers()
     {
         canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -56,15 +83,32 @@ public  class DrawControll {
                 {
                     if(event.getButton()==MouseButton.PRIMARY)
                     {
-                        if(actualConnect==null){
-                            actualConnect=newConnect(event.getX(), event.getY());
-                            actualConnect.select();
-                        }
-                        else
+                        switch(drawStatus)
                         {
-                            Connect newConnect=newConnect(event.getX(), event.getY());
-                            newCurve(newConnect);
+                            case 0:
+                            {
+                                if(actualConnect==null){
+                                    actualConnect=newConnect(event.getX(), event.getY());
+                                    actualConnect.select();
+                                }
+                                else
+                                {
+                                    Connect newConnect=newConnect(event.getX(), event.getY());
+                                    newCurve(newConnect);
+                                }
+                                break;
+                            }
+                            case 1:
+                            {
+                                TrafficLight tl=new TrafficLight(event.getX(), event.getY());
+                                trafficLights.add(tl);
+                                tl.enableConnectLights(ui.isEnabledConnectTL());
+                                ui.addComponents(tl.getTlImage(), tl.getCircleRed(), 
+                                        tl.getCircleOrange(), tl.getCircleGreen());
+                                break;
+                            }
                         }
+                        
                     }
                 }else
                     ui.hidePopUp();
@@ -76,13 +120,22 @@ public  class DrawControll {
             public void handle(MouseEvent event) {
                 if(!ui.isPopupShown())
                 {
-                    if(event.getButton()==MouseButton.PRIMARY)
+                    switch(drawStatus)
                     {
-                        if(actualConnect!=null)
+                        case 0:
                         {
-                            actualConnect.move(event.getX(), event.getY());
+                            if(event.getButton()==MouseButton.PRIMARY)
+                            {
+                                if(actualConnect!=null)
+                                {
+                                    actualConnect.move(event.getX(), event.getY());
+                                }
+                            }
+                            break;
                         }
+
                     }
+                    
                 }
                 else
                     ui.hidePopUp();
@@ -93,6 +146,7 @@ public  class DrawControll {
             double oldWidth=canvas.getWidth();
             double newWidth=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setWidth(oldWidth+newWidth);
+            menuBG.setWidth(oldWidth+newWidth);
             backgroundCanvas.setWidth(oldWidth+newWidth);
             ui.updateCPsPosition();
         });
@@ -185,6 +239,19 @@ public  class DrawControll {
     public void setSelectedCurve(MyCurve selectedCurve) {
         this.selectedCurve = selectedCurve;
         ui.enableCurveEdit(selectedCurve!=null);
+    }
+
+    public TrafficLightsConnection getSelectedConnection() {
+        return actualTLConnection;
+    }
+
+    public void setSelectedConnection(TrafficLightsConnection connection) {
+        actualTLConnection=connection;
+        if(connection!=null)
+        {
+            ui.setChangeConnectDelay(connection.getSwitchDelay());
+        }
+        ui.enableChangeConnectDelay(connection!=null);
     }
     
 }

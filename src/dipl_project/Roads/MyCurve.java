@@ -167,13 +167,8 @@ public class MyCurve {
     {
         originalAngleP1=MyMath.angle(p0, p1);
         originalAngleP2=MyMath.angle(p3, p2);
-        System.out.println(".----------");
-        System.out.println(MyMath.angle(p0, p3));
-        System.out.println(MyMath.angle(p3, p0));
         maxAngleP1=(MyMath.angle(p0, p3)-originalAngleP1);
         maxAngleP2=(MyMath.angle(p3, p0)-originalAngleP2);
-        System.out.println(maxAngleP1);
-        System.out.println(maxAngleP2);
         
         if(maxAngleP1<-Math.PI)
             maxAngleP1=2*Math.PI+maxAngleP1;

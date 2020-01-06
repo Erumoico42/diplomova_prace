@@ -5,6 +5,7 @@
  */
 package dipl_project.Vehicles;
 
+import TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Arrow;
 import dipl_project.Roads.CheckPoint;
@@ -251,7 +252,7 @@ public class Vehicle {
                     nextVeh=rsNext.getVehicle();
                 if(nextVeh!=null && nextVeh!=this)
                 {
-                    double dActVeh=actDist-getTime()-1;
+                    double dActVeh=actDist-getTime();
                     if(nextDist<minDist)
                     {
                         fuzzySpeed(dActVeh, getSpeed());
@@ -260,8 +261,10 @@ public class Vehicle {
                     {
                         double dNextVeh=nextDist-nextVeh.getTime()-1;
                         boolean stop=fuzzyCrossStop(dNextVeh, nextVeh.getSpeed(), dActVeh, getSpeed());
+                        if(watch)
+                            System.out.println(dNextVeh+"\t"+nextVeh.getSpeed()+"\t"+ dActVeh+"\t"+getSpeed());
                         if(stop)
-                            fuzzySpeed(dActVeh, getSpeed());
+                            fuzzySpeed(dActVeh-1, getSpeed());
                     }
                     carFound=true;
                 }
@@ -281,7 +284,7 @@ public class Vehicle {
     }
     private boolean fuzzyCrossStop(double distanceB, double speedB, double distanceA, double speedA)
     {
-        double sp=Dipl_project.getRcCross().calculateByValues(Math.round(speedB*10000)/100, distanceB+1, distanceA, Math.round(speedA*10000)/100);
+        double sp=Dipl_project.getRcCross().calculateByValues(distanceB+1, Math.round(speedB*10000)/100,  distanceA, Math.round(speedA*10000)/100);
         if(sp<1)
             return true;
         else
@@ -320,27 +323,50 @@ public class Vehicle {
                             
                         }else if(!rsSameWay.contains(rsCheck))
                         {
-                            List<CheckPoint> cps=new ArrayList<>();
-                            cps.addAll(rsCheck.getCheckPoints());
-                            cps.addAll(rsCheck.getSecondaryCheckPoints());
-                            if(!cps.isEmpty())
-                            {
-
-                                if(actDist>2 && actDist<6)
+                            boolean trafficLightFound=false;
+                            for (TrafficLight trafficLight : rsCheck.getTrafficLights()) {
+                                int status=trafficLight.getStatus();
+                                trafficLightFound=true;
+                                if((status==1 && actDist-time<2) || status==2 || status==3)
                                 {
-                                    fuzzySpeed(actDist-getTime()+1, getSpeed());
-                                }  
-                                else
-                                {
+                                    carFound=true;
+                                    fuzzySpeed(actDist-time, speed);
+                                }
+                                if(status==0)
+                                    setForce(MAX_FORCE);
+                                if(watch)
+                                System.out.println(status);
                                     
-                                    for (CheckPoint cp : cps) {
-                                        if(cp.isEnabled())
-                                        for (RoadSegment uN : cp.getRs().getRsNext()) {
-                                            carFound=findCarCross(uN, 1, actDist+1, cp.getDistance());                        
+                            }
+                            if(trafficLightFound)
+                                actDist=11;
+                            if(!trafficLightFound)
+                            {
+                                if(watch)
+                                    System.out.println("traffic ok");
+                                List<CheckPoint> cps=new ArrayList<>();
+                                cps.addAll(rsCheck.getCheckPoints());
+                                cps.addAll(rsCheck.getSecondaryCheckPoints());
+                                if(!cps.isEmpty())
+                                {
+
+                                    if(actDist>2 && actDist<6)
+                                    {
+                                        fuzzySpeed(actDist-getTime()+1, getSpeed());
+                                    }  
+                                    else
+                                    {
+
+                                        for (CheckPoint cp : cps) {
+                                            if(cp.isEnabled())
+                                            for (RoadSegment uN : cp.getRs().getRsNext()) {
+                                                carFound=findCarCross(uN, 1, actDist+1, cp.getDistance());                        
+                                            }
                                         }
                                     }
                                 }
                             }
+                            
                         }
                     }
                     distMinus=-1;
