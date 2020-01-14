@@ -28,7 +28,7 @@ public class RoadCreator {
     private List<RoadSegment> startSegments=new ArrayList<>();
     private List<RoadSegment> curveSegments;
     private List<MyCurve> curves;
-    private int id=0;
+    private int id=0, idMax=0;
     public RoadCreator() {
     }
     public void createRoad(List<Connect> connects, List<MyCurve> curves)
@@ -80,7 +80,7 @@ public class RoadCreator {
                     
             }
         }
-        
+        setArrows();
         for (Connect connect : connects) {
             List<MyCurve> startCurves=connect.getStartCurves();
             List<MyCurve> endCurves=connect.getEndCurves();  
@@ -192,6 +192,11 @@ public class RoadCreator {
         return startSegments;
     }
 
+    public void setStartSegments(List<RoadSegment> startSegments) {
+        this.startSegments = startSegments;
+    }
+    
+
     private void connectSegments(RoadSegment oldRS, RoadSegment newRS)
     {
         
@@ -219,6 +224,10 @@ public class RoadCreator {
         double distance=MyMath.length(prs1, prs2);
         boolean sameWay= distance<COLLISION_DISTANCE;
         return sameWay;
+    }
+    public void setCurves(List<MyCurve> curves)
+    {
+        this.curves=curves;
     }
     private void swConnect(RoadSegment rs1, RoadSegment rs2)
     {
@@ -330,6 +339,8 @@ public class RoadCreator {
                 newRS.moveSegment(pNew);
                 newRS.clearRsSameWay();
                 newRS.setErrorDistance(0);
+                if(newRS.getId()>idMax)
+                    idMax=newRS.getId()+1;
             }
             else{
                 if(lastRS!=null)
@@ -337,6 +348,8 @@ public class RoadCreator {
                 newRS=new RoadSegment(pOld, pNew);
                 actualCurve.addCurveSegments(newRS);
                 newRS.setMainCurve(actualCurve);
+                newRS.setId(id);
+                
             }
             if(lastRS==null)
             {
@@ -365,7 +378,7 @@ public class RoadCreator {
             for (RoadSegment rs2 : newRS.getRsNext()) {
                 swConnect(newRS, rs2);
             }
-            newRS.setId(id);
+            idMax++;
             id++;
             lastRS=newRS;
             pOld=pNew;
@@ -402,39 +415,43 @@ public class RoadCreator {
             xfirst=x;
             yfirst=y;   
         }
-        setArrows();
+        actualCurve.setCurveLenght(curveLength);
+        
     }
-    private void setArrows()
+    public void setArrows()
     {
-        int countOfArrows=(int)(curveLength/ARROW_LENGHT_MIN);
-        List<Arrow> arrows = actualCurve.getArows();
-        List<RoadSegment> segments = actualCurve.getCurveSegments();
-        if(countOfArrows>0)
-        {
-            for (int i = 1; i <= countOfArrows; i++) {
-                double time=(1/((double)countOfArrows+1))*i;
-                
-                RoadSegment seg = segments.get((int)(segments.size()*time));
-                Point p=MyMath.getLinePointAtT(seg.getP0(),seg.getP3(), 0.4);
-                Point p1=MyMath.getLinePointAtT(seg.getP0(),seg.getP3(), 0.6);
-                double angle=MyMath.angle(p1, p);
-                if(arrows.size()<countOfArrows)
-                {
-                    actualCurve.addArrow(new Arrow(angle, p.getX(), p.getY()));
+        for (MyCurve curve : curves) {
+            int countOfArrows=(int)(curve.getCurveLenght()/ARROW_LENGHT_MIN);
+            List<Arrow> arrows = curve.getArows();
+            List<RoadSegment> segments = curve.getCurveSegments();
+            if(countOfArrows>0)
+            {
+                for (int i = 1; i <= countOfArrows; i++) {
+                    double time=(1/((double)countOfArrows+1))*i;
+
+                    RoadSegment seg = segments.get((int)(segments.size()*time));
+                    Point p=MyMath.getLinePointAtT(seg.getP0(),seg.getP3(), 0.4);
+                    Point p1=MyMath.getLinePointAtT(seg.getP0(),seg.getP3(), 0.6);
+                    double angle=MyMath.angle(p1, p);
+                    if(arrows.size()<countOfArrows)
+                    {
+                        curve.addArrow(new Arrow(angle, p.getX(), p.getY()));
+                    }
+                    else
+                    {
+                        arrows.get(i-1).moveArrow(p.getX(), p.getY(), angle);
+                    }
+
                 }
-                else
-                {
-                    arrows.get(i-1).moveArrow(p.getX(), p.getY(), angle);
+            }
+            if(arrows.size()>countOfArrows)
+            {
+                for (int i = arrows.size(); i > countOfArrows; i--) {
+                    curve.removeArrowAt(i-1);
                 }
-                    
             }
         }
-        if(arrows.size()>countOfArrows)
-        {
-            for (int i = arrows.size(); i > countOfArrows; i--) {
-                actualCurve.removeArrowAt(i-1);
-            }
-        }
+        
     }
     public void line(int xA, int yA, int xB, int yB)
     {       

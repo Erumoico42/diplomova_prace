@@ -26,7 +26,7 @@ public class BackgroundControll {
     private static double resizeRatio;
     private static String bgSource;
     private static ImageView background;
-    
+    private static double width, height;
     private static UIControll ui=Dipl_project.getUI();
     private static Canvas backgroundCanvas=ui.getBackgroundCanvas();
     private static final int RESIZE_VALUE=50, MOVE_VALUE=25;
@@ -40,18 +40,24 @@ public class BackgroundControll {
             bgSource=file.toURI().toString();
             Image image = new Image(bgSource);
             
-            background=new ImageView();
+            if(background==null)
+            {
+                background=new ImageView();
+                ui.addBackground(background);
+            }
+            
             background.setImage(image);
-            background.setFitHeight(image.getHeight());
-            background.setFitWidth(image.getWidth());
+            width=image.getWidth();
+            height=image.getHeight();
+            background.setFitHeight(height);
+            background.setFitWidth(width);
             resizeRatio=image.getWidth()/image.getHeight();
             ui.getEditBackground().setDisable(false);
-            ui.addBackground(background);
+            
             layoutX=-(image.getWidth()-backgroundCanvas.getWidth())/2;
             layoutY=-(image.getHeight()-backgroundCanvas.getHeight())/2;
             background.setLayoutX(layoutX);
             background.setLayoutY(layoutY);
-            
         }
     }
     public static void backgroundClick(double x, double y)
@@ -60,16 +66,25 @@ public class BackgroundControll {
         startY = y-layoutY;
         startAngle = Math.toDegrees(MyMath.angle(backgroundCanvas.getWidth()/2, backgroundCanvas.getHeight()/2, x, y+100))- angle;
     }
-    public static void setBackground(double x, double y, double e,double width, double height, String path)
+    public static void setBackground(double x, double y, double e,double w, double h,double resRatio, String path)
     {
-        Image image = new Image(path);
-        angle=e;
-        background.setRotate(angle);
-        background=new ImageView();
+        bgSource=path;
+        Image image = new Image(bgSource);
+        if(background==null)
+        {
+            background=new ImageView();
+            ui.addBackground(background);
+        }
+        resizeRatio=resRatio;
         background.setImage(image);
-        background.setFitHeight(image.getHeight());
-        background.setFitWidth(image.getWidth());
-        resizeRatio=image.getWidth()/image.getHeight();
+        angle=e;
+        width=w;
+        height=h;
+        layoutX = x;
+        layoutY = y;
+        background.setRotate(angle);
+        background.setFitHeight(height);
+        background.setFitWidth(width);
         background.setLayoutX(x);
         background.setLayoutY(y);
     }
@@ -94,8 +109,10 @@ public class BackgroundControll {
         {
             if(background.getFitHeight()>=100 && background.getFitWidth()>=100)
             {
-                background.setFitHeight(background.getFitHeight()-RESIZE_VALUE);
-                background.setFitWidth(background.getFitWidth()-RESIZE_VALUE*resizeRatio);
+                width=background.getFitWidth()-RESIZE_VALUE*resizeRatio;
+                height=background.getFitHeight()-RESIZE_VALUE;
+                background.setFitHeight(height);
+                background.setFitWidth(width);
                 layoutX=layoutX+MOVE_VALUE*resizeRatio;
                 layoutY=layoutY+MOVE_VALUE;
                 background.setLayoutX(layoutX);
@@ -104,12 +121,47 @@ public class BackgroundControll {
         }
         else
         {
-            background.setFitHeight(background.getFitHeight()+RESIZE_VALUE);
-            background.setFitWidth(background.getFitWidth()+RESIZE_VALUE*resizeRatio);
+            width=background.getFitWidth()+RESIZE_VALUE*resizeRatio;
+                height=background.getFitHeight()+RESIZE_VALUE;
+            background.setFitHeight(height);
+            background.setFitWidth(width);
             layoutX=layoutX-MOVE_VALUE*resizeRatio;
             layoutY=layoutY-MOVE_VALUE;
             background.setLayoutX(layoutX);
             background.setLayoutY(layoutY);
         }
     }
+
+    public static double getResizeRatio() {
+        return resizeRatio;
+    }
+
+    public static String getBgSource() {
+        return bgSource;
+    }
+
+    public static double getLayoutX() {
+        return layoutX;
+    }
+
+    public static double getLayoutY() {
+        return layoutY;
+    }
+
+    public static double getAngle() {
+        return angle;
+    }
+
+    public static double getWidth() {
+        return width;
+    }
+
+    public static double getHeight() {
+        return height;
+    }
+
+    public static void setBackground(ImageView background) {
+        BackgroundControll.background = background;
+    }
+    
 }

@@ -23,6 +23,7 @@ import javafx.scene.shape.Shape;
  * @author Honza
  */
 public class Connect {
+    private final int id;
     private Point location;
     private Circle connect;
     private UIControll ui=Dipl_project.getUI();
@@ -35,13 +36,19 @@ public class Connect {
     private boolean selected=false;
     private boolean dragged=false;
     private DrawControll dc=Dipl_project.getDC();
-    public Connect(Point location)
+    public Connect(Point location, int id)
     {
+        this.id=id;
         connect=new Circle(location.getX(), location.getY(), 7, Color.BLUE);
         thisConnect=this;
         this.location=location;
         initHandler();
     } 
+
+    public int getId() {
+        return id;
+    }
+    
     private void initHandler()
     {
         connect.setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -117,13 +124,13 @@ public class Connect {
             Point endConLoc=endCon.getLocation();
             Point newLoc=MyMath.rotate(endConLoc, 
                     MyMath.length(location, endConLoc)-10, MyMath.angle(location, endConLoc));
-            Connect newCon=new Connect(newLoc);
+            /*Connect newCon=new Connect(newLoc);
             startCurve.setStartConnect(newCon); 
             newCon.addStartCurves(startCurve);
             
             
             newCon.move(newLoc.getX(), newLoc.getY());
-            ui.addConnect(newCon);
+            ui.addConnect(newCon);*/
         }
         
         for (MyCurve endCurve : endCurves) {
@@ -131,7 +138,7 @@ public class Connect {
             Point startConLoc=startCon.getLocation();
             Point newLoc=MyMath.rotate(startConLoc, 
                     MyMath.length(location, startConLoc)-10, MyMath.angle(location, startConLoc));
-            Connect newCon=new Connect(newLoc);
+            /*Connect newCon=new Connect(newLoc);
             endCurve.setEndConnect(newCon);
             newCon.addEndCurves(endCurve);
             
@@ -139,7 +146,7 @@ public class Connect {
             
             
             newCon.move(newLoc.getX(), newLoc.getY());
-            ui.addConnect(newCon);
+            ui.addConnect(newCon);*/
         }
         ui.removeConnect(thisConnect);
         dc.newRoad();
@@ -258,15 +265,37 @@ public class Connect {
         for (MyCurve startCurve : startCurves) {
             connectToConnect.addStartCurves(startCurve);
             startCurve.setStartConnect(connectToConnect);
-            startCurve.adaptControlls(connectToConnect, 
-                    startCurve.getStartControll().getLocation(), true);
         }
         for (MyCurve endCurve : endCurves) {
             connectToConnect.addEndCurves(endCurve);
             endCurve.setEndConnect(connectToConnect);
-            endCurve.adaptControlls(connectToConnect, 
-                    endCurve.getEndControll().getLocation(), false);
         }
+        if(!connectToConnect.getStartCurves().isEmpty())
+        {
+            MyCurve defCurve= connectToConnect.getStartCurves().get(0);
+            
+             for (MyCurve endCurve : connectToConnect.getEndCurves()) {
+                 endCurve.adaptControlls(connectToConnect, 
+                    defCurve.getStartControll().getLocation(), true);
+             }
+             for (MyCurve startCurve : connectToConnect.getStartCurves()) {
+                 startCurve.adaptControlls(connectToConnect, 
+                    defCurve.getStartControll().getLocation(), true);
+             }
+        }else if(!connectToConnect.getEndCurves().isEmpty())
+        {
+            MyCurve defCurve= connectToConnect.getEndCurves().get(0);
+            
+             for (MyCurve endCurve : connectToConnect.getEndCurves()) {
+                 endCurve.adaptControlls(connectToConnect, 
+                    defCurve.getEndControll().getLocation(), false);
+             }
+             for (MyCurve startCurve : connectToConnect.getStartCurves()) {
+                 startCurve.adaptControlls(connectToConnect, 
+                    defCurve.getEndControll().getLocation(), false);
+             }
+        }
+        
         move(connectToConnect.getX(), connectToConnect.getY());
         endCurves.clear();
         startCurves.clear();
@@ -315,12 +344,14 @@ public class Connect {
         return endCurves;
     }
 
-    public void addStartCurves(MyCurve startCurves) {
-        this.startCurves.add(startCurves);
+    public void addStartCurves(MyCurve startCurve) {
+        if(!startCurves.contains(startCurve))
+            this.startCurves.add(startCurve);
     }
 
-    public void addEndCurves(MyCurve endCurves) {
-        this.endCurves.add(endCurves);
+    public void addEndCurves(MyCurve endCurve) {
+        if(!endCurves.contains(endCurve))
+            this.endCurves.add(endCurve);
     }
     
 }

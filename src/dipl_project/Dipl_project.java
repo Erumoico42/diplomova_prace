@@ -7,12 +7,11 @@ package dipl_project;
 
 import dipl_project.Fuzzy.*;
 import dipl_project.Roads.RoadCreator;
-import dipl_project.Roads.RoadSegment;
 import dipl_project.Simulation.SimulationControll;
+import dipl_project.Storage.StorageControll;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import dipl_project.Vehicles.Animation;
-import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -28,6 +27,7 @@ public class Dipl_project extends Application {
     private static RuleBaseReader rbrFollow,rbrCross;
     private static RulesCalculator rcFollow,rcCross;
     private static SimulationControll sc;
+    private static StorageControll stc; 
     @Override
     public void start(Stage primaryStage) {
         rc=new RoadCreator();
@@ -36,6 +36,7 @@ public class Dipl_project extends Application {
         ui.setDc(dc);
         anim=new Animation();
         sc=new SimulationControll();
+        stc=new StorageControll();
         loadRules();
     }
     public static void loadRules()
@@ -54,7 +55,10 @@ public class Dipl_project extends Application {
     {
         return dc;
     }
-
+    public static StorageControll getStc() {
+        return stc;
+    }
+    
     public static RoadCreator getRC() {
         return rc;
     }

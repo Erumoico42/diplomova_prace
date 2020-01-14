@@ -30,6 +30,8 @@ import javafx.scene.shape.Rectangle;
 public  class DrawControll {
     private UIControll ui;
     private RoadCreator rc;
+    
+    private int idLastConnect=0;
     private Canvas canvas, backgroundCanvas;
     private Connect actualConnect;
     private MyCurve actualCurve, selectedCurve;
@@ -39,9 +41,11 @@ public  class DrawControll {
     private List<Connect> connects=new ArrayList<>();
     private List<MyCurve> curves=new ArrayList<>();
     private List<TrafficLight> trafficLights=new ArrayList<>();
-    private int idCurve=0;
+    private int idLastTL=0;
+    private int idLastCurve=0;
     private int drawStatus=0;
     private Rectangle menuBG;
+    private boolean loadingMap=false;
     public DrawControll(UIControll ui, RoadCreator rc)
     {
         this.ui=ui;
@@ -51,10 +55,34 @@ public  class DrawControll {
         backgroundCanvas=ui.getBackgroundCanvas();
         initHandlers();
     }
+
+    public void setIdLastConnect(int idLastConnect) {
+        this.idLastConnect = idLastConnect;
+    }
+
+    public void setIdLastTL(int idLastTL) {
+        this.idLastTL = idLastTL;
+    }
+
+    public void setIdLastCurve(int idLastCurve) {
+        this.idLastCurve = idLastCurve;
+    }
+    
+    public boolean isLoadingMap() {
+        return loadingMap;
+    }
+
+    public void setLoadingMap(boolean loadingMap) {
+        this.loadingMap = loadingMap;
+    }
+    
     public void newRoad()
     {
-        rc.createRoad(connects, curves);
-        ui.setStartSegments(rc.getStartSegments());
+        if(!loadingMap)
+        {
+            rc.createRoad(connects, curves);
+            ui.setStartSegments(rc.getStartSegments());
+        }
     }
 
     public TrafficLight getActualTL() {
@@ -73,7 +101,10 @@ public  class DrawControll {
     public List<TrafficLight> getTrafficLights() {
         return trafficLights;
     }
-    
+    public void addTrafficLight(TrafficLight tl)
+    {
+        trafficLights.add(tl);
+    }
     private void initHandlers()
     {
         canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -100,7 +131,8 @@ public  class DrawControll {
                             }
                             case 1:
                             {
-                                TrafficLight tl=new TrafficLight(event.getX(), event.getY());
+                                TrafficLight tl=new TrafficLight(event.getX(), event.getY(), idLastTL);
+                                idLastTL++;
                                 trafficLights.add(tl);
                                 tl.enableConnectLights(ui.isEnabledConnectTL());
                                 ui.addComponents(tl.getTlImage(), tl.getCircleRed(), 
@@ -184,16 +216,21 @@ public  class DrawControll {
             }
         });
     }
-    public void loadTemp()
-    {
-        BackgroundControll.setBackground(idCurve, idCurve, idCurve, 5, 5, Dipl_project.class.getResource("/gregorova-30dubna.png").toString());
-    }
     private Connect newConnect(double x, double y)
     {
-        Connect connect=new Connect(new Point((int)x, (int)y));
+        Connect connect=new Connect(new Point((int)x, (int)y), idLastConnect);
+        idLastConnect++;
         ui.addConnect(connect);
         connects.add(connect);
         return connect;
+    }
+    public void addConnect(Connect con)
+    {
+        connects.add(con);
+    }
+    public void addCurve(MyCurve curve)
+    {
+        curves.add(curve);
     }
     public void setActualConnect(Connect connect)
     {
@@ -203,10 +240,10 @@ public  class DrawControll {
     {
         if(actualConnect!=null)
         {
-            MyCurve curve=new MyCurve(actualConnect, endConnect);
-            curve.setId(idCurve);
+            MyCurve curve=new MyCurve(actualConnect, endConnect, idLastCurve);
             curves.add(curve);
-            idCurve++;
+            System.out.println(idLastCurve);
+            idLastCurve++;
             ui.addCurve(curve);
             actualCurve=curve;
             actualConnect.deselect();
@@ -215,7 +252,6 @@ public  class DrawControll {
         }
         endConnect.select();
     }
-
     public MyCurve getActualCurve() {
         return actualCurve;
     }
