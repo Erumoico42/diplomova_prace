@@ -31,14 +31,15 @@ public class MyCurve {
     private CubicCurve curve;
     private Point p0, p1, p2, p3;
     private int id;
+    private double curveLenght;
     private Arrow startArrow, endArrow;
     private List<Arrow> arrows=new ArrayList<>();
     private boolean mainRoad=false;
     private DrawControll dc=Dipl_project.getDC();
     private double maxAngleP1, maxAngleP2, dAngleP1, dAngleP2, originalAngleP1, originalAngleP2;
-    public MyCurve(Connect startConnect, Connect endConnect)
+    public MyCurve(Connect startConnect, Connect endConnect, int id)
     {
-       
+       this.id=id;
         startConnect.addStartCurves(this);
         endConnect.addEndCurves(this);;
         p0=startConnect.getLocation();
@@ -146,6 +147,14 @@ public class MyCurve {
 
     public void setEndConnect(Connect endConnect) {
         this.endConnect = endConnect;
+    }
+
+    public double getCurveLenght() {
+        return curveLenght;
+    }
+
+    public void setCurveLenght(double curveLenght) {
+        this.curveLenght = curveLenght;
     }
     
     public int getId() {

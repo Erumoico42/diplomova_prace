@@ -177,9 +177,13 @@ public class UIControll {
     public void addBackground(ImageView bg)
     {
         root.getChildren().add(0, bg);
-        editBackground.setSelected(true);
-        btnRemoveBackhround.setDisable(false);
-        backgroundCanvas.setVisible(true);
+        setEditBackground(true);
+    }
+    public void setEditBackground(boolean edit)
+    {
+        editBackground.setSelected(edit);
+        btnRemoveBackhround.setDisable(!edit);
+        backgroundCanvas.setVisible(edit);
     }
     public void enableEditTL(boolean enable)
     {
@@ -303,6 +307,28 @@ public class UIControll {
             Dipl_project.getSc().changeGenerateSize(newValue.intValue());
             lblGenerSize.setText(String.valueOf(newValue.intValue()));
         });
+        
+        Button btnSave=new Button("Uložit");
+        btnSave.setLayoutX(10);
+        btnSave.setLayoutY(90);
+        btnSave.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dipl_project.getStc().saveFile();
+            }
+        });
+        
+        Button btnLoad=new Button("Otevřít");
+        btnLoad.setLayoutX(120);
+        btnLoad.setLayoutY(90);
+        btnLoad.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dipl_project.getStc().loadFile();
+            }
+        });
+        
+        
         Button btnCheckIntersect=new Button("Zkontrolovat");
         btnCheckIntersect.setLayoutX(10);
         btnCheckIntersect.setLayoutY(10);
@@ -388,6 +414,7 @@ public class UIControll {
                 editBackground.setSelected(false);
                 backgroundCanvas.setVisible(false);
                 root.getChildren().remove(0);
+                BackgroundControll.setBackground(null);
                 btnRemoveBackhround.setDisable(true);
                 editBackground.setDisable(true);
             }
@@ -425,7 +452,7 @@ public class UIControll {
         menuBG.setFill(Color.LIGHTGRAY);
         menuBG.setHeight(130);
         menuBG.setWidth(initialSizeX);
-        root.getChildren().addAll(canvas, menuBG, btnAdd, generatorSize,lblGenerSize, btnCheckIntersect,
+        root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, generatorSize,lblGenerSize, btnCheckIntersect,
                 btnHideAutoFound, checkBoxNewCP, editBackground,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, timeTLGreen, timeTLOrange, timeTLRed,
                 addTrafficLight, connectTrafficLight, delayConnectTL,rbGreen,rbOrange,rbRed, enableSwitchRed, enableSwitchOrange, 
                 enableSwitchGreen,lblCurveEdit, btnRemoveBackhround, selectedCPs, backgroundCanvas);
@@ -521,7 +548,7 @@ public class UIControll {
         rbRed.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                actualTL.setStatus(2);
+                actualTL.setStatus(2, true);
             }
         });
         
@@ -531,7 +558,7 @@ public class UIControll {
         rbOrange.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                actualTL.setStatus(1);
+                actualTL.setStatus(1, true);
             }
         });
         rbGreen=new RadioButton("Zelená");
@@ -541,7 +568,7 @@ public class UIControll {
         rbGreen.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                actualTL.setStatus(0);
+                actualTL.setStatus(0, true);
             }
         });
         
@@ -667,23 +694,23 @@ public class UIControll {
             selectedCPs.getItems().clear();
             if(rs!=null)
             for (CheckPoint checkPoint : rs.getCheckPoints()) {
-                addCPToList(checkPoint.getRs());
+                addCPToList(checkPoint);
             }
             
         });
     }
-    public void removeCPFromList(RoadSegment rs)
+    public void removeCPFromList(CheckPoint cp)
     {
         Platform.runLater(
         () -> {
-            selectedCPs.getItems().remove(rs.getCheckPointInfo());
+            selectedCPs.getItems().remove(cp.getInfo());
         });
     }
-    public void addCPToList(RoadSegment rs)
+    public void addCPToList(CheckPoint cp)
     {
         Platform.runLater(
         () -> {
-            selectedCPs.getItems().add(rs.getCheckPointInfo());
+            selectedCPs.getItems().add(cp.getInfo());
         });
     }
     public void hidePopUp()
@@ -767,4 +794,9 @@ public class UIControll {
     {
         delayConnectTL.setDisable(!enable);
     }
+
+    public List<RoadSegment> getSegments() {
+        return segments;
+    }
+    
 }

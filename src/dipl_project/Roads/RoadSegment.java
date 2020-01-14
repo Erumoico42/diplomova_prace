@@ -50,14 +50,11 @@ public class RoadSegment {
     private Vehicle vehicle;
     private MyCurve mainCurve;
     private HBox checkPointInfo;
-    private Spinner<Integer> secondaryDistance;
-    private Button removeFromCPs;
     private boolean selectedRS=false;
     private UIControll ui=Dipl_project.getUI();
     private DrawControll dc=Dipl_project.getDC();
     private int id;
     private double errorDistance=0;
-    private Label lblInfo;
     private boolean run=false;
     public RoadSegment(Point p0, Point p3) {
         this.p0=p0;
@@ -95,62 +92,8 @@ public class RoadSegment {
             }
         });
         Dipl_project.getUI().addRoadSegment(this);
-        checkPointInfo=new HBox();
-        checkPointInfo.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                shape.setStrokeWidth(13);
-            }
-        });
-        checkPointInfo.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                shape.setStrokeWidth(7);
-            }
-        });
-        removeFromCPs=new Button("X");
-        removeFromCPs.setFont(new Font(8));
-        removeFromCPs.setMinSize(25, 25);
-        removeFromCPs.setMaxSize(25, 25);
-        removeFromCPs.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dc.getActualRS().getCheckPoints().remove(dc.getActualRS().getCPByRS(getThisSegment()));
-                setDefRoadSegment();
-                ui.removeCPFromList(getThisSegment());
-            }
-        });
-        lblInfo=new Label();
-        lblInfo.setLayoutX(5);
-        lblInfo.setLayoutY(10);
-        lblInfo.setMinWidth(25);
-        lblInfo.setMaxWidth(25);
-        
-        IntegerSpinnerValueFactory valueFactory = new IntegerSpinnerValueFactory(0, 20, 0);
-        secondaryDistance=new Spinner<>(valueFactory);
-        secondaryDistance.setMinWidth(65);
-        secondaryDistance.setMaxWidth(65);
-        secondaryDistance.setEditable(false);
-        secondaryDistance.valueProperty().addListener(new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                
-                RoadSegment actRS=dc.getActualRS();
-                CheckPoint cp =actRS.getCPByRS(getThisSegment());
-                if(newValue>cp.getDistance()+1)
-                    secondaryDistance.getValueFactory().setValue(cp.getDistance());
-                cp.setEnabled(newValue==0);
-                getThisSegment().setRun(true);
-                runSecondary(0, newValue, oldValue, getThisSegment());
-                cp.clearSecondaryRS();
-                findSecondarySegment(0, newValue, actRS);
-                
-            }
-        });
-        
-        checkPointInfo.getChildren().addAll(lblInfo,secondaryDistance, removeFromCPs);
     }
-    private void runSecondary(int distanceStart, int distanceEnd, int distanceOld, RoadSegment rsToCheck)
+    public void runSecondary(int distanceStart, int distanceEnd, int distanceOld, RoadSegment rsToCheck)
     {
         int minMax=Math.max(distanceEnd, distanceOld);
         if(!rsLast.isEmpty() && distanceStart<minMax)
@@ -161,7 +104,7 @@ public class RoadSegment {
             }
         }
     }
-    private void findSecondarySegment(int distanceStart, int distanceEnd, RoadSegment rsToCheck)
+    public void findSecondarySegment(int distanceStart, int distanceEnd, RoadSegment rsToCheck)
     {
         if(!rsLast.isEmpty() && distanceStart<distanceEnd)
         {
@@ -173,43 +116,34 @@ public class RoadSegment {
         }
         else
         {
-            CheckPoint cpp = new CheckPoint(getThisSegment(), distanceStart);
-            rsToCheck.addSecondaryCheckPoints(cpp);
             RoadSegment actRS=dc.getActualRS();
+            CheckPoint cpp = new CheckPoint(actRS,getThisSegment(), distanceStart);
+            rsToCheck.addSecondaryCheckPoints(cpp);
+            
             CheckPoint cp =actRS.getCPByRS(getThisSegment());
             cp.setDistance(distanceStart);
             rsToCheck.setRun(true);
-            cp.addSecondaryRS(new CheckPoint(rsToCheck, -1));
+            cp.addSecondaryCP(new CheckPoint(actRS,rsToCheck, -1));
         }
     }
     public void selectRS()
     {
-        /*System.out.println(id+"-"+p3);
-        for (RoadSegment roadSegment1 : rsSameWay) {
-            System.out.println("---"+roadSegment1.getId()+"-"+roadSegment1.getErrorDistance());
-        }*/
-        /*for (CheckPoint checkPoint : checkPoints) {
-            System.out.println("primary\t"+checkPoint.getRs().getId());
-        }
-        
-        for (CheckPoint secondaryCheckPoint : secondaryCheckPoints) {
-            System.out.println("secondary\t"+secondaryCheckPoint.getRs().getId());
-        }*/
         if(ui.isAddCP())
         {
             RoadSegment actRS=dc.getActualRS();
             if(actRS.getCheckPoints().contains(actRS.getCPByRS(getThisSegment())))
             {
-                actRS.getCheckPoints().remove(actRS.getCPByRS(getThisSegment()));
+                CheckPoint remCP=actRS.getCPByRS(getThisSegment());
+                actRS.getCheckPoints().remove(remCP);
                 setDefRoadSegment();
-                ui.removeCPFromList(getThisSegment());
+                ui.removeCPFromList(remCP);
                 
             }else
             {
-
-                actRS.getCheckPoints().add(new CheckPoint(getThisSegment()));
+                CheckPoint newCP=new CheckPoint(actRS,getThisSegment());
+                actRS.getCheckPoints().add(newCP);
                 setMainRoadSegment();
-                ui.addCPToList(getThisSegment());
+                ui.addCPToList(newCP);
                 
             }
         }
@@ -315,7 +249,10 @@ public class RoadSegment {
     public void removeTrafficLight(TrafficLight trafficLight) {
         trafficLights.remove(trafficLight);
     }
-    
+    public void addCheckPoint(CheckPoint cp)
+    {
+        checkPoints.add(cp);
+    }
     public void addIntersectedRS(RoadSegment rs)
     {
         if(!intersectedRoadSegments.contains(rs))
@@ -328,7 +265,7 @@ public class RoadSegment {
             else
             {
                 mainCurve.setMainRoad(false);
-                checkPoints.add(new CheckPoint(rs));
+                checkPoints.add(new CheckPoint(dc.getActualRS(),rs));
                 setSideRoadSegment();
             }
             if(mainCurve.isMainRoad())
@@ -382,7 +319,6 @@ public class RoadSegment {
     }
     public void removeSegment()
     {
-        
         Dipl_project.getUI().removeRoadSegment(this);
         removeNext();
         removeLast();
@@ -399,7 +335,7 @@ public class RoadSegment {
 
     public void setId(int id) {
         this.id = id;
-        lblInfo.setText(" "+id);
+        
     }
     
     public void addLastRs(RoadSegment rs)

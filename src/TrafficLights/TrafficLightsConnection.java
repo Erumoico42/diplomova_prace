@@ -142,6 +142,10 @@ public class TrafficLightsConnection {
         connectCurve.setStrokeWidth(5);
               
     }
+    public int getStartStatus()
+    {
+        return startStatus;
+    }
     public void removeConnection()
     {
         tl.removeConnection(this);
@@ -173,9 +177,8 @@ public class TrafficLightsConnection {
                 timeWait++;
                 if(timeWait>switchDelay)
                 {
-                    tl.setStatus(status);
+                    tl.setStatus(status, false);
                     tl.changeStatusOne();
-                    System.out.println("new status "+status);
                     timer.cancel();
                     timerTask.cancel();
                 }

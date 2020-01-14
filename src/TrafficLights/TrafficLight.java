@@ -34,6 +34,7 @@ import javafx.scene.shape.Shape;
 public class TrafficLight {
     private int status=0;
     private int time=10;
+    private int id;
     private boolean enableSwitchRed=true, enableSwitchGreen=true,enableSwitchOrange=true;
     private int timeToSwitchRed=10, timeToSwitchGreen=10, timeToSwitchOrange=2;
     private Timer timer;
@@ -71,8 +72,9 @@ public class TrafficLight {
     private double redLayout=9.33, orangeLayout=24, greenLayout=39.67;
             
 
-    public TrafficLight(double x, double y) {
+    public TrafficLight(double x, double y, int id) {
         circleRed=new Circle(7,Color.RED);
+        this.id=id;
         circleGreen=new Circle(7, Color.LIGHTGREEN);
         circleOrange=new Circle(7,Color.ORANGE);
         circleRed.setVisible(false);
@@ -83,7 +85,7 @@ public class TrafficLight {
         tlImage.setFitWidth(20);
         tlImage.setFitHeight(50);
         moveTL(x-10, y-25);
-        setStatus(0);
+        setStatus(0, false);
         initHandlers();
         DrawControll dc=Dipl_project.getDC();
         TrafficLight tlAct=dc.getActualTL();
@@ -92,10 +94,12 @@ public class TrafficLight {
         dc.setActualTL(getThis());
         selectTL();
     }
+    
     public TrafficLight getThis()
     {
         return this;
     }
+    
     public void enableConnectLights(boolean enable)
     {
         if(enable)
@@ -115,7 +119,7 @@ public class TrafficLight {
         circleOrange.setVisible(enable);
         circleGreen.setVisible(enable);
     }
-    private void moveCurveToConnect(CubicCurve curve)
+    public void moveCurveToConnect(CubicCurve curve)
     {
         double x1=curve.getStartX();
         double y1=curve.getStartY();
@@ -141,7 +145,7 @@ public class TrafficLight {
             curve.setControlY2(contY);
         }
     }
-    private void newConnection(double x, double y)
+    public void newConnection(double x, double y)
     {
         curveToConnect=new CubicCurve(x, y, x, y, x, y, x, y);
         curveToConnect.setFill(null);
@@ -211,7 +215,6 @@ public class TrafficLight {
         {
             curveToConnect.setEndX(pToConnect.getX());
             curveToConnect.setEndY(pToConnect.getY());
-            System.out.println("connect to "+statusToConnect);
             createConnection(status);
         }
         else
@@ -409,6 +412,31 @@ public class TrafficLight {
     public HBox getTlImage() {
         return tlBox;
     }
+
+    public List<TrafficLightsConnection> getConnectionsRed() {
+        return connectionsRed;
+    }
+
+    public List<TrafficLightsConnection> getConnectionsOrange() {
+        return connectionsOrange;
+    }
+
+    public List<TrafficLightsConnection> getConnectionsGreen() {
+        return connectionsGreen;
+    }
+
+    public List<TrafficLightsConnection> getRevConnectionsRed() {
+        return revConnectionsRed;
+    }
+
+    public List<TrafficLightsConnection> getRevConnectionsOrange() {
+        return revConnectionsOrange;
+    }
+
+    public List<TrafficLightsConnection> getRevConnectionsGreen() {
+        return revConnectionsGreen;
+    }
+    
     public List<TrafficLightsConnection> getAllConnections()
     {
         List<TrafficLightsConnection> connections=new ArrayList<>();
@@ -513,7 +541,11 @@ public class TrafficLight {
             moveCurveToConnect(curve);
         }
     }
-    private void moveTL(double x, double y)
+    public Point getPosition()
+    {
+        return new Point((int)tlBox.getLayoutX(), (int)tlBox.getLayoutY());
+    }
+    public void moveTL(double x, double y)
     {
         
         layoutX=x-distX;
@@ -555,28 +587,36 @@ public class TrafficLight {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(int status, boolean forceTime) {
         this.status = status;
         switch(status)
         {
             case 0:
             {
                 tlImage.setImage(imgGreen);
+                if(forceTime)
+                    time=timeToSwitchGreen;
                 break;
             }
             case 1:
             {
                 tlImage.setImage(imgOrangeToRed);
+                if(forceTime)
+                    time=timeToSwitchOrange;
                 break;
             }
             case 2:
             {
                 tlImage.setImage(imgRed);
+                if(forceTime)
+                    time=timeToSwitchRed;
                 break;
             }
             case 3:
             {
                 tlImage.setImage(imgOrangeToGreen);
+                if(forceTime)
+                    time=timeToSwitchOrange;
                 break;
             }
             
@@ -654,14 +694,14 @@ public class TrafficLight {
                 {
                     //green to orange
                         time=timeToSwitchOrange;
-                        setStatus(1);
+                        setStatus(1, false);
                     break;
                 }
                 case 1:
                 {
                     //orange to red
                     time=timeToSwitchRed;
-                    setStatus(2);
+                    setStatus(2, false);
                     for (TrafficLightsConnection tlc : connectionsRed) {
                         tlc.startSwitch();
                     }
@@ -671,7 +711,7 @@ public class TrafficLight {
                 {
                     //red to orange
                         time=timeToSwitchOrange;
-                        setStatus(3);
+                        setStatus(3, false);
                         
                     
                     
@@ -682,7 +722,7 @@ public class TrafficLight {
                     //orange to green
 
                     time=timeToSwitchGreen;
-                    setStatus(0);
+                    setStatus(0, false);
                     for (TrafficLightsConnection tlc : connectionsGreen) {
                         tlc.startSwitch();
                     }
@@ -700,7 +740,7 @@ public class TrafficLight {
                     if(enableSwitchGreen)
                     {
                         time=timeToSwitchOrange;
-                        setStatus(1);
+                        setStatus(1, false);
                         
                     }
                     
@@ -710,7 +750,7 @@ public class TrafficLight {
                 {
                     //orange to red
                     time=timeToSwitchRed;
-                    setStatus(2);
+                    setStatus(2, false);
                     for (TrafficLightsConnection tlc : connectionsRed) {
                         tlc.startSwitch();
                     }
@@ -722,7 +762,7 @@ public class TrafficLight {
                     if(enableSwitchRed)
                     {
                         time=timeToSwitchOrange;
-                        setStatus(3);
+                        setStatus(3, false);
                         
                     }
                     
@@ -733,7 +773,7 @@ public class TrafficLight {
                     //orange to green
 
                     time=timeToSwitchGreen;
-                    setStatus(0);
+                    setStatus(0, false);
                     for (TrafficLightsConnection tlc : connectionsGreen) {
                         tlc.startSwitch();
                     }
@@ -743,6 +783,18 @@ public class TrafficLight {
     }
     public void setTime(int time) {
         this.time = time;
+    }
+    
+    public void addConnectionsRed(TrafficLightsConnection conn) {
+        connectionsRed.add(conn);
+    }
+
+    public void addConnectionsOrange(TrafficLightsConnection conn) {
+        connectionsOrange.add(conn);
+    }
+
+    public void addConnectionsGreen(TrafficLightsConnection conn) {
+        connectionsGreen.add(conn);
     }
     
     public void addRevConnectionsRed(TrafficLightsConnection conn) {
@@ -791,5 +843,15 @@ public class TrafficLight {
     public void setEnableSwitchOrange(boolean enableSwitchOrange) {
         this.enableSwitchOrange = enableSwitchOrange;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getTime() {
+        return time;
+    }
+    
+    
     
 }
