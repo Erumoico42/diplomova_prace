@@ -33,10 +33,10 @@ import javafx.scene.shape.Shape;
  */
 public class TrafficLight {
     private int status=0;
-    private int time=10;
+    private int time=10, maxTime=10;
     private int id;
     private boolean enableSwitchRed=true, enableSwitchGreen=true,enableSwitchOrange=true;
-    private int timeToSwitchRed=10, timeToSwitchGreen=10, timeToSwitchOrange=2;
+    private int timeToSwitchRed=10, timeToSwitchGreen=10, timeToSwitchOrange=3;
     private Timer timer;
     private TimerTask timerTask;
     private double layoutX, layoutY, startX, startY, distX, distY;
@@ -586,7 +586,7 @@ public class TrafficLight {
     public int getStatus() {
         return status;
     }
-
+    
     public void setStatus(int status, boolean forceTime) {
         this.status = status;
         switch(status)
@@ -595,28 +595,28 @@ public class TrafficLight {
             {
                 tlImage.setImage(imgGreen);
                 if(forceTime)
-                    time=timeToSwitchGreen;
+                    setMaxTime(timeToSwitchGreen);
                 break;
             }
             case 1:
             {
                 tlImage.setImage(imgOrangeToRed);
                 if(forceTime)
-                    time=timeToSwitchOrange;
+                    setMaxTime(timeToSwitchOrange);
                 break;
             }
             case 2:
             {
                 tlImage.setImage(imgRed);
                 if(forceTime)
-                    time=timeToSwitchRed;
+                    setMaxTime(timeToSwitchRed);
                 break;
             }
             case 3:
             {
                 tlImage.setImage(imgOrangeToGreen);
                 if(forceTime)
-                    time=timeToSwitchOrange;
+                    setMaxTime(timeToSwitchOrange);
                 break;
             }
             
@@ -630,7 +630,7 @@ public class TrafficLight {
     public void setTimeToSwitchRed(int timeToSwitchRed) {
         this.timeToSwitchRed = timeToSwitchRed;
         if(status==2)
-            time=timeToSwitchRed;
+            setMaxTime(timeToSwitchRed);
     }
 
     public int getTimeToSwitchGreen() {
@@ -640,7 +640,7 @@ public class TrafficLight {
     public void setTimeToSwitchGreen(int timeToSwitchGreen) {
         this.timeToSwitchGreen = timeToSwitchGreen;
         if(status==0)
-            time=timeToSwitchGreen;
+            setMaxTime(timeToSwitchGreen);
     }
 
     public int getTimeToSwitchOrange() {
@@ -650,7 +650,7 @@ public class TrafficLight {
     public void setTimeToSwitchOrange(int timeToSwitchOrange) {
         this.timeToSwitchOrange = timeToSwitchOrange;
         if(status==1 || status==3)
-            time=timeToSwitchOrange;
+            setMaxTime(timeToSwitchOrange);
     }
 
     public boolean isRun() {
@@ -686,6 +686,11 @@ public class TrafficLight {
             changeStatus();
         }
     }
+    private void setMaxTime(int time)
+    {
+        this.time=time;
+        maxTime=time;
+    }
     public void changeStatusOne()
     {
         switch(status)
@@ -693,14 +698,14 @@ public class TrafficLight {
                 case 0:
                 {
                     //green to orange
-                        time=timeToSwitchOrange;
+                    setMaxTime(timeToSwitchOrange);
                         setStatus(1, false);
                     break;
                 }
                 case 1:
                 {
                     //orange to red
-                    time=timeToSwitchRed;
+                    setMaxTime(timeToSwitchRed);
                     setStatus(2, false);
                     for (TrafficLightsConnection tlc : connectionsRed) {
                         tlc.startSwitch();
@@ -710,7 +715,7 @@ public class TrafficLight {
                 case 2:
                 {
                     //red to orange
-                        time=timeToSwitchOrange;
+                        setMaxTime(timeToSwitchOrange);
                         setStatus(3, false);
                         
                     
@@ -721,7 +726,7 @@ public class TrafficLight {
                 {
                     //orange to green
 
-                    time=timeToSwitchGreen;
+                    setMaxTime(timeToSwitchGreen);
                     setStatus(0, false);
                     for (TrafficLightsConnection tlc : connectionsGreen) {
                         tlc.startSwitch();
@@ -739,7 +744,7 @@ public class TrafficLight {
                     //green to orange
                     if(enableSwitchGreen)
                     {
-                        time=timeToSwitchOrange;
+                        setMaxTime(timeToSwitchOrange);
                         setStatus(1, false);
                         
                     }
@@ -749,7 +754,7 @@ public class TrafficLight {
                 case 1:
                 {
                     //orange to red
-                    time=timeToSwitchRed;
+                    setMaxTime(timeToSwitchRed);
                     setStatus(2, false);
                     for (TrafficLightsConnection tlc : connectionsRed) {
                         tlc.startSwitch();
@@ -761,7 +766,7 @@ public class TrafficLight {
                     //red to orange
                     if(enableSwitchRed)
                     {
-                        time=timeToSwitchOrange;
+                        setMaxTime(timeToSwitchOrange);
                         setStatus(3, false);
                         
                     }
@@ -772,7 +777,7 @@ public class TrafficLight {
                 {
                     //orange to green
 
-                    time=timeToSwitchGreen;
+                    setMaxTime(timeToSwitchGreen);
                     setStatus(0, false);
                     for (TrafficLightsConnection tlc : connectionsGreen) {
                         tlc.startSwitch();
@@ -851,7 +856,10 @@ public class TrafficLight {
     public int getTime() {
         return time;
     }
-    
+    public int getMaxTime()
+    {
+        return maxTime;
+    }
     
     
 }

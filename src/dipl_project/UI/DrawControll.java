@@ -12,6 +12,7 @@ import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.RoadCreator;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Simulation.SimulationControll;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -242,7 +243,6 @@ public  class DrawControll {
         {
             MyCurve curve=new MyCurve(actualConnect, endConnect, idLastCurve);
             curves.add(curve);
-            System.out.println(idLastCurve);
             idLastCurve++;
             ui.addCurve(curve);
             actualCurve=curve;
@@ -289,5 +289,17 @@ public  class DrawControll {
         }
         ui.enableChangeConnectDelay(connection!=null);
     }
-    
+    public void cleanAll()
+    {
+        for (Connect connect : connects) {
+            connect.removeConnect();
+        }
+        List<TrafficLight> tls=new ArrayList<>();
+        tls.addAll(trafficLights);
+        for (TrafficLight trafficLight : tls) {
+            trafficLight.removeTL();
+        }
+        
+        BackgroundControll.removeBG();
+    }
 }

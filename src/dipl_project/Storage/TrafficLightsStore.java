@@ -94,7 +94,7 @@ public class TrafficLightsStore {
                 connStatus.setValue(String.valueOf(connGreen.getStatus()));
                 tlConnGreen.setAttributeNode(connStatus);
                 Attr connStartStatus=doc.createAttribute("connStartStatus");
-                connStartStatus.setValue(String.valueOf(connGreen.getStartStatus()));
+                connStartStatus.setValue(String.valueOf(0));
                 tlConnGreen.setAttributeNode(connStartStatus);
                 Attr idTlRev=doc.createAttribute("idTlRev");
                 idTlRev.setValue(String.valueOf(connGreen.getTl().getId()));
@@ -119,7 +119,7 @@ public class TrafficLightsStore {
                 connStatus.setValue(String.valueOf(connOrange.getStatus()));
                 tlConnOrange.setAttributeNode(connStatus);
                 Attr connStartStatus=doc.createAttribute("connStartStatus");
-                connStartStatus.setValue(String.valueOf(connOrange.getStartStatus()));
+                connStartStatus.setValue(String.valueOf(1));
                 tlConnOrange.setAttributeNode(connStartStatus);
                 Attr idTlRev=doc.createAttribute("idTlRev");
                 idTlRev.setValue(String.valueOf(connOrange.getTl().getId()));
@@ -144,7 +144,7 @@ public class TrafficLightsStore {
                 connStatus.setValue(String.valueOf(connRed.getStatus()));
                 tlConnRed.setAttributeNode(connStatus);
                 Attr connStartStatus=doc.createAttribute("connStartStatus");
-                connStartStatus.setValue(String.valueOf(connRed.getStartStatus()));
+                connStartStatus.setValue(String.valueOf(2));
                 tlConnRed.setAttributeNode(connStartStatus);
                 Attr idTlRev=doc.createAttribute("idTlRev");
                 idTlRev.setValue(String.valueOf(connRed.getTl().getId()));

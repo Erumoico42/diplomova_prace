@@ -10,6 +10,7 @@ import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Roads.WatchPoint;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import java.awt.Point;
@@ -174,6 +175,17 @@ public class StreetStore {
                 rsLast.setAttributeNode(idRsLast);
                 roadSegment.appendChild(rsLast);
             }
+            for (WatchPoint wp : rs.getWatchPoints()) {
+                Element watchPoint=doc.createElement("watchPoint");
+                Attr idWPRS=doc.createAttribute("idWPRS");
+                idWPRS.setValue(String.valueOf(wp.getRs().getId()));
+                watchPoint.setAttributeNode(idWPRS);
+                Attr wpDistance=doc.createAttribute("wpDistance");
+                wpDistance.setValue(String.valueOf(wp.getDistance()));
+                watchPoint.setAttributeNode(wpDistance);
+                
+                roadSegment.appendChild(watchPoint);
+            }
             for (CheckPoint seCP : rs.getSecondaryCheckPoints()) {
                 Element secCP=doc.createElement("secCP");
                 Attr secCPID=doc.createAttribute("secCPID");
@@ -194,6 +206,8 @@ public class StreetStore {
                 
                 roadSegment.appendChild(secCP);
             }
+            
+            
             for (CheckPoint checkPoint : rs.getCheckPoints()) {
                 Element cp=doc.createElement("checkPoint");
                 Attr idCP=doc.createAttribute("idCP");
@@ -260,6 +274,16 @@ public class StreetStore {
                 int idRsLast=Integer.parseInt(rsLast.item(j).getAttributes().getNamedItem("idRsLast").getNodeValue());
                 newRS.addLastRs(segments.get(idRsLast));
             }
+            
+
+            NodeList wps=((Element)roadSegment).getElementsByTagName("watchPoint");
+            for (int j = 0; j < wps.getLength(); j++) {
+                
+                int idWPRS=Integer.parseInt(wps.item(j).getAttributes().getNamedItem("idWPRS").getNodeValue());
+                int wpDistance=Integer.parseInt(wps.item(j).getAttributes().getNamedItem("wpDistance").getNodeValue());
+                WatchPoint newWP=new WatchPoint(segments.get(idRoadSegment), segments.get(idWPRS), wpDistance);
+                segments.get(idRoadSegment).addWP(newWP);
+            }
             NodeList trl=((Element)roadSegment).getElementsByTagName("tl");
             for (int j = 0; j < trl.getLength(); j++) {
                 int idTL=Integer.parseInt(trl.item(j).getAttributes().getNamedItem("idTL").getNodeValue());
@@ -303,7 +327,7 @@ public class StreetStore {
                     newCPP.setId(secCPID);
                     newCP.addSecondaryCP(newCPP);
                 }
-                newRS.addCheckPoint(newCP);
+                newRS.addCP(newCP);
                 newCP.setEnabled(enabled);
             }
             

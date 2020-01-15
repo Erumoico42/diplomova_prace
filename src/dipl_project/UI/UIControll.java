@@ -14,6 +14,7 @@ import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.MyMath;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Roads.WatchPoint;
 import dipl_project.Simulation.SimulationControll;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
@@ -56,7 +57,7 @@ public class UIControll {
     private Stage primaryStage;
     private Group root;
     private Scene scene;
-    private boolean popupShown=false, addCP=false, runGenerator=false;
+    private boolean popupShown=false, addCP=false, runGenerator=false, watchCP=false;
     private int initialSizeX=1200, initialSizeY=800;
     private ContextMenu popupClick, popupTL, popupTLConnection;
     private MenuItem popupSplit, popupRemove, popupRemoveTL, popupRemoveTLConnection;
@@ -72,11 +73,12 @@ public class UIControll {
     private Slider curveEdit= new Slider(0, 100, 0);
     private Label lblCurveEdit;
     private DrawControll dc;
-    private ToggleGroup trafficLightsColorGroup;
-    private RadioButton rbGreen, rbOrange, rbRed;
+    private ToggleGroup trafficLightsColorGroup, priorityGroup;
+    private RadioButton rbGreen, rbOrange, rbRed, priority, watch;
     private Spinner<Integer> timeTLRed, timeTLOrange, timeTLGreen, delayConnectTL;
     private TrafficLight actualTL;
     private Rectangle menuBG;
+    private boolean priorityCP;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); 
@@ -249,10 +251,12 @@ public class UIControll {
         selectedCPs.setMaxSize(125, canvas.getHeight()-45);
         selectedCPs.setLayoutX(canvas.getWidth()-130);
         checkBoxNewCP.setLayoutX(canvas.getWidth()-130);
+        watch.setLayoutX(canvas.getWidth()-130);
+        priority.setLayoutX(canvas.getWidth()-130);
     }
     private void initComponents()
     {
-        checkBoxNewCP=new CheckBox("Přednosti");
+        checkBoxNewCP=new CheckBox("Upravit");
         checkBoxNewCP.setMinSize(125, 50);
         checkBoxNewCP.setMaxSize(125, 50);
         checkBoxNewCP.setVisible(false);
@@ -260,11 +264,46 @@ public class UIControll {
         checkBoxNewCP.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                addCP=checkBoxNewCP.isSelected();
+                priority.setDisable(!checkBoxNewCP.isSelected());
+                watch.setDisable(!checkBoxNewCP.isSelected());
+                addCP=checkBoxNewCP.isSelected();;
+                priorityCP=priority.isSelected();
+                watchCP=watch.isSelected();
             }
         });
+        priorityGroup=new ToggleGroup();
+        priority=new RadioButton("Přednost");
+        priority.setLayoutY(150);
+        priority.setMinSize(100, 50);
+        priority.setMaxSize(100, 50);
+        priority.setSelected(true);
+        priority.setVisible(false);
+        priority.setDisable(true);
+        priority.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                priorityCP=priority.isSelected();
+                watchCP=!priority.isSelected();
+            }
+        });
+        
+        watch=new RadioButton("Volno");
+        watch.setLayoutY(180);
+        watch.setMinSize(100, 50);
+        watch.setMaxSize(100, 50);
+        watch.setVisible(false);
+        watch.setDisable(true);
+        watch.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                priorityCP=!watch.isSelected();
+                watchCP=watch.isSelected();
+                
+            }
+        });
+        priorityGroup.getToggles().addAll(priority, watch);
         selectedCPs=new ListView<HBox>();
-        selectedCPs.setLayoutY(160);
+        selectedCPs.setLayoutY(220);
         selectedCPs.setVisible(false);
         canvas=new Canvas(initialSizeX, initialSizeY);
         backgroundCanvas=new Canvas(initialSizeX, initialSizeY-100);
@@ -282,21 +321,23 @@ public class UIControll {
                 
                 if(runGenerator)
                 {
-                    Dipl_project.getSc().stopAnimation();
-                    Dipl_project.getSc().stopTrafficLights();
+                    Dipl_project.getSc().stopSimulation();
+                    //Dipl_project.getSc().stopTrafficLights();
                     runGenerator=false;
                     btnAdd.setText("Spustit");
                 }
                 else
                 {
                     Dipl_project.getSc().startSimulation();
-                    Dipl_project.getSc().startTrafficLights();
+                    //Dipl_project.getSc().startTrafficLights();
                     runGenerator=true;
                     btnAdd.setText("Zastavit");
                 }
                     
             }
         });
+        
+        
         
         generatorSize.setLayoutX(35);
         generatorSize.setLayoutY(50);
@@ -311,6 +352,7 @@ public class UIControll {
         Button btnSave=new Button("Uložit");
         btnSave.setLayoutX(10);
         btnSave.setLayoutY(90);
+        btnSave.setMinWidth(70);
         btnSave.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -319,15 +361,24 @@ public class UIControll {
         });
         
         Button btnLoad=new Button("Otevřít");
-        btnLoad.setLayoutX(120);
+        btnLoad.setLayoutX(80);
         btnLoad.setLayoutY(90);
+        btnLoad.setMinWidth(70);
         btnLoad.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Dipl_project.getStc().loadFile();
             }
         });
-        
+        Button btnClean=new Button("Nový");
+        btnClean.setLayoutX(150);
+        btnClean.setLayoutY(90);
+        btnClean.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                dc.cleanAll();
+            }
+        });
         
         Button btnCheckIntersect=new Button("Zkontrolovat");
         btnCheckIntersect.setLayoutX(10);
@@ -413,8 +464,8 @@ public class UIControll {
             public void handle(ActionEvent event) {
                 editBackground.setSelected(false);
                 backgroundCanvas.setVisible(false);
-                root.getChildren().remove(0);
-                BackgroundControll.setBackground(null);
+                
+                BackgroundControll.removeBG();
                 btnRemoveBackhround.setDisable(true);
                 editBackground.setDisable(true);
             }
@@ -452,8 +503,8 @@ public class UIControll {
         menuBG.setFill(Color.LIGHTGRAY);
         menuBG.setHeight(130);
         menuBG.setWidth(initialSizeX);
-        root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, generatorSize,lblGenerSize, btnCheckIntersect,
-                btnHideAutoFound, checkBoxNewCP, editBackground,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, timeTLGreen, timeTLOrange, timeTLRed,
+        root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, btnClean, generatorSize,lblGenerSize, btnCheckIntersect,
+                btnHideAutoFound, checkBoxNewCP, watch, priority, editBackground,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, timeTLGreen, timeTLOrange, timeTLRed,
                 addTrafficLight, connectTrafficLight, delayConnectTL,rbGreen,rbOrange,rbRed, enableSwitchRed, enableSwitchOrange, 
                 enableSwitchGreen,lblCurveEdit, btnRemoveBackhround, selectedCPs, backgroundCanvas);
     }
@@ -558,7 +609,7 @@ public class UIControll {
         rbOrange.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                actualTL.setStatus(1, true);
+                actualTL.setStatus(3, true);
             }
         });
         rbGreen=new RadioButton("Zelená");
@@ -674,13 +725,31 @@ public class UIControll {
         popupShown=true;
         popupTLConnection.show(root, primaryStage.getX()+loc.getX()+9, primaryStage.getY()+loc.getY()+30);
     }
-    
     public void setAddCP(boolean add)
     {
-        checkBoxNewCP.setSelected(add);
+        checkBoxNewCP.setSelected(false);
+        checkBoxNewCP.setDisable(add);
+        watch.setDisable(!add);
+        priority.setDisable(!add);
         addCP=add;
     }
     public boolean isAddCP()
+    {
+        return addCP;
+    }
+    public void setSetPriority(boolean priority)
+    {
+        priorityCP=priority;
+    }
+    public boolean isSetPriority()
+    {
+        return priorityCP;
+    }
+    public void setSetWatch(boolean watch)
+    {
+        watchCP=watch;
+    }
+    public boolean isSetWatch()
     {
         return addCP;
     }
@@ -688,14 +757,21 @@ public class UIControll {
     {
         selectedCPs.setVisible(show);
         checkBoxNewCP.setVisible(show);
-        
+        watch.setVisible(show);
+        priority.setVisible(show);
         Platform.runLater(
         () -> {
             selectedCPs.getItems().clear();
             if(rs!=null)
-            for (CheckPoint checkPoint : rs.getCheckPoints()) {
+            {
+                for (CheckPoint checkPoint : rs.getCheckPoints()) {
                 addCPToList(checkPoint);
             }
+                for (WatchPoint watchPoint : rs.getWatchPoints()) {
+                    addWPToList(watchPoint);
+                }
+            }
+            
             
         });
     }
@@ -706,11 +782,26 @@ public class UIControll {
             selectedCPs.getItems().remove(cp.getInfo());
         });
     }
+    
     public void addCPToList(CheckPoint cp)
     {
         Platform.runLater(
         () -> {
             selectedCPs.getItems().add(cp.getInfo());
+        });
+    }
+    public void removeWPFromList(WatchPoint wp)
+    {
+        Platform.runLater(
+        () -> {
+            selectedCPs.getItems().remove(wp.getInfo());
+        });
+    }
+    public void addWPToList(WatchPoint wp)
+    {
+        Platform.runLater(
+        () -> {
+            selectedCPs.getItems().add(wp.getInfo());
         });
     }
     public void hidePopUp()

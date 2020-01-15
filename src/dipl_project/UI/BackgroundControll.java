@@ -60,6 +60,11 @@ public class BackgroundControll {
             background.setLayoutY(layoutY);
         }
     }
+    public static void removeBG()
+    {
+        Dipl_project.getUI().removeComponents(background);
+                BackgroundControll.setBackground(null);
+    }
     public static void backgroundClick(double x, double y)
     {
         startX = x-layoutX;

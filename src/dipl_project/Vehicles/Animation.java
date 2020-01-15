@@ -62,4 +62,12 @@ public class Animation {
             vehicles.get(i).tick();
         }
     }
+    public void cleanVehicles()
+    {
+        List<Vehicle> vehs=new ArrayList<>();
+        vehs.addAll(vehicles);
+        for (Vehicle vehicle : vehs) {
+            vehicle.removeCar();
+        }
+    }
 }
