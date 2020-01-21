@@ -18,6 +18,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.shape.StrokeType;
 
 /**
  *
@@ -30,6 +31,7 @@ public class MyCurve {
     private RoadSegment firstRS, lastRS;
     private CubicCurve curve;
     private Point p0, p1, p2, p3;
+    private Point p0orig, p1orig, p2orig, p3orig;
     private int id;
     private double curveLenght;
     private Arrow startArrow, endArrow;
@@ -42,10 +44,10 @@ public class MyCurve {
        this.id=id;
         startConnect.addStartCurves(this);
         endConnect.addEndCurves(this);;
-        p0=startConnect.getLocation();
+        p0=new Point(startConnect.getLocation());
         p1=new Point();
         p2=new Point();
-        p3=endConnect.getLocation();
+        p3=new Point(endConnect.getLocation());
         
         
         
@@ -285,9 +287,31 @@ public class MyCurve {
         double x2=(x0+(x3-x0)*2/3);
         double y2=(y0+(y3-y0)*2/3);
         startControll.move(x1, y1);
+        p1.setLocation(x1, y1);
         adaptControllToCurve(startConnect, startControll, true);
         endControll.move(x2, y2);
         
+    }
+    public void moveCurve(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3)
+    {
+        p0.setLocation(x0, y0);
+        curve.setStartX(x0);
+        curve.setStartY(y0);
+        
+        p1.setLocation(x1, y1);
+        curve.setControlX1(x1);
+        curve.setControlY1(y1);
+        
+        p2.setLocation(x2, y2);
+        curve.setControlX2(x2);
+        curve.setControlY2(y2);
+        
+        p3.setLocation(x3, y3);
+        curve.setEndX(x3);
+        curve.setEndY(y3);
+        startArrow.moveArrow(x0, y0, MyMath.angle(p1, p0));
+        endArrow.moveArrow(x3, y3, MyMath.angle(p3, p2));
+        Dipl_project.getRC().setArrows();
     }
     public void moveStartConnect(double x, double y)
     {
@@ -376,6 +400,54 @@ public class MyCurve {
 
     public void setLastRS(RoadSegment lastRS) {
         this.lastRS = lastRS;
+    }
+
+    public Point getP0orig() {
+        return p0orig;
+    }
+
+    public void setP0orig(Point p0orig) {
+        this.p0orig = p0orig;
+    }
+
+    public Point getP1orig() {
+        return p1orig;
+    }
+
+    public void setP1orig(Point p1orig) {
+        this.p1orig = p1orig;
+    }
+
+    public Point getP2orig() {
+        return p2orig;
+    }
+
+    public void setP2orig(Point p2orig) {
+        this.p2orig = p2orig;
+    }
+
+    public Point getP3orig() {
+        return p3orig;
+    }
+
+    public void setP3orig(Point p3orig) {
+        this.p3orig = p3orig;
+    }
+
+    public Point getP0() {
+        return p0;
+    }
+
+    public Point getP1() {
+        return p1;
+    }
+
+    public Point getP2() {
+        return p2;
+    }
+
+    public Point getP3() {
+        return p3;
     }
     
     

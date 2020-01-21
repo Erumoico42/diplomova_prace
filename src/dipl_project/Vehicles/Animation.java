@@ -20,6 +20,7 @@ public class Animation {
     private List<Vehicle> vehicles=new ArrayList<>();
     private TimerTask timerTask;
     private Timer timer;
+    private double zoomRatio=1;
     public Animation()
     {
         animationTimer();
@@ -33,6 +34,7 @@ public class Animation {
     {
         Platform.runLater(() -> {
             vehicles.add(vehicle);
+            vehicle.changeValues(zoomRatio);
             Dipl_project.getUI().addComponent(vehicle.getIV());
         });
     }
@@ -68,6 +70,19 @@ public class Animation {
         vehs.addAll(vehicles);
         for (Vehicle vehicle : vehs) {
             vehicle.removeCar();
+        }
+    }
+    public void setZoomRatio(double zoomRatio)
+    {
+        this.zoomRatio=zoomRatio;
+    }
+    public void changeZoomRatio(double zoomRatio)
+    {
+        
+        for (Vehicle vehicle : vehicles) {
+            Platform.runLater(() -> {
+                vehicle.changeValues(zoomRatio);
+            });
         }
     }
 }

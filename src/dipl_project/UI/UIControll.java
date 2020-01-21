@@ -16,6 +16,7 @@ import dipl_project.Roads.MyMath;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
 import dipl_project.Simulation.SimulationControll;
+import dipl_project.Vehicles.Animation;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -58,10 +59,10 @@ public class UIControll {
     private Group root;
     private Scene scene;
     private boolean popupShown=false, addCP=false, runGenerator=false, watchCP=false;
-    private int initialSizeX=1200, initialSizeY=800;
+    private int initialSizeX=1200, initialSizeY=800, moveStatus=0;
     private ContextMenu popupClick, popupTL, popupTLConnection;
     private MenuItem popupSplit, popupRemove, popupRemoveTL, popupRemoveTLConnection;
-    private Canvas canvas, backgroundCanvas;
+    private Canvas canvas, moveCanvas;
     private ListView<HBox> selectedCPs;
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
@@ -79,6 +80,7 @@ public class UIControll {
     private TrafficLight actualTL;
     private Rectangle menuBG;
     private boolean priorityCP;
+    private CheckBox editConcept;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); 
@@ -87,6 +89,18 @@ public class UIControll {
         primaryStage.setTitle("Diplomová práce");
         primaryStage.setScene(scene);
         primaryStage.show();
+        initStageHandler();
+    }
+    private void initStageHandler()
+    {
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                Dipl_project.getAnim().stopAnimation();
+                Dipl_project.getSc().stopSimulation();
+                Dipl_project.getSc().stopTrafficLights();
+            }
+        });
     }
 
     public Rectangle getMenuBG() {
@@ -145,7 +159,7 @@ public class UIControll {
     }
     public void removeCurve(MyCurve curve)
     {
-        curves.remove(curve);
+        
         removeComponents(curve.getStartControll().getControll(),
                 curve.getEndControll().getControll(),
                 curve.getCurve(), 
@@ -154,6 +168,7 @@ public class UIControll {
         for (Arrow arrow : curve.getArows()) {
             removeComponents(arrow.getArrow());
         }
+        curves.remove(curve);
     }
     public void removeRoadSegment(RoadSegment rs)
     {
@@ -185,7 +200,7 @@ public class UIControll {
     {
         editBackground.setSelected(edit);
         btnRemoveBackhround.setDisable(!edit);
-        backgroundCanvas.setVisible(edit);
+        moveCanvas.setVisible(edit);
     }
     public void enableEditTL(boolean enable)
     {
@@ -229,7 +244,7 @@ public class UIControll {
     }
     public void addComponent(Node node)
     {
-        root.getChildren().add(root.getChildren().size()-2, node);
+        root.getChildren().add(root.getChildren().indexOf(menuBG), node);
     }
     public void addComponents(Node...nodes)
     {
@@ -306,9 +321,9 @@ public class UIControll {
         selectedCPs.setLayoutY(220);
         selectedCPs.setVisible(false);
         canvas=new Canvas(initialSizeX, initialSizeY);
-        backgroundCanvas=new Canvas(initialSizeX, initialSizeY-100);
-        backgroundCanvas.setLayoutY(100);
-        backgroundCanvas.setVisible(false);
+        moveCanvas=new Canvas(initialSizeX, initialSizeY-130);
+        moveCanvas.setLayoutY(130);
+        moveCanvas.setVisible(false);
         updateCPsPosition();
         Slider generatorSize=new Slider(1, 150, 10);
         Button btnAdd=new Button("Spustit");
@@ -322,14 +337,14 @@ public class UIControll {
                 if(runGenerator)
                 {
                     Dipl_project.getSc().stopSimulation();
-                    //Dipl_project.getSc().stopTrafficLights();
+                    Dipl_project.getSc().stopTrafficLights();
                     runGenerator=false;
                     btnAdd.setText("Spustit");
                 }
                 else
                 {
                     Dipl_project.getSc().startSimulation();
-                    //Dipl_project.getSc().startTrafficLights();
+                    Dipl_project.getSc().startTrafficLights();
                     runGenerator=true;
                     btnAdd.setText("Zastavit");
                 }
@@ -377,6 +392,7 @@ public class UIControll {
             @Override
             public void handle(ActionEvent event) {
                 dc.cleanAll();
+                EditationControll.setDefRatio();
             }
         });
         
@@ -443,9 +459,23 @@ public class UIControll {
         editBackground.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                backgroundCanvas.setVisible(editBackground.isSelected());
+                moveStatus=1;
+                moveCanvas.setVisible(editBackground.isSelected());
+                editConcept.setSelected(false);
             }
         });
+        editConcept=new CheckBox("Editovat návrh");
+        editConcept.setLayoutX(220);
+        editConcept.setLayoutY(95);
+        editConcept.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                moveStatus=2;
+                editBackground.setSelected(false);
+                moveCanvas.setVisible(editConcept.isSelected());
+            }
+        });
+        
         Button btnLoadBackground=new Button("Načíst pozadí");
          btnLoadBackground.setLayoutX(220);
          btnLoadBackground.setMinWidth(100);
@@ -463,7 +493,7 @@ public class UIControll {
             @Override
             public void handle(ActionEvent event) {
                 editBackground.setSelected(false);
-                backgroundCanvas.setVisible(false);
+                moveCanvas.setVisible(false);
                 
                 BackgroundControll.removeBG();
                 btnRemoveBackhround.setDisable(true);
@@ -504,9 +534,9 @@ public class UIControll {
         menuBG.setHeight(130);
         menuBG.setWidth(initialSizeX);
         root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, btnClean, generatorSize,lblGenerSize, btnCheckIntersect,
-                btnHideAutoFound, checkBoxNewCP, watch, priority, editBackground,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, timeTLGreen, timeTLOrange, timeTLRed,
+                btnHideAutoFound, checkBoxNewCP, watch, priority, editBackground, editConcept,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, timeTLGreen, timeTLOrange, timeTLRed,
                 addTrafficLight, connectTrafficLight, delayConnectTL,rbGreen,rbOrange,rbRed, enableSwitchRed, enableSwitchOrange, 
-                enableSwitchGreen,lblCurveEdit, btnRemoveBackhround, selectedCPs, backgroundCanvas);
+                enableSwitchGreen,lblCurveEdit, btnRemoveBackhround, selectedCPs, moveCanvas);
     }
     private void initTrafficLights()
     {
@@ -720,6 +750,11 @@ public class UIControll {
         popupShown=true;
         popupTL.show(root, primaryStage.getX()+loc.getX()+9, primaryStage.getY()+loc.getY()+30);
     }
+
+    public int getMoveStatus() {
+        return moveStatus;
+    }
+    
     public void showPopUpTLConnection(Point loc)
     {
         popupShown=true;
@@ -733,6 +768,15 @@ public class UIControll {
         priority.setDisable(!add);
         addCP=add;
     }
+
+    public void setMoveStatus(int moveStatus) {
+        this.moveStatus = moveStatus;
+    }
+
+    public CheckBox getEditConcept() {
+        return editConcept;
+    }
+    
     public boolean isAddCP()
     {
         return addCP;
@@ -867,8 +911,8 @@ public class UIControll {
     public Canvas getCanvas() {
         return canvas;
     }
-    public Canvas getBackgroundCanvas() {
-        return backgroundCanvas;
+    public Canvas getMoveCanvas() {
+        return moveCanvas;
     }
     public Stage getPrimaryStage() {
         return primaryStage;

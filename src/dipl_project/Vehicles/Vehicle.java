@@ -34,11 +34,11 @@ public class Vehicle {
     private double x0, y0, x1, y1, x2, y2, x3, y3, xLast, yLast, angle;
     private Animation animation;
     private Rectangle controlRectangle;
-    private int width=34, height=14;
+    private int width=34, height=14, vehWidth=40, vehHeight=40;
     private boolean paused=false;
     private final ImageView iv;
-    private final double MAX_SPEED=(0.07+(Math.random()*0.03)-0.025), MAX_FORCE=0.0006;
-    private double speed=MAX_SPEED/2, force=0.0003, time=0;
+    private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
+    private double speed=maxSpeed/2, force=0.0003, time=0, breakRatio=1;
     private boolean watch=false;
     private int watchCount=0, freeCount=0;
     private RoadSegment rsLastWatch;
@@ -127,6 +127,18 @@ public class Vehicle {
             removeCar();  
         }
     }
+    
+    public void changeValues(double zoomRatio)
+    {
+        vehWidth*=zoomRatio;
+        vehHeight*=zoomRatio;
+        iv.setFitWidth(vehWidth);
+        iv.setFitHeight(vehHeight);
+        width*=zoomRatio;
+        height*=zoomRatio;
+        controlRectangle.setArcWidth(width);
+        controlRectangle.setArcHeight(height);
+    }
     public void removeCar()
     {
         animation.removeVehicle(this);
@@ -184,8 +196,8 @@ public class Vehicle {
         xLast=x;
         yLast=y;
         
-        iv.setX(x-20);
-        iv.setY(y-20); 
+        iv.setX(x-vehWidth/2);
+        iv.setY(y-vehHeight/2); 
         controlRectangle.setX(x-width/2);
         controlRectangle.setY(y-height/2);
     }
@@ -194,9 +206,9 @@ public class Vehicle {
         time+=speed;
         move(time);
         updateSpeed(force);
-        if(speed>MAX_SPEED){
+        if(speed>maxSpeed){
            force=0;
-           speed=MAX_SPEED;
+           speed=maxSpeed;
         }
         if(time>=1){
             time-=1;
@@ -215,13 +227,13 @@ public class Vehicle {
     {
         paused=true;
         watch=true;
-        force=-MAX_FORCE;
+        force=-maxForce;
     }
     private void play()
     {
        watch=false;
         paused=false;
-        force=MAX_FORCE/2;
+        force=maxForce/2;
     }
 
     public boolean isPaused() {
@@ -242,7 +254,7 @@ public class Vehicle {
         boolean carFoundStreet=findNextCar();
         if(!carFoundStreet)
         {
-            setForce(MAX_FORCE);
+            setForce(maxForce);
         }
         
     }
@@ -321,7 +333,7 @@ public class Vehicle {
                             
                             
                             if(dist<0.5 || distMinus==-1)
-                                setForce(-MAX_FORCE);
+                                setForce(-maxForce);
                             fuzzySpeed(dist, getSpeed()-speedNextCar);
                                 carFound=true;
                             
@@ -341,7 +353,7 @@ public class Vehicle {
                                 }
                                 if(status==0  || (status==1  && tlMaxTime-tlTime<1))
                                 {
-                                    setForce(MAX_FORCE);
+                                    setForce(maxForce);
                                 }
                                     
                                   
@@ -451,8 +463,9 @@ public class Vehicle {
             }
     }
     public void setForce(double force) {
-        if(force>MAX_FORCE)
-            force=MAX_FORCE;
+        force*=breakRatio;
+        if(force>maxForce)
+            force=maxForce;
         this.force = force;
     }
     public double getForce()
@@ -461,7 +474,7 @@ public class Vehicle {
     }
     public double getMaxSpeed()
     {
-        return MAX_SPEED;
+        return maxSpeed;
     }
     public boolean checkColl(Rectangle r1, Rectangle r2)
     {
