@@ -43,7 +43,7 @@ public class TrafficLight {
     private boolean run=false;
     private ImageView tlImage=new ImageView();
     private double moveColorX, moveColorY;
-    
+    private Point location, locOrig;
     private List<TrafficLightsConnection> connectionsRed=new ArrayList<>();
     private List<TrafficLightsConnection> connectionsOrange=new ArrayList<>();
     private List<TrafficLightsConnection> connectionsGreen=new ArrayList<>();
@@ -70,6 +70,7 @@ public class TrafficLight {
     private int statusToConnect=-1;
     private Point pToConnect;
     private double redLayout=9.33, orangeLayout=24, greenLayout=39.67;
+    private double tlWidth=20, tlHeight=50;
             
 
     public TrafficLight(double x, double y, int id) {
@@ -82,9 +83,10 @@ public class TrafficLight {
         circleGreen.setVisible(false);
         tlBox=new HBox();
         tlBox.getChildren().addAll(tlImage);
-        tlImage.setFitWidth(20);
-        tlImage.setFitHeight(50);
-        moveTL(x-10, y-25);
+        tlImage.setFitWidth(tlWidth);
+        tlImage.setFitHeight(tlHeight);
+        location=new Point((int)x-10, (int)y-25);
+        moveTL(location.getX(), location.getY());
         setStatus(0, false);
         initHandlers();
         DrawControll dc=Dipl_project.getDC();
@@ -104,20 +106,25 @@ public class TrafficLight {
     {
         if(enable)
         {
-            double tlX=tlBox.getLayoutX();
-            double tlY=tlBox.getLayoutY();
-            circleRed.setCenterX(tlX+10);
-            circleRed.setCenterY(tlY+redLayout);
-            circleOrange.setCenterX(tlX+10);
-            circleOrange.setCenterY(tlY+orangeLayout);
-            circleGreen.setCenterX(tlX+10);
-            circleGreen.setCenterY(tlY+greenLayout);
+            moveCirclesToTL();
+            
             deselectTL();
         }
         tlBox.setDisable(enable);
         circleRed.setVisible(enable);
         circleOrange.setVisible(enable);
         circleGreen.setVisible(enable);
+    }
+    public void moveCirclesToTL()
+    {
+        double tlX=tlBox.getLayoutX();
+        double tlY=tlBox.getLayoutY();
+        circleRed.setCenterX(tlX+tlWidth/2);
+        circleRed.setCenterY(tlY+redLayout);
+        circleOrange.setCenterX(tlX+tlWidth/2);
+        circleOrange.setCenterY(tlY+orangeLayout);
+        circleGreen.setCenterX(tlX+tlWidth/2);
+        circleGreen.setCenterY(tlY+greenLayout);
     }
     public void moveCurveToConnect(CubicCurve curve)
     {
@@ -543,7 +550,7 @@ public class TrafficLight {
     }
     public Point getPosition()
     {
-        return new Point((int)tlBox.getLayoutX(), (int)tlBox.getLayoutY());
+        return location;
     }
     public void moveTL(double x, double y)
     {
@@ -554,7 +561,18 @@ public class TrafficLight {
         tlBox.setLayoutY(layoutY);
         distX = startX-layoutX;
         distY = startY-layoutY;
+        location.setLocation(layoutX, layoutY);
         moveConnectCurveStart();
+    }
+    public void setTLPosition(double x, double y)
+    {
+        tlBox.setLayoutX(x);
+        tlBox.setLayoutY(y);
+        layoutX=x;
+        layoutY=y;
+        location.setLocation(x, y);
+        moveConnectCurveStart();
+        moveCirclesToTL();
     }
     public void rsSelect()
     {
@@ -569,17 +587,20 @@ public class TrafficLight {
         tlBox.setStyle(STYLE_SELECT_PRIM);
         layoutX-=2;
         layoutY-=2;
+        location.setLocation(layoutX, layoutY);
         tlBox.setLayoutX(layoutX);
         tlBox.setLayoutY(layoutY);
     }
     public void deselectTL()
     {
-        tlBox.setStyle(STYLE_DEF);
+        
         if(!tlBox.getStyle().equals(STYLE_DEF))
         {
             layoutX+=2;
             layoutY+=2;
         }
+        location.setLocation(layoutX, layoutY);
+        tlBox.setStyle(STYLE_DEF);
         tlBox.setLayoutX(layoutX);
         tlBox.setLayoutY(layoutY);
     }
@@ -674,8 +695,10 @@ public class TrafficLight {
         }
         else
         {
-            timerTask.cancel();
-            timer.cancel();
+            if(timerTask!=null)
+                timerTask.cancel();
+            if(timer!=null)
+                timer.cancel();
         }
     }
     private void tickTL()
@@ -859,6 +882,58 @@ public class TrafficLight {
     public int getMaxTime()
     {
         return maxTime;
+    }
+
+    public void setLocOrig(Point locOrig) {
+        this.locOrig = locOrig;
+    }
+
+    public Point getLocation() {
+        return location;
+    }
+
+    public Point getLocOrig() {
+        return locOrig;
+    }
+
+    public double getTlWidth() {
+        return tlWidth;
+    }
+
+    public void setTlWidth(double tlWidth) {
+        this.tlWidth = tlWidth;
+    }
+
+    public double getTlHeight() {
+        return tlHeight;
+    }
+
+    public void setTlHeight(double tlHeight) {
+        this.tlHeight = tlHeight;
+    }
+
+    public double getRedLayout() {
+        return redLayout;
+    }
+
+    public void setRedLayout(double redLayout) {
+        this.redLayout = redLayout;
+    }
+
+    public double getOrangeLayout() {
+        return orangeLayout;
+    }
+
+    public void setOrangeLayout(double orangeLayout) {
+        this.orangeLayout = orangeLayout;
+    }
+
+    public double getGreenLayout() {
+        return greenLayout;
+    }
+
+    public void setGreenLayout(double greenLayout) {
+        this.greenLayout = greenLayout;
     }
     
     

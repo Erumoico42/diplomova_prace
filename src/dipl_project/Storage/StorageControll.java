@@ -10,6 +10,7 @@ import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.UI.DrawControll;
+import dipl_project.UI.EditationControll;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -77,7 +78,9 @@ public  class StorageControll {
         fch.getExtensionFilters().add(filter);
         File file = fch.showSaveDialog(null);
         if (file != null) { 
+            EditationControll.zoomBack();
             saver(file);
+            EditationControll.zoomRev();
             //saver(dc.getCurves(), dc.getConnects(), lc.getLights(), pc.getPolices(), file, dc.getBgSource(), dc.getBG(), dc.getStartTram(), dc.getStartCar(), cc.getGenerDeleyCar(), cc.getGenerDeleyTram(), cc.isCarGeneratorRun(), cc.isTramGeneratorRun(), pc.getRunPolice(), lc.getRunLights());
         }
     }

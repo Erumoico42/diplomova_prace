@@ -38,10 +38,12 @@ import javafx.scene.text.Font;
  */
 public class RoadSegment {
     private Point p0, p1, p2, p3;
+    private Point p0orig, p1orig, p2orig, p3orig;
     private Circle roadSegment;
     private CubicCurve shape;
     private List<RoadSegment> intersectedRoadSegments=new ArrayList<>();
     private List<CheckPoint> checkPoints=new ArrayList<>();
+    private List<WatchPoint> watchPoints=new ArrayList<>();
     private List<CheckPoint> secondaryCheckPoints=new ArrayList<>();
     private List<RoadSegment> rsNext=new ArrayList<>();
     private List<RoadSegment> rsLast=new ArrayList<>();
@@ -131,21 +133,44 @@ public class RoadSegment {
         if(ui.isAddCP())
         {
             RoadSegment actRS=dc.getActualRS();
-            if(actRS.getCheckPoints().contains(actRS.getCPByRS(getThisSegment())))
+            if(ui.isSetPriority())
             {
-                CheckPoint remCP=actRS.getCPByRS(getThisSegment());
-                actRS.getCheckPoints().remove(remCP);
-                setDefRoadSegment();
-                ui.removeCPFromList(remCP);
-                
-            }else
-            {
-                CheckPoint newCP=new CheckPoint(actRS,getThisSegment());
-                actRS.getCheckPoints().add(newCP);
-                setMainRoadSegment();
-                ui.addCPToList(newCP);
-                
+                if(actRS.getCheckPoints().contains(actRS.getCPByRS(getThisSegment())))
+                {
+                    CheckPoint remCP=actRS.getCPByRS(getThisSegment());
+                    actRS.removeCP(remCP);
+                    setDefRoadSegment();
+                    ui.removeCPFromList(remCP);
+
+                }else
+                {
+                    CheckPoint newCP=new CheckPoint(actRS,getThisSegment());
+                    actRS.addCP(newCP);
+                    setMainRoadSegment();
+                    ui.addCPToList(newCP);
+
+                }
             }
+            else if(ui.isSetWatch())
+            {
+                if(actRS.getWatchPoints().contains(actRS.getWPByRS(getThisSegment())))
+                {
+                    WatchPoint remWP=actRS.getWPByRS(getThisSegment());
+                    actRS.removeWP(remWP);
+                    setDefRoadSegment();
+                    ui.removeWPFromList(remWP);
+
+                }else
+                {
+                    WatchPoint newWP=new WatchPoint(actRS,getThisSegment(),2);
+                    actRS.addWP(newWP);
+                    setWatchRoadSegment();
+                    ui.addWPToList(newWP);
+
+                }
+            }
+            
+            
         }
         else
         {
@@ -158,6 +183,9 @@ public class RoadSegment {
             dc.setActualRS(getThisSegment());
             for (CheckPoint checkPoint : checkPoints) {
                 checkPoint.getRs().setMainRoadSegment();
+            }
+            for (WatchPoint watchPoint : watchPoints) {
+                watchPoint.getRs().setWatchRoadSegment();
             }
             for (TrafficLight trafficLight : trafficLights) {
                 trafficLight.rsSelect();
@@ -175,6 +203,14 @@ public class RoadSegment {
         }
         return null;
     }
+    public WatchPoint getWPByRS(RoadSegment rs)
+    {
+        for (WatchPoint watchPoint : watchPoints) {
+            if(watchPoint.getRs().equals(rs))
+                return watchPoint;
+        }
+        return null;
+    }
     public void deselectRS()
     {
         if(!ui.isAddCP() || dc.getActualRS().equals(getThisSegment()))
@@ -188,6 +224,9 @@ public class RoadSegment {
             }
             for (TrafficLight trafficLight : trafficLights) {
                 trafficLight.deselectTL();
+            }
+            for (WatchPoint watchPoint : watchPoints) {
+                watchPoint.getRs().setDefRoadSegment();
             }
             ui.setAddCP(false);
                     
@@ -208,6 +247,11 @@ public class RoadSegment {
     public void setMainRoadSegment()
     {
         shape.setStroke(Color.LIGHTGREEN);
+        shape.setVisible(true);
+    }
+    public void setWatchRoadSegment()
+    {
+        shape.setStroke(Color.LIGHTSTEELBLUE);
         shape.setVisible(true);
     }
     public void setSideRoadSegment()
@@ -249,10 +293,28 @@ public class RoadSegment {
     public void removeTrafficLight(TrafficLight trafficLight) {
         trafficLights.remove(trafficLight);
     }
-    public void addCheckPoint(CheckPoint cp)
+    public void addCP(CheckPoint cp)
     {
         checkPoints.add(cp);
     }
+    public void removeCP(CheckPoint cp)
+    {
+        checkPoints.remove(cp);
+    }
+    public void addWP(WatchPoint wp)
+    {
+        watchPoints.add(wp);
+    }
+    public void removeWP(WatchPoint wp)
+    {
+        watchPoints.remove(wp);
+    }
+
+
+    public List<WatchPoint> getWatchPoints() {
+        return watchPoints;
+    }
+    
     public void addIntersectedRS(RoadSegment rs)
     {
         if(!intersectedRoadSegments.contains(rs))
@@ -450,6 +512,38 @@ public class RoadSegment {
 
     public void setRun(boolean run) {
         this.run = run;
+    }
+
+    public Point getP0orig() {
+        return p0orig;
+    }
+
+    public void setP0orig(Point p0orig) {
+        this.p0orig = p0orig;
+    }
+
+    public Point getP1orig() {
+        return p1orig;
+    }
+
+    public void setP1orig(Point p1orig) {
+        this.p1orig = p1orig;
+    }
+
+    public Point getP2orig() {
+        return p2orig;
+    }
+
+    public void setP2orig(Point p2orig) {
+        this.p2orig = p2orig;
+    }
+
+    public Point getP3orig() {
+        return p3orig;
+    }
+
+    public void setP3orig(Point p3orig) {
+        this.p3orig = p3orig;
     }
     
 }

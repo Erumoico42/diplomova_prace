@@ -26,7 +26,7 @@ import javafx.scene.text.Font;
  * @author Honza
  */
 public class CheckPoint {
-    private final RoadSegment rs, prim;
+    private final RoadSegment sec, prim;
     private int distance=0, id;
     private List<CheckPoint> secondaryRP=new ArrayList<>();
     private boolean enabled=true;
@@ -37,12 +37,12 @@ public class CheckPoint {
     private Label lblInfo;
     private Spinner<Integer> secondaryDistance;
     public CheckPoint(RoadSegment prim, RoadSegment sec) {
-        this.rs = sec;
+        this.sec = sec;
         this.prim=prim;
         initInfoBox();
     }
-    public CheckPoint(RoadSegment prim,RoadSegment rs, int distance) {
-        this.rs = rs;
+    public CheckPoint(RoadSegment prim,RoadSegment sec, int distance) {
+        this.sec = sec;
         this.prim=prim;
         this.distance=distance;
         initInfoBox();
@@ -61,7 +61,7 @@ public class CheckPoint {
     }
 
     public RoadSegment getRs() {
-        return rs;
+        return sec;
     }
 
     public List<CheckPoint> getSecondaryCP() {
@@ -74,7 +74,7 @@ public class CheckPoint {
     public void clearSecondaryRS()
     {
         for (CheckPoint srs : secondaryRP) {
-            srs.getRs().removeSecondaryCheckPointsByRS(rs);
+            srs.getRs().removeSecondaryCheckPointsByRS(sec);
         }
         secondaryRP.clear();
     }
@@ -94,20 +94,23 @@ public class CheckPoint {
     public void setId(int id) {
         this.id = id;
     }
+    public CheckPoint getThisCP()
+    {
+        return this;
+    }
     private void initInfoBox()
     {
         checkPointInfo=new HBox();
         checkPointInfo.setOnMouseEntered(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                prim.getShape().setStrokeWidth(13);
-                System.out.println(id);
+                sec.getShape().setStrokeWidth(13);
             }
         });
         checkPointInfo.setOnMouseExited(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                prim.getShape().setStrokeWidth(7);
+                sec.getShape().setStrokeWidth(7);
             }
         });
         removeFromCPs=new Button("X");
@@ -117,9 +120,9 @@ public class CheckPoint {
         removeFromCPs.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                CheckPoint cpRem=dc.getActualRS().getCPByRS(rs);
-                dc.getActualRS().getCheckPoints().remove(cpRem);
-                rs.setDefRoadSegment();
+                CheckPoint cpRem=getThisCP();
+                dc.getActualRS().removeCP(cpRem);
+                sec.setDefRoadSegment();
                 ui.removeCPFromList(cpRem);
             }
         });
@@ -128,7 +131,7 @@ public class CheckPoint {
         lblInfo.setLayoutY(10);
         lblInfo.setMinWidth(25);
         lblInfo.setMaxWidth(25);
-        lblInfo.setText(String.valueOf(rs.getId()));
+        lblInfo.setText("CP");
         SpinnerValueFactory.IntegerSpinnerValueFactory valueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 20, distance);
         secondaryDistance=new Spinner<>(valueFactory);
         secondaryDistance.setMinWidth(65);
@@ -139,14 +142,14 @@ public class CheckPoint {
             public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
                 
                 RoadSegment actRS=dc.getActualRS();
-                CheckPoint cp =actRS.getCPByRS(rs);
+                CheckPoint cp =actRS.getCPByRS(sec);
                 if(newValue>cp.getDistance()+1)
                     secondaryDistance.getValueFactory().setValue(cp.getDistance());
                 cp.setEnabled(newValue==0);
-                rs.setRun(true);
-                rs.runSecondary(0, newValue, oldValue, rs);
+                sec.setRun(true);
+                sec.runSecondary(0, newValue, oldValue, sec);
                 cp.clearSecondaryRS();
-                rs.findSecondarySegment(0, newValue, actRS);
+                sec.findSecondarySegment(0, newValue, actRS);
                 
             }
         });

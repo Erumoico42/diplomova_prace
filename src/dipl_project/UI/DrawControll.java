@@ -13,6 +13,7 @@ import dipl_project.Roads.Connect;
 import dipl_project.Roads.RoadCreator;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Simulation.SimulationControll;
+import dipl_project.Vehicles.Animation;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public  class DrawControll {
     private RoadCreator rc;
     
     private int idLastConnect=0;
-    private Canvas canvas, backgroundCanvas;
+    private Canvas canvas, moveCanvas;
     private Connect actualConnect;
     private MyCurve actualCurve, selectedCurve;
     private TrafficLight actualTL;
@@ -53,7 +54,7 @@ public  class DrawControll {
         this.rc=rc;
         this.canvas=ui.getCanvas();
         menuBG=ui.getMenuBG();
-        backgroundCanvas=ui.getBackgroundCanvas();
+        moveCanvas=ui.getMoveCanvas();
         initHandlers();
     }
 
@@ -180,40 +181,64 @@ public  class DrawControll {
             double newWidth=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setWidth(oldWidth+newWidth);
             menuBG.setWidth(oldWidth+newWidth);
-            backgroundCanvas.setWidth(oldWidth+newWidth);
+            moveCanvas.setWidth(oldWidth+newWidth);
             ui.updateCPsPosition();
         });
         ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             double oldHeight=canvas.getHeight();
             double newHeight=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setHeight(oldHeight+newHeight);
-            backgroundCanvas.setHeight(oldHeight+newHeight);
+            moveCanvas.setHeight(oldHeight+newHeight);
             ui.updateCPsPosition();
         });
-        backgroundCanvas.setOnMousePressed(new EventHandler<MouseEvent>() {
+        moveCanvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                if(ui.getMoveStatus()==1)
+                {
                 BackgroundControll.backgroundClick(event.getX(), event.getY());
+                }else if(ui.getMoveStatus()==2)
+                {
+                    EditationControll.editClick(event.getX(), event.getY());
+                }
                     
             }
         });
-        backgroundCanvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
+        moveCanvas.setOnMouseDragged(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                if(event.getButton()==MouseButton.PRIMARY)
+                if(ui.getMoveStatus()==1)
                 {
-                    BackgroundControll.moveBackground(event.getX(), event.getY());
-                }
-                else if(event.getButton()==MouseButton.SECONDARY)
+                    if(event.getButton()==MouseButton.PRIMARY)
+                    {
+                        BackgroundControll.moveBackground(event.getX(), event.getY());
+                    }
+                    else if(event.getButton()==MouseButton.SECONDARY)
+                    {
+                        BackgroundControll.rotateBackground(event.getX(), event.getY());
+                    }
+                }else if(ui.getMoveStatus()==2)
                 {
-                    BackgroundControll.rotateBackground(event.getX(), event.getY());
+                    if(event.getButton()==MouseButton.PRIMARY)
+                    {
+                        //BackgroundControll.moveBackground(event.getX(), event.getY());
+                        EditationControll.moveAll(event.getX(), event.getY());
+                    }
                 }
+                
             }
         });
-        backgroundCanvas.setOnScroll(new EventHandler<ScrollEvent>() {
+        moveCanvas.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
-                BackgroundControll.zoomBackground(event.getDeltaY());
+                if(ui.getMoveStatus()==1)
+                {
+                    BackgroundControll.zoomBackground(event.getDeltaY());
+                }
+                else if(ui.getMoveStatus()==2)
+                {
+                    EditationControll.zoomAll(event.getDeltaY());
+                }
             }
         });
     }
@@ -291,6 +316,7 @@ public  class DrawControll {
     }
     public void cleanAll()
     {
+        Dipl_project.getAnim().cleanVehicles();
         for (Connect connect : connects) {
             connect.removeConnect();
         }

@@ -24,7 +24,7 @@ import javafx.scene.shape.Shape;
  */
 public class Connect {
     private final int id;
-    private Point location;
+    private Point location, locOrigin;
     private Circle connect;
     private UIControll ui=Dipl_project.getUI();
     private List<MyCurve> startCurves=new ArrayList<>();
@@ -212,6 +212,15 @@ public class Connect {
     {
         return location.getY();
     }
+
+    public Point getLocOrigin() {
+        return locOrigin;
+    }
+
+    public void setLocOrigin(Point locOrigin) {
+        this.locOrigin = locOrigin;
+    }
+    
     public void moveConnect(double x, double y)
     {
         location.setLocation(x, y);

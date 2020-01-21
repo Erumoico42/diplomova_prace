@@ -94,7 +94,7 @@ public class BackgroundStore {
                 String width=background.getAttributes().getNamedItem("width").getNodeValue();
                 String height=background.getAttributes().getNamedItem("height").getNodeValue();
                 String angle=background.getAttributes().getNamedItem("rotation").getNodeValue();
-                String resRatio=background.getAttributes().getNamedItem("rotation").getNodeValue();
+                String resRatio=background.getAttributes().getNamedItem("resRatio").getNodeValue();
                 String p= background.getAttributes().getNamedItem("position").getNodeValue();
                 String[] pos=p.split(",");
                 Point position=new Point(Integer.parseInt(pos[0]),Integer.parseInt(pos[1]));
@@ -103,6 +103,7 @@ public class BackgroundStore {
                 {
                      BackgroundControll.setBackground(position.getX(), position.getY(), Double.valueOf(angle),  Double.valueOf(width), Double.valueOf(height),Double.valueOf(resRatio), source);  
                      dipl_project.Dipl_project.getUI().setEditBackground(false);
+                     dipl_project.Dipl_project.getUI().getEditBackground().setDisable(false);
                 }
         }
     }

@@ -9,6 +9,7 @@ import TrafficLights.TrafficLight;
 import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
+import dipl_project.Roads.RoadCreator;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
 import dipl_project.UI.DrawControll;
@@ -336,6 +337,7 @@ public class StreetStore {
     }
     public void loadSegments()
     {
+        int idMax=0;
         segments=new HashMap<>();
         NodeList rs=doc.getElementsByTagName("roadSegment");
         for (int i = 0; i < rs.getLength(); i++) {
@@ -369,8 +371,10 @@ public class StreetStore {
                 newRS.addTrafficLight(trafficLights.get(idTL));
             }*/
             segments.put(idRoadSegment, rsNew);
+            if(idRoadSegment>idMax)
+                idMax=idRoadSegment+1;
         }
-        
+        dipl_project.Dipl_project.getRC().setId(idMax);
         
         
         
