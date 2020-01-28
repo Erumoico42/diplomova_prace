@@ -19,6 +19,8 @@ public class MyMath {
         double angle = (double) (Math.atan2(y1 - y2, x1 - x2));
         if(angle<0)
             angle+=(2*Math.PI);
+        if(angle>2*Math.PI)
+            angle-=(2*Math.PI);
         return angle;
     }
     public static double angle(Point p1, Point p2) {

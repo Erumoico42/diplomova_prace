@@ -15,6 +15,8 @@ import dipl_project.Roads.WatchPoint;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -37,11 +39,16 @@ public class Vehicle {
     private double controlWidth=34, controlHeight=14, vehWidth=40, vehHeight=40;
     private boolean paused=false;
     private final ImageView iv;
+    private Image actualCar, carBlinkerLeft, carBlinkerRight, carBreak, defCar;
     private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
     private double speed=maxSpeed/2, force=0.0003, time=0, breakRatio=1, vehicleLenght;
     private boolean watch=false;
     private int watchCount=0, freeCount=0;
     private RoadSegment rsLastWatch;
+    private Timer blinkerTimer;
+    private TimerTask blinkerTimerTask;
+    private int blinkerCountDown=-1, breakCountDown=0;
+    private boolean blink=false, blinkerOn=false, changedForce=false;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
@@ -68,11 +75,16 @@ public class Vehicle {
         animation.addVehicle(this);
        
     }
-    public void initVehicleImage(Image img, double width, double height, double controlWidth, double controlHeight)
+    public void initVehicleImage(Image carDef, Image carBlinkerLeft,Image carBlinkerRight, Image carBreak, double width, double height, double controlWidth, double controlHeight)
     {
-        iv.setImage(img);
+        iv.setImage(carDef);
         iv.setFitWidth(width);
         iv.setFitHeight(height);
+        this.actualCar=carDef;
+        defCar=carDef;
+        this.carBlinkerLeft=carBlinkerLeft;
+        this.carBlinkerRight=carBlinkerRight;
+        this.carBreak=carBreak;
         this.controlWidth=controlWidth;
         this.controlHeight=controlHeight;
         vehWidth=width;
@@ -133,6 +145,10 @@ public class Vehicle {
         {
             oldSegment=actualSegment;
             actualSegment=road.get(0);
+            
+            
+            stopBlinker();
+            
             road.remove(actualSegment);
             setPoints();
             actualSegment.setVehicle(this); 
@@ -247,8 +263,34 @@ public class Vehicle {
         if(!paused)
            colisionDetect();
     }
-    public void updateSpeed(double speed) {
-        double newSpeed=this.speed+speed;
+    public void updateSpeed(double force) {
+        
+        double newSpeed=this.speed+force;
+            if(newSpeed < speed)
+            {
+                breakCountDown=10;
+                changedForce=!defCar.equals(carBreak);
+                defCar=carBreak;
+            }
+            else
+            {
+                breakCountDown--;
+                if(breakCountDown<0)
+                {
+                    changedForce=!defCar.equals(actualCar);
+                    defCar=actualCar;
+                    
+                }
+                
+
+            }
+
+            if(changedForce)
+            {
+                changedForce=false;
+                setDefCar(defCar);
+            }
+        
         this.speed=newSpeed;
         if(newSpeed<0)
             this.speed=0;
@@ -281,6 +323,7 @@ public class Vehicle {
 
     private void colisionDetect()
     {
+        findBlinker();
         boolean carFoundStreet=findNextCar();
         if(!carFoundStreet)
         {
@@ -337,6 +380,22 @@ public class Vehicle {
         else
             return false;
     }
+    private void findBlinker()
+    {
+        for (int actDist = 0; actDist < 10; actDist++) {
+            if(road.size()>actDist){
+                RoadSegment rsNext=road.get(actDist);
+                if(!blinkerOn && actDist-time<5)
+                {
+                    if(rsNext.isBlinkerLeft())
+                        runBlinker(carBlinkerLeft);
+                    if(rsNext.isBlinkerRight())
+                        runBlinker(carBlinkerRight);
+                    
+                }
+            }
+        }
+    }
     private boolean findNextCar()
     {
         boolean carFound=false;
@@ -344,6 +403,7 @@ public class Vehicle {
             if(road.size()>actDist){
                 
                 RoadSegment rsNext=road.get(actDist);
+                
                 List<RoadSegment> rssToCheck=new ArrayList<>();
                 double distMinus=0;
                 double speedMinus=1;
@@ -492,11 +552,20 @@ public class Vehicle {
                 }
             }
     }
-    public void setForce(double force) {
-        force*=breakRatio;
-        if(force>maxForce)
-            force=maxForce;
-        this.force = force;
+    public void setForce(double newForce) {
+        newForce*=breakRatio;
+        if(newForce>maxForce)
+            newForce=maxForce;
+            
+            
+        
+        
+        
+        this.force = newForce;
+    }
+    private void setDefCar(Image img)
+    {
+        iv.setImage(img);
     }
     public double getForce()
     {
@@ -512,5 +581,37 @@ public class Vehicle {
              return true;
          else
              return false;
+    }
+    private void runBlinker(Image alterCar)
+    {
+        blinkerTimer=new Timer();
+        blinkerTimerTask=new TimerTask() {
+            @Override
+            public void run() {
+                if(blink)
+                    setDefCar(defCar);
+                else
+                    setDefCar(alterCar);
+                blink=!blink;
+            }
+        };
+        blinkerOn=true;
+        blinkerCountDown=-1;
+        blinkerTimer.schedule(blinkerTimerTask, 0,500);
+    }
+    private void stopBlinker()
+    {
+        if(actualSegment.isBlinkerLeft() || actualSegment.isBlinkerRight())
+        {
+            blinkerCountDown=4;
+        }
+        if(blinkerCountDown==0 && blinkerOn)
+        {
+            setDefCar(actualCar);
+            blinkerTimer.cancel();
+            blinkerTimerTask.cancel();
+            blinkerOn=false;
+        }
+        blinkerCountDown--;
     }
 }

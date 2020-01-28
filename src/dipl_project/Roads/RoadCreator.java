@@ -8,6 +8,7 @@ package dipl_project.Roads;
 import dipl_project.Dipl_project;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import javafx.geometry.Bounds;
 import javafx.scene.shape.CubicCurve;
@@ -55,7 +56,6 @@ public class RoadCreator {
                     pOld=connect.getLocation();
                 newCurve=true;
                 callBez(startCurve.getCurve());
-                actualCurve.setLastRS(lastRS);
                 
                 if(curveSegmentsSize<curveSegments.size())
                 {
@@ -79,6 +79,7 @@ public class RoadCreator {
                 
                     
             }
+            setBlinkers(connect);
         }
         setArrows();
         for (Connect connect : connects) {
@@ -95,12 +96,12 @@ public class RoadCreator {
                         {
                             RoadSegment rsStartNext=rsStart.getRsNext().get(0);
                             angle=MyMath.angle(rsStartNext.getP0(), rsStartNext.getP1());
-                            Point p21=MyMath.rotate(rsStartNext.getP0(), 15, angle);
+                            Point p21=MyMath.rotate(rsStartNext.getP0(), segLength/2, angle);
                             rsStart.setP2(p21); 
                         }
 
                         angle=MyMath.angle(rsStart.getP0(), rsStart.getP1());
-                        Point p21=MyMath.rotate(rsStart.getP0(), 15, angle);
+                        Point p21=MyMath.rotate(rsStart.getP0(), segLength/2, angle);
                         rsEnd.setP2(p21); 
                         connectSegments(rsEnd,rsStart);
                     }
@@ -122,6 +123,40 @@ public class RoadCreator {
                         startTramSegments.add(startCurve.getFirstCurveSegment());
                 }
             }
+        }
+    }
+    private void setBlinkers(Connect connect)
+    {
+        if(connect.getStartCurves().size()>1)
+        {
+            List<BlinkerAngle> angles=new ArrayList<>();
+            double angleDef=MyMath.angle(connect.getStartCurves().get(0).getP0(), connect.getStartCurves().get(0).getP1());
+            for (MyCurve startCurve : connect.getStartCurves()) {
+                double angle=MyMath.angle(startCurve.getP1(), startCurve.getP2());
+                angle-=angleDef;
+                angles.add(new BlinkerAngle(angle, startCurve));
+            }
+            angles.sort(new Comparator<BlinkerAngle>() {
+                @Override
+                public int compare(BlinkerAngle o1, BlinkerAngle o2) {
+                    return o1.getAngle()>o2.getAngle() ? -1 : (o1.getAngle() < o2.getAngle() ? 1 :0);
+                }
+            });
+            BlinkerAngle baLeft=angles.get(angles.size()-1);
+            BlinkerAngle baRight=angles.get(0);
+            if(angles.size()>2)
+            {
+                baLeft.setRun(true);
+                baRight.setRun(true);
+            }
+            else
+            {
+                boolean runLeft=(Math.abs(baLeft.getAngle())-Math.abs(baRight.getAngle()))>0;
+                baLeft.setRun(runLeft);
+                baRight.setRun(!runLeft);
+            }
+            baLeft.getMc().getFirstCurveSegment().setBlinkerLeft(baLeft.isRun());
+            baRight.getMc().getFirstCurveSegment().setBlinkerRight(baRight.isRun());
         }
     }
     public void findIntersects()

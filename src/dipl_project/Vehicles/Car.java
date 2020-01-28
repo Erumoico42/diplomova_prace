@@ -17,31 +17,22 @@ public class Car extends Vehicle{
     
     public Car(RoadSegment startSegment) {
         super(startSegment);
-        initVehicleImage(getRandomCarImage(), 40, 40, 34, 14);
+        
+        setRandomCarImage();
         setVehicleLenght(0);
     }
-    private Image getRandomCarImage()
+    private void setRandomCarImage()
     {
-        Image imgRet=null;
-        int rnd=(int)(Math.random()*3);
-        switch(rnd)
-        {
-            case 0:
-            {
-                imgRet= new Image(Dipl_project.class.getResource("Resources/vehicles/auto-01.png").toString());
-                break;
-            }
-            case 1:
-            {
-                imgRet= new Image(Dipl_project.class.getResource("Resources/vehicles/auto-02.png").toString());
-                break;
-            }
-            case 2:
-            {
-                imgRet= new Image(Dipl_project.class.getResource("Resources/vehicles/auto-03.png").toString());
-                break;
-            }
-        }
-        return imgRet;
+        int rnd=(int)(Math.random()*11)+1;
+        String carTemp="auto-";
+        if(rnd<10)
+            carTemp+="0";
+        String carName=carTemp+rnd;
+        Image carDef= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+".png").toString());
+        Image carLeft= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-l.png").toString());
+        Image carRight= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-p.png").toString());
+        Image carBreak= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b.png").toString());
+        initVehicleImage(carDef, carLeft, carRight, carBreak, 40, 40, 34, 14);
+
     }
 }

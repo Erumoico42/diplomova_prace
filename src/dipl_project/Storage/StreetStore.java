@@ -435,14 +435,6 @@ public class StreetStore {
             Attr curveLenght=doc.createAttribute("curveLenght");
             curveLenght.setValue(String.valueOf((int)mc.getCurveLenght()));
             curve.setAttributeNode(curveLenght);
-
-            Attr idFirstSegment=doc.createAttribute("idFirstSegment");
-            idFirstSegment.setValue(String.valueOf(mc.getFirstCurveSegment().getId()));
-            curve.setAttributeNode(idFirstSegment);
-
-            Attr idLastSegment=doc.createAttribute("idLastSegment");
-            idLastSegment.setValue(String.valueOf(mc.getLastCurveSegment().getId()));
-            curve.setAttributeNode(idLastSegment);
             
             for (RoadSegment segment : mc.getCurveSegments()) {
                 Element subSegment=doc.createElement("subSegment");
@@ -482,8 +474,6 @@ public class StreetStore {
             int idCurve=Integer.parseInt(curve.getAttributes().getNamedItem("idCurve").getNodeValue());
             if(idCurve>=maxId)
                 maxId=idCurve+1;
-            int idFirstSegment=Integer.parseInt(curve.getAttributes().getNamedItem("idFirstSegment").getNodeValue());
-            int idLastSegment=Integer.parseInt(curve.getAttributes().getNamedItem("idLastSegment").getNodeValue());
             int curveLenght=Integer.parseInt(curve.getAttributes().getNamedItem("curveLenght").getNodeValue());
             boolean tramCurve=Boolean.parseBoolean(curve.getAttributes().getNamedItem("tramCurve").getNodeValue());
             MyCurve mc=new MyCurve(conn0,conn3, idCurve);
@@ -493,8 +483,6 @@ public class StreetStore {
                mc.setTramCurve();
             mc.moveStartControll(p1.getX(), p1.getY());
             mc.moveEndControll(p2.getX(), p2.getY());
-            mc.setFirstRS(segments.get(idFirstSegment));
-            mc.setLastRS(segments.get(idLastSegment));
             mc.setCurveLenght(curveLenght);
             NodeList subSegment=((Element)curve).getElementsByTagName("subSegment");
             for (int j = 0; j < subSegment.getLength(); j++) {

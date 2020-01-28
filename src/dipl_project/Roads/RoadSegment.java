@@ -57,7 +57,7 @@ public class RoadSegment {
     private DrawControll dc=Dipl_project.getDC();
     private int id;
     private double errorDistance=0;
-    private boolean run=false;
+    private boolean run=false, blinkerLeft=false, blinkerRight=false;
     public RoadSegment(Point p0, Point p3) {
         this.p0=p0;
         this.p3=p3;
@@ -545,6 +545,26 @@ public class RoadSegment {
 
     public void setP3orig(Point p3orig) {
         this.p3orig = p3orig;
+    }
+
+    void setBlinkerLeft(boolean run) {
+        blinkerLeft=run;
+        if(run)
+            blinkerRight=false;
+    }
+
+    void setBlinkerRight(boolean run) {
+        blinkerRight=run;
+        if(run)
+            blinkerLeft=false;
+    }
+
+    public boolean isBlinkerLeft() {
+        return blinkerLeft;
+    }
+
+    public boolean isBlinkerRight() {
+        return blinkerRight;
     }
     
 }

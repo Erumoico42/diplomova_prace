@@ -397,22 +397,6 @@ public class MyCurve {
         return curveSegments.get(0);
     }
 
-    public RoadSegment getFirstRS() {
-        return firstRS;
-    }
-
-    public void setFirstRS(RoadSegment firstRS) {
-        this.firstRS = firstRS;
-    }
-
-    public RoadSegment getLastRS() {
-        return lastRS;
-    }
-
-    public void setLastRS(RoadSegment lastRS) {
-        this.lastRS = lastRS;
-    }
-
     public Point getP0orig() {
         return p0orig;
     }
