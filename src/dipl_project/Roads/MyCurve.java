@@ -36,8 +36,11 @@ public class MyCurve {
     private double curveLenght;
     private Arrow startArrow, endArrow;
     private List<Arrow> arrows=new ArrayList<>();
-    private boolean mainRoad=false;
+    private boolean mainRoad=false, tramCurve=false;
     private DrawControll dc=Dipl_project.getDC();
+    private int defStroke=3, selectStroke=5;
+    private Color defColor=Color.BLACK, selectColor=Color.DARKRED;
+
     private double maxAngleP1, maxAngleP2, dAngleP1, dAngleP2, originalAngleP1, originalAngleP2;
     public MyCurve(Connect startConnect, Connect endConnect, int id)
     {
@@ -104,16 +107,24 @@ public class MyCurve {
         startArrow=new Arrow(MyMath.angle(p1, p0), p0.getX(), p0.getY());
         endArrow=new Arrow(MyMath.angle(p3, p2), p3.getX(), p3.getY());
     }
+    public void setTramCurve()
+    {
+        defStroke=6;
+        selectStroke=10;
+        defColor=Color.DARKSLATEBLUE;
+        deselectCurve();
+        tramCurve=true;
+    }
     public void selectCurve()
     {
-        curve.setStrokeWidth(5);
-        curve.setStroke(Color.DARKRED);
+        curve.setStrokeWidth(selectStroke);
+        curve.setStroke(selectColor);
         startEditCurve();
     }
     public void deselectCurve()
     {
-         curve.setStrokeWidth(3);
-        curve.setStroke(Color.BLACK);
+         curve.setStrokeWidth(defStroke);
+        curve.setStroke(defColor);
     }
     public MyCurve getThisCurve()
     {
@@ -448,6 +459,10 @@ public class MyCurve {
 
     public Point getP3() {
         return p3;
+    }
+
+    public boolean isTramCurve() {
+        return tramCurve;
     }
     
     

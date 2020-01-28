@@ -83,7 +83,7 @@ public  class DrawControll {
         if(!loadingMap)
         {
             rc.createRoad(connects, curves);
-            ui.setStartSegments(rc.getStartSegments());
+            ui.setStartSegments(rc.getStartCarSegments(), rc.getStartTramSegments());
         }
     }
 
@@ -122,12 +122,21 @@ public  class DrawControll {
                             {
                                 if(actualConnect==null){
                                     actualConnect=newConnect(event.getX(), event.getY());
+                                    actualConnect.setTramConnect(Dipl_project.getUI().isTramCreating());
                                     actualConnect.select();
                                 }
                                 else
                                 {
                                     Connect newConnect=newConnect(event.getX(), event.getY());
-                                    newCurve(newConnect);
+                                    if(actualConnect.isTramConnect() == Dipl_project.getUI().isTramCreating())
+                                        newCurve(newConnect);
+                                     else
+                                    {
+                                        actualConnect.deselect();
+                                        actualConnect=newConnect(event.getX(), event.getY());
+                                        actualConnect.setTramConnect(Dipl_project.getUI().isTramCreating());
+                                        actualConnect.select();
+                                    }   
                                 }
                                 break;
                             }
@@ -269,6 +278,9 @@ public  class DrawControll {
             MyCurve curve=new MyCurve(actualConnect, endConnect, idLastCurve);
             curves.add(curve);
             idLastCurve++;
+            endConnect.setTramConnect(actualConnect.isTramConnect());
+            if(actualConnect.isTramConnect())
+                curve.setTramCurve();
             ui.addCurve(curve);
             actualCurve=curve;
             actualConnect.deselect();

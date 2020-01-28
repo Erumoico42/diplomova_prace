@@ -102,25 +102,38 @@ public class StreetStore {
     }
     public void saveStartSegments()
     {
-        List<RoadSegment> startSegments=dipl_project.Dipl_project.getUI().getStartSegments();
-        for (RoadSegment rs : startSegments) {
-            Element startSegment=doc.createElement("startSegment");   
-
-            Attr idStartSegment=doc.createAttribute("idStartSegment");
-            idStartSegment.setValue(String.valueOf(rs.getId()));
-            startSegment.setAttributeNode(idStartSegment);
-            root.appendChild(startSegment);
+        List<RoadSegment> startCarSegments=dipl_project.Dipl_project.getUI().getStartCarSegments();
+        for (RoadSegment rs : startCarSegments) {
+            Element startCarSegment=doc.createElement("startCarSegment");  
+            Attr idStartCarSegment=doc.createAttribute("idStartCarSegment");
+            idStartCarSegment.setValue(String.valueOf(rs.getId()));
+            startCarSegment.setAttributeNode(idStartCarSegment);
+            root.appendChild(startCarSegment);
+        }
+        List<RoadSegment> startTramSegments=dipl_project.Dipl_project.getUI().getStartTramSegments();
+        for (RoadSegment rs : startTramSegments) {
+            Element startTramSegment=doc.createElement("startTramSegment");  
+            Attr idStartTramSegment=doc.createAttribute("idStartTramSegment");
+            idStartTramSegment.setValue(String.valueOf(rs.getId()));
+            startTramSegment.setAttributeNode(idStartTramSegment);
+            root.appendChild(startTramSegment);
         }
     }
     private void loadStartSegments()
     {
-        List<RoadSegment> startSegments=new ArrayList<>();
-        NodeList startSegment=doc.getElementsByTagName("startSegment");
-        for (int i = 0; i < startSegment.getLength(); i++) {           
-            int idStartSegment=Integer.parseInt(startSegment.item(i).getAttributes().getNamedItem("idStartSegment").getNodeValue());
-            startSegments.add(segments.get(idStartSegment));
+        List<RoadSegment> startCarSegments=new ArrayList<>();
+        List<RoadSegment> startTramSegments=new ArrayList<>();
+        NodeList startCarSegment=doc.getElementsByTagName("startCarSegment");
+        for (int i = 0; i < startCarSegment.getLength(); i++) {           
+            int idStartCarSegment=Integer.parseInt(startCarSegment.item(i).getAttributes().getNamedItem("idStartCarSegment").getNodeValue());
+            startCarSegments.add(segments.get(idStartCarSegment));
         }
-        ui.setStartSegments(startSegments);
+        NodeList startTramSegment=doc.getElementsByTagName("startTramSegment");
+        for (int i = 0; i < startTramSegment.getLength(); i++) {           
+            int idStartTramSegment=Integer.parseInt(startTramSegment.item(i).getAttributes().getNamedItem("idStartTramSegment").getNodeValue());
+            startTramSegments.add(segments.get(idStartTramSegment));
+        }
+        ui.setStartSegments(startCarSegments,startTramSegments);
     }
     public void saveSegments()
     {
@@ -414,6 +427,11 @@ public class StreetStore {
             curve.setAttributeNode(p3);
             root.appendChild(curve);
             
+            Attr tramCurve=doc.createAttribute("tramCurve");
+            tramCurve.setValue(String.valueOf(mc.isTramCurve()));
+            curve.setAttributeNode(tramCurve);
+            root.appendChild(curve);
+            
             Attr curveLenght=doc.createAttribute("curveLenght");
             curveLenght.setValue(String.valueOf((int)mc.getCurveLenght()));
             curve.setAttributeNode(curveLenght);
@@ -467,9 +485,12 @@ public class StreetStore {
             int idFirstSegment=Integer.parseInt(curve.getAttributes().getNamedItem("idFirstSegment").getNodeValue());
             int idLastSegment=Integer.parseInt(curve.getAttributes().getNamedItem("idLastSegment").getNodeValue());
             int curveLenght=Integer.parseInt(curve.getAttributes().getNamedItem("curveLenght").getNodeValue());
+            boolean tramCurve=Boolean.parseBoolean(curve.getAttributes().getNamedItem("tramCurve").getNodeValue());
             MyCurve mc=new MyCurve(conn0,conn3, idCurve);
             conn0.addStartCurves(mc);
             conn3.addEndCurves(mc);
+            if(tramCurve)
+               mc.setTramCurve();
             mc.moveStartControll(p1.getX(), p1.getY());
             mc.moveEndControll(p2.getX(), p2.getY());
             mc.setFirstRS(segments.get(idFirstSegment));

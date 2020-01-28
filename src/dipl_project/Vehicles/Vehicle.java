@@ -34,18 +34,19 @@ public class Vehicle {
     private double x0, y0, x1, y1, x2, y2, x3, y3, xLast, yLast, angle;
     private Animation animation;
     private Rectangle controlRectangle;
-    private int width=34, height=14, vehWidth=40, vehHeight=40;
+    private double controlWidth=34, controlHeight=14, vehWidth=40, vehHeight=40;
     private boolean paused=false;
     private final ImageView iv;
     private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
-    private double speed=maxSpeed/2, force=0.0003, time=0, breakRatio=1;
+    private double speed=maxSpeed/2, force=0.0003, time=0, breakRatio=1, vehicleLenght;
     private boolean watch=false;
     private int watchCount=0, freeCount=0;
     private RoadSegment rsLastWatch;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
-        iv=new ImageView(new Image(Dipl_project.class.getResource("Resources/vehicles/auto-01.png").toString()));
+        //iv=new ImageView(new Image(Dipl_project.class.getResource("Resources/vehicles/auto-01.png").toString()));
+        iv=new ImageView();
         iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -55,17 +56,31 @@ public class Vehicle {
                     pause();
             }
         });
-        iv.setFitWidth(40);
-        iv.setFitHeight(40);
+        /*iv.setFitWidth(40);
+        iv.setFitHeight(40);*/
         actualSegment=startSegment;
         generateStreet(startSegment);
         setPoints();
-        
+        /*
         controlRectangle=new Rectangle(width,height, Color.TRANSPARENT);
         controlRectangle.setX(x0-width/2);
-        controlRectangle.setY(y0-height/2);
+        controlRectangle.setY(y0-height/2);*/
         animation.addVehicle(this);
-        move(0);
+       
+    }
+    public void initVehicleImage(Image img, double width, double height, double controlWidth, double controlHeight)
+    {
+        iv.setImage(img);
+        iv.setFitWidth(width);
+        iv.setFitHeight(height);
+        this.controlWidth=controlWidth;
+        this.controlHeight=controlHeight;
+        vehWidth=width;
+        vehHeight=height;
+        controlRectangle=new Rectangle(controlWidth,controlHeight, Color.TRANSPARENT);
+        controlRectangle.setX(x0-controlWidth/2);
+        controlRectangle.setY(y0-controlHeight/2);
+         move(0);
         move(0.01);
     }
     private void generateStreet(RoadSegment start)
@@ -127,6 +142,14 @@ public class Vehicle {
             removeCar();  
         }
     }
+
+    public double getVehicleLenght() {
+        return vehicleLenght;
+    }
+
+    public void setVehicleLenght(double vehicleLenght) {
+        this.vehicleLenght = vehicleLenght;
+    }
     
     public void changeValues(double zoomRatio)
     {
@@ -134,10 +157,10 @@ public class Vehicle {
         vehHeight*=zoomRatio;
         iv.setFitWidth(vehWidth);
         iv.setFitHeight(vehHeight);
-        width*=zoomRatio;
-        height*=zoomRatio;
-        controlRectangle.setArcWidth(width);
-        controlRectangle.setArcHeight(height);
+        controlWidth*=zoomRatio;
+        controlHeight*=zoomRatio;
+        controlRectangle.setArcWidth(controlWidth);
+        controlRectangle.setArcHeight(controlHeight);
     }
     public void removeCar()
     {
@@ -198,8 +221,15 @@ public class Vehicle {
         
         iv.setX(x-vehWidth/2);
         iv.setY(y-vehHeight/2); 
-        controlRectangle.setX(x-width/2);
-        controlRectangle.setY(y-height/2);
+        controlRectangle.setX(x-controlWidth/2);
+        controlRectangle.setY(y-controlHeight/2);
+    }
+
+    
+    public void move()
+    {
+        setPoints();
+        move(time);
     }
     public void tick()
     {
@@ -330,7 +360,7 @@ public class Vehicle {
                             double speedNextCar=rsCheck.getVehicle().getSpeed()*speedMinus;
                             double tNextCar=rsCheck.getVehicle().getTime();
                             double dist=actDist+tNextCar-getTime()+distMinus+rsCheck.getErrorDistance();
-                            
+                            dist-=rsCheck.getVehicle().getVehicleLenght();
                             
                             if(dist<0.5 || distMinus==-1)
                                 setForce(-maxForce);

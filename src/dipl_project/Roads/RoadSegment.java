@@ -190,6 +190,7 @@ public class RoadSegment {
             for (TrafficLight trafficLight : trafficLights) {
                 trafficLight.rsSelect();
             }
+            System.out.println(id);
         }
                     
             

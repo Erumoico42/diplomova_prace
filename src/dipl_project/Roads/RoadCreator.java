@@ -25,7 +25,8 @@ public class RoadCreator {
     private boolean newCurve;
     private double curveLength=0;
     private int curveSegmentsSize=0;
-    private List<RoadSegment> startSegments=new ArrayList<>();
+    private List<RoadSegment> startTramSegments=new ArrayList<>();
+    private List<RoadSegment> startCarSegments=new ArrayList<>();
     private List<RoadSegment> curveSegments;
     private List<MyCurve> curves;
     private int id=0, idMax=0;
@@ -109,12 +110,16 @@ public class RoadCreator {
             }
             
         }     
-        startSegments.clear();
+        startCarSegments.clear();
+        startTramSegments.clear();
         for (Connect connect : connects) {
             if(connect.getEndCurves().isEmpty())
             {
                 for (MyCurve startCurve : connect.getStartCurves()) {
-                    startSegments.add(startCurve.getFirstCurveSegment());
+                    if(!startCurve.isTramCurve())
+                        startCarSegments.add(startCurve.getFirstCurveSegment());
+                    else
+                        startTramSegments.add(startCurve.getFirstCurveSegment());
                 }
             }
         }
@@ -187,12 +192,20 @@ public class RoadCreator {
         }
     }
     
-    public List<RoadSegment> getStartSegments() {
-        return startSegments;
+    public List<RoadSegment> getStartCarSegments() {
+        return startCarSegments;
     }
 
-    public void setStartSegments(List<RoadSegment> startSegments) {
-        this.startSegments = startSegments;
+    public void setStartCarSegments(List<RoadSegment> startCarSegments) {
+        this.startCarSegments = startCarSegments;
+    }
+
+    public List<RoadSegment> getStartTramSegments() {
+        return startTramSegments;
+    }
+
+    public void setStartTramSegments(List<RoadSegment> startTramSegments) {
+        this.startTramSegments = startTramSegments;
     }
     
 

@@ -9,6 +9,7 @@ import com.sun.javafx.scene.control.skin.VirtualFlow;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.UI.DrawControll;
+import dipl_project.UI.EditationControll;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,6 +96,8 @@ public class TrafficLight {
             tlAct.deselectTL();
         dc.setActualTL(getThis());
         selectTL();
+        zoomTL(EditationControll.getZoomRatio());
+        
     }
     
     public TrafficLight getThis()
@@ -383,6 +386,21 @@ public class TrafficLight {
         }
         
     }
+    public void zoomTL(double ratio)
+    {
+        tlWidth*=ratio;
+        tlHeight*=ratio;
+        tlImage.setFitWidth(tlWidth);
+        tlImage.setFitHeight(tlHeight);
+        redLayout*=ratio;
+        orangeLayout*=ratio;
+        greenLayout*=ratio;
+        circleGreen.setRadius(circleGreen.getRadius()*ratio);
+        circleOrange.setRadius(circleOrange.getRadius()*ratio);
+        circleRed.setRadius(circleRed.getRadius()*ratio);
+        moveCirclesToTL();
+        moveConnectCurveStart();
+    }
     private int checkInstersect(Circle cir, TrafficLight tl)
     {
         int ret=-1;
@@ -563,6 +581,15 @@ public class TrafficLight {
         distY = startY-layoutY;
         location.setLocation(layoutX, layoutY);
         moveConnectCurveStart();
+    }
+    public void move(double x, double y)
+    {
+        layoutX=x;
+        layoutY=y;
+        tlBox.setLayoutX(layoutX);
+        tlBox.setLayoutY(layoutY);
+        moveConnectCurveStart();
+        moveCirclesToTL();
     }
     public void setTLPosition(double x, double y)
     {
@@ -886,10 +913,6 @@ public class TrafficLight {
 
     public void setLocOrig(Point locOrig) {
         this.locOrig = locOrig;
-    }
-
-    public Point getLocation() {
-        return location;
     }
 
     public Point getLocOrig() {

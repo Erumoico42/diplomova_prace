@@ -82,7 +82,12 @@ public class Animation {
         for (Vehicle vehicle : vehicles) {
             Platform.runLater(() -> {
                 vehicle.changeValues(zoomRatio);
+                vehicle.move();
             });
         }
+    }
+    public List<Vehicle> getVehicles()
+    {
+        return vehicles;
     }
 }

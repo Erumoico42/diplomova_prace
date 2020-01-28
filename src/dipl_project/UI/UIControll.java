@@ -17,6 +17,8 @@ import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
 import dipl_project.Simulation.SimulationControll;
 import dipl_project.Vehicles.Animation;
+import dipl_project.Vehicles.Car;
+import dipl_project.Vehicles.Tram;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -66,7 +68,7 @@ public class UIControll {
     private ListView<HBox> selectedCPs;
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
-    private List<RoadSegment> startSegments=new ArrayList<>();
+    private List<RoadSegment> startCarSegments=new ArrayList<>();
     private List<Connect> connects=new ArrayList<>();
     private CheckBox checkBoxNewCP, editBackground, addTrafficLight, connectTrafficLight, enableSwitchRed, enableSwitchGreen, enableSwitchOrange;
     private Button btnRemoveBackhround, saveEditedCurve;
@@ -79,8 +81,12 @@ public class UIControll {
     private Spinner<Integer> timeTLRed, timeTLOrange, timeTLGreen, delayConnectTL;
     private TrafficLight actualTL;
     private Rectangle menuBG;
-    private boolean priorityCP;
+    private boolean priorityCP, isTramCreating=false;
     private CheckBox editConcept;
+    private RadioButton tramCreate;
+    private RadioButton carCreate;
+    private ToggleGroup createVehicleGroup;
+    private List<RoadSegment> startTramSegments;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); 
@@ -107,16 +113,20 @@ public class UIControll {
         return menuBG;
     }
     
-    public void setStartSegments(List<RoadSegment> segments)
+    public void setStartSegments(List<RoadSegment> carSegments, List<RoadSegment> tramSegments)
     {
-        startSegments=segments;
+        startCarSegments=carSegments;
+        startTramSegments=tramSegments;
     }
 
     public void setDc(DrawControll dc) {
         this.dc = dc;
     }
-    public List<RoadSegment> getStartSegments() {
-        return startSegments;
+    public List<RoadSegment> getStartCarSegments() {
+        return startCarSegments;
+    }
+    public List<RoadSegment> getStartTramSegments() {
+        return startTramSegments;
     }
     public void enableCurveEdit(boolean enable)
     {
@@ -325,7 +335,7 @@ public class UIControll {
         moveCanvas.setLayoutY(130);
         moveCanvas.setVisible(false);
         updateCPsPosition();
-        Slider generatorSize=new Slider(1, 150, 10);
+        
         Button btnAdd=new Button("Spustit");
         btnAdd.setLayoutX(140);
         btnAdd.setLayoutY(10);
@@ -343,7 +353,8 @@ public class UIControll {
                 }
                 else
                 {
-                    Dipl_project.getSc().startSimulation();
+                    Dipl_project.getSc().startSimulationCar();
+                    Dipl_project.getSc().startSimulationTram();
                     Dipl_project.getSc().startTrafficLights();
                     runGenerator=true;
                     btnAdd.setText("Zastavit");
@@ -353,16 +364,29 @@ public class UIControll {
         });
         
         
-        
-        generatorSize.setLayoutX(35);
-        generatorSize.setLayoutY(50);
-        Label lblGenerSize=new Label("10");
-        lblGenerSize.setLayoutX(10);
-        lblGenerSize.setLayoutY(50);
-        generatorSize.valueProperty().addListener((observable, oldValue, newValue)->{
-            Dipl_project.getSc().changeGenerateSize(newValue.intValue());
-            lblGenerSize.setText(String.valueOf(newValue.intValue()));
+        Slider carGeneratorSize=new Slider(1, 150, 40);
+        carGeneratorSize.setLayoutX(35);
+        carGeneratorSize.setLayoutY(45);
+        Label lblCarGenerSize=new Label("20");
+        lblCarGenerSize.setLayoutX(10);
+        lblCarGenerSize.setLayoutY(45);
+        carGeneratorSize.valueProperty().addListener((observable, oldValue, newValue)->{
+            Dipl_project.getSc().changeGenerateCarSize(newValue.intValue());
+            lblCarGenerSize.setText(String.valueOf(newValue.intValue()));
         });
+        
+        Slider tramGeneratorSize=new Slider(1, 50, 10);
+        tramGeneratorSize.setLayoutX(35);
+        tramGeneratorSize.setLayoutY(65);
+        Label lblTramGenerSize=new Label("5");
+        lblTramGenerSize.setLayoutX(10);
+        lblTramGenerSize.setLayoutY(65);
+        tramGeneratorSize.valueProperty().addListener((observable, oldValue, newValue)->{
+            Dipl_project.getSc().changeGenerateTramSize(newValue.intValue());
+            lblTramGenerSize.setText(String.valueOf(newValue.intValue()));
+        });
+        
+        
         
         Button btnSave=new Button("Uložit");
         btnSave.setLayoutX(10);
@@ -423,6 +447,7 @@ public class UIControll {
         Button btnReload=new Button("Reload");
         btnReload.setLayoutX(360);
         btnReload.setLayoutY(10);
+        btnReload.setVisible(false);
         btnReload.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -526,6 +551,29 @@ public class UIControll {
         curveEdit.setDisable(true);
         saveEditedCurve.setDisable(true);
         
+        carCreate=new RadioButton("Automobil");
+        carCreate.setLayoutX(450);
+        carCreate.setLayoutY(75);
+        carCreate.setSelected(true);
+        carCreate.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                isTramCreating=false;
+            }
+        });
+        tramCreate=new RadioButton("Tramvaj");
+        tramCreate.setLayoutX(450);
+        tramCreate.setLayoutY(100);
+        tramCreate.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                isTramCreating=true;
+            }
+        });
+         
+        createVehicleGroup=new ToggleGroup();
+        createVehicleGroup.getToggles().addAll(tramCreate, carCreate);
+        
         initTrafficLights();
         
         popupClick.getItems().addAll(popupSplit, popupRemove);
@@ -533,8 +581,9 @@ public class UIControll {
         menuBG.setFill(Color.LIGHTGRAY);
         menuBG.setHeight(130);
         menuBG.setWidth(initialSizeX);
-        root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, btnClean, generatorSize,lblGenerSize, btnCheckIntersect,
-                btnHideAutoFound, checkBoxNewCP, watch, priority, editBackground, editConcept,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, timeTLGreen, timeTLOrange, timeTLRed,
+        root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, btnClean, carGeneratorSize,lblCarGenerSize,tramGeneratorSize,lblTramGenerSize, btnCheckIntersect,
+                btnHideAutoFound, checkBoxNewCP, watch, priority, editBackground, editConcept,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, 
+                carCreate, tramCreate, timeTLGreen, timeTLOrange, timeTLRed,
                 addTrafficLight, connectTrafficLight, delayConnectTL,rbGreen,rbOrange,rbRed, enableSwitchRed, enableSwitchOrange, 
                 enableSwitchGreen,lblCurveEdit, btnRemoveBackhround, selectedCPs, moveCanvas);
     }
@@ -859,17 +908,22 @@ public class UIControll {
     {
         return popupShown;
     }
-    public void newVehicle()
+    public void newCar()
     {
-        RoadSegment rs=getRandomStart();
+        RoadSegment rs=getRandomStart(startCarSegments);
         if(rs!=null)
-            new Vehicle(rs);
-        
+            new Car(rs);
     }
-    public RoadSegment getRandomStart()
+     public void newTram()
+    {
+        RoadSegment rs=getRandomStart(startTramSegments);
+        if(rs!=null)
+            new Tram(rs);
+    }
+    public RoadSegment getRandomStart(List<RoadSegment> startSegm)
     {
         List<RoadSegment> sstoGen=new ArrayList<>();
-        sstoGen.addAll(startSegments);
+        sstoGen.addAll(startSegm);
 
         while(!sstoGen.isEmpty())
         {
@@ -932,6 +986,10 @@ public class UIControll {
 
     public List<RoadSegment> getSegments() {
         return segments;
+    }
+
+    public boolean isTramCreating() {
+        return isTramCreating;
     }
     
 }

@@ -19,22 +19,32 @@ import javafx.application.Platform;
  */
 public class SimulationControll {
 
-    private int generateSize=6000;
+    private int generateCarSize=6000;
     private boolean deleyChangedCar=false;
-    private TimerTask timerTask;
-    private Timer timer;
+    private TimerTask timerTaskCars;
+    private Timer timerCars;
     private UIControll ui;
     private DrawControll dc;
+    private int generateTramSize=6000;
+    private boolean deleyChangedTram;
+    private Timer timerTrams;
+    private TimerTask timerTaskTrams;
     public SimulationControll()
     {
         ui=Dipl_project.getUI();
         dc=Dipl_project.getDC();
     }
-    public void stopAnimation()
+    public void stopSimulation()
     {
+        if(timerTaskCars!=null)
+        timerTaskCars.cancel();
+        if(timerCars!=null)
+        timerCars.cancel();
         
-        timerTask.cancel();
-        timer.cancel();
+        if(timerTaskTrams!=null)
+            timerTaskTrams.cancel();
+        if(timerTrams!=null)
+            timerTrams.cancel();
         
     }
     public void stopTrafficLights()
@@ -49,33 +59,66 @@ public class SimulationControll {
             trafficLight.setRun(true);
         }
     }
-    public void startSimulation()
+    public void startSimulationCar()
     {
         
-        timer=new Timer();
-        timerTask = new TimerTask() {
+        timerCars=new Timer();
+        timerTaskCars = new TimerTask() {
             @Override
             public void run(){
                 Platform.runLater(() -> {
-                    tick();
+                    tickCar();
                     if(deleyChangedCar)
                     {
                         deleyChangedCar=false;
-                        timer.cancel();
-                        startSimulation(); 
+                        timerCars.cancel();
+                        timerTaskCars.cancel();
+                        startSimulationCar(); 
                     }
                 });
             }
         };
-        timer.schedule(timerTask, generateSize, generateSize);
+        timerCars.schedule(timerTaskCars, generateCarSize, generateCarSize);
+
     }
-    private void tick()
+    public void startSimulationTram()
     {
-        ui.newVehicle();
+        timerTrams=new Timer();
+        timerTaskTrams = new TimerTask() {
+            @Override
+            public void run(){
+                Platform.runLater(() -> {
+                    tickTram();
+                    if(deleyChangedTram)
+                    {
+                        deleyChangedTram=false;
+                        timerTrams.cancel();
+                        timerTaskTrams.cancel();
+                        startSimulationTram(); 
+                    }
+                });
+            }
+        };
+        timerTrams.schedule(timerTaskTrams, generateTramSize, generateTramSize);
     }
-    public void changeGenerateSize(int size)
+    private void tickCar()
     {
-        generateSize=60000/size;
+        ui.newCar();
+    }
+    private void tickTram()
+    {
+        ui.newTram();
+    }
+    public void changeGenerateCarSize(int size)
+    {
+
+        generateCarSize=60000/size;
         deleyChangedCar=true;
     }
+    public void changeGenerateTramSize(int size)
+    {
+        generateTramSize=60000/size;
+        deleyChangedTram=true;
+    }
 }
+

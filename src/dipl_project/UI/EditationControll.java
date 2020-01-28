@@ -12,6 +12,7 @@ import dipl_project.Roads.Controll;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.MyMath;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.List;
 
@@ -50,18 +51,25 @@ public  class EditationControll {
             Dipl_project.getAnim().setZoomRatio(zoomRatio);
             zoomByRatio(zoomInRatio);
         }
+        Dipl_project.getDC().newRoad();
         Dipl_project.getRC().setArrows();
     }
-    public static void zoomByRatio(double defZoomRatio)
+
+    public static double getZoomRatio() {
+        return zoomRatio;
+    }
+   
+    public static void zoomByRatio(double zoomRatio)
     {
-        zoomRC(defZoomRatio);
-        zoomConnects(defZoomRatio);
-        zoomCurves(defZoomRatio);
-        zoomSegments(defZoomRatio);
-        
+        zoomRC(zoomRatio);
+        zoomConnects(zoomRatio);
+        zoomCurves(zoomRatio);
+        zoomSegments(zoomRatio);
+        zoomTLs(zoomRatio);
         Dipl_project.getRC().setArrows();
         if(BackgroundControll.isBackground())
-            BackgroundControll.zoomBackgroundByRatio(defZoomRatio);
+            BackgroundControll.zoomBackgroundByRatio(zoomRatio);
+        Dipl_project.getDC().newRoad();
     }
     private static void zoomRC(double zoomRatio)
     {
@@ -71,6 +79,21 @@ public  class EditationControll {
         Dipl_project.getRC().setCollisDistance(colisDist);
         double arrowLenghtMin=Dipl_project.getRC().getArrowLengthMin()*zoomRatio;
         Dipl_project.getRC().setArrowLengthMin(arrowLenghtMin);
+    }
+    private static void zoomTLs(double zoomRatio)
+    {
+        for (TrafficLight tl : Dipl_project.getDC().getTrafficLights()) {
+            Point pos=tl.getPosition();
+            double tlLayoutX = pos.getX()-(canvasWidth);
+            tlLayoutX*=zoomRatio;
+            tlLayoutX+=canvasWidth;
+            double tlLayoutY = pos.getY()-(canvasHeight);
+            tlLayoutY*=zoomRatio;
+            tlLayoutY+=canvasHeight;
+            pos.setLocation(tlLayoutX,tlLayoutY);
+            tl.move(tlLayoutX, tlLayoutY);
+            tl.zoomTL(zoomRatio);
+        }
     }
     private static void zoomSegments(double zoomRatio)
     {
@@ -188,6 +211,7 @@ public  class EditationControll {
         moveCurves(x, y);
         moveConnects(x, y);
         moveTLs(x,y);
+        moveVehicles(x, y);
     }
     public static void editClick(double x, double y)
     {
@@ -317,6 +341,13 @@ public  class EditationControll {
             c2.moveLineStart(p3layoutX, p3layoutY);
         }
     }
+
+    private static void moveVehicles(double x, double y)
+    {
+        for (Vehicle veh : Dipl_project.getAnim().getVehicles()) {
+            veh.move();
+        }
+    }
     private static void clickConnects(double x, double y)
     {
         for (Connect connect : Dipl_project.getUI().getConnects()) {
@@ -338,7 +369,7 @@ public  class EditationControll {
      private static void cliclTLs(double x, double y)
     {
         for (TrafficLight tl : Dipl_project.getDC().getTrafficLights()) {
-            Point t=tl.getLocation();
+            Point t=tl.getPosition();
             double tlLayoutX = x-t.getX();
             double tlLayoutY = y-t.getY();
             tl.setLocOrig(new Point((int)tlLayoutX, (int)tlLayoutY));

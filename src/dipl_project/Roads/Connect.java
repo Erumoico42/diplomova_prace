@@ -34,7 +34,7 @@ public class Connect {
     private Connect connectToConnect;
     private boolean tryConnect=false;
     private boolean selected=false;
-    private boolean dragged=false;
+    private boolean dragged=false, tramConnect=false;
     private DrawControll dc=Dipl_project.getDC();
     public Connect(Point location, int id)
     {
@@ -117,6 +117,15 @@ public class Connect {
             return false;
         else return true;
     }
+
+    public boolean isTramConnect() {
+        return tramConnect;
+    }
+
+    public void setTramConnect(boolean tramConnect) {
+        this.tramConnect = tramConnect;
+    }
+    
     public void splitConnect()
     {
         for (MyCurve startCurve : startCurves) {
@@ -238,7 +247,7 @@ public class Connect {
     private void checkConnect()
     {
         for (Connect con : ui.getConnects()) {
-            if(!con.equals(thisConnect))
+            if(!con.equals(thisConnect) && (con.isTramConnect()==tramConnect))
             {
                 if(Shape.intersect(con.getConnect(), 
                         connect).getBoundsInLocal().getWidth()>0)
