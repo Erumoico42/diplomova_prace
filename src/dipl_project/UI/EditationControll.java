@@ -51,7 +51,6 @@ public  class EditationControll {
             Dipl_project.getAnim().setZoomRatio(zoomRatio);
             zoomByRatio(zoomInRatio);
         }
-        Dipl_project.getDC().newRoad();
         Dipl_project.getRC().setArrows();
     }
 
@@ -212,6 +211,7 @@ public  class EditationControll {
         moveConnects(x, y);
         moveTLs(x,y);
         moveVehicles(x, y);
+        //Dipl_project.getDC().newRoad();
     }
     public static void editClick(double x, double y)
     {

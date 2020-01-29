@@ -29,6 +29,9 @@ public class Animation {
     {
         timerTask.cancel();
         timer.cancel();
+        for (Vehicle vehicle : vehicles) {
+            vehicle.stopBlink();
+        }
     }
     public void addVehicle(Vehicle vehicle)
     {

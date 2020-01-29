@@ -597,7 +597,14 @@ public class Vehicle {
         };
         blinkerOn=true;
         blinkerCountDown=-1;
-        blinkerTimer.schedule(blinkerTimerTask, 0,500);
+        blinkerTimer.schedule(blinkerTimerTask, 0,600);
+    }
+    public void stopBlink()
+    {
+        if(blinkerTimer!=null)
+        blinkerTimer.cancel();
+        if(blinkerTimerTask!=null)
+            blinkerTimerTask.cancel();
     }
     private void stopBlinker()
     {
@@ -608,8 +615,7 @@ public class Vehicle {
         if(blinkerCountDown==0 && blinkerOn)
         {
             setDefCar(actualCar);
-            blinkerTimer.cancel();
-            blinkerTimerTask.cancel();
+            stopBlink();
             blinkerOn=false;
         }
         blinkerCountDown--;
