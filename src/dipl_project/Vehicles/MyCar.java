@@ -13,26 +13,32 @@ import javafx.scene.image.Image;
  *
  * @author Honza
  */
-public class Car extends Bot{
-    
-    public Car(RoadSegment startSegment) {
+public class MyCar extends Vehicle{
+
+    public MyCar(RoadSegment startSegment) {
         super(startSegment);
+        super.setForce(0);
+        super.setSpeed(0);
+        setMyCarImage();
+        super.setVehicleLenght(0);
         
-        setRandomCarImage();
-        setVehicleLenght(0);
     }
-    private void setRandomCarImage()
+    private void setMyCarImage()
     {
-        int rnd=(int)(Math.random()*11)+1;
-        String carTemp="auto-";
-        if(rnd<10)
-            carTemp+="0";
-        String carName=carTemp+rnd;
+        String carName="moje";
         Image carDef= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+".png").toString());
         Image carLeft= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-l.png").toString());
         Image carRight= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-p.png").toString());
         Image carBreak= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b.png").toString());
-        initVehicleImage(carDef, carLeft, carRight, carBreak, 40, 40, 34, 14);
+        initVehicleImage(carDef, carLeft, carRight, carBreak, 50, 50, 40, 18);
 
     }
+
+    @Override
+    public void removeCar() {
+        super.removeCar(); //To change body of generated methods, choose Tools | Templates.
+        Dipl_project.getSc().setMycar(null);
+        Dipl_project.getUI().newMyCar();
+    }
+    
 }

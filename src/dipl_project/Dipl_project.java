@@ -39,6 +39,7 @@ public class Dipl_project extends Application {
         anim=new Animation();
         sc=new SimulationControll();
         stc=new StorageControll();
+        ui.setSc(sc);
         loadRules();
     }
     public static void loadRules()

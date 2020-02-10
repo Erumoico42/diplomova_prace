@@ -47,7 +47,7 @@ public class Vehicle {
     private RoadSegment rsLastWatch;
     private Timer blinkerTimer;
     private TimerTask blinkerTimerTask;
-    private int blinkerCountDown=-1, breakCountDown=0;
+    private int breakCountDown=0;
     private boolean blink=false, blinkerOn=false, changedForce=false;
     public Vehicle(RoadSegment startSegment)
     {
@@ -93,7 +93,8 @@ public class Vehicle {
         controlRectangle.setX(x0-controlWidth/2);
         controlRectangle.setY(y0-controlHeight/2);
          move(0);
-        move(0.01);
+         time=0.01;
+        move(time);
     }
     private void generateStreet(RoadSegment start)
     {
@@ -260,9 +261,13 @@ public class Vehicle {
             time-=1;
             nextSegment();
         }
-        if(!paused)
-           colisionDetect();
+        findBlinker();
     }
+
+    public double getMaxForce() {
+        return maxForce;
+    }
+    
     public void updateSpeed(double force) {
         
         double newSpeed=this.speed+force;
@@ -281,8 +286,6 @@ public class Vehicle {
                     defCar=actualCar;
                     
                 }
-                
-
             }
 
             if(changedForce)
@@ -321,14 +324,21 @@ public class Vehicle {
         return speed;
     }
 
-    private void colisionDetect()
+    public void setSpeed(double speed) {
+        this.speed = speed;
+    }
+    
+    public void colisionDetect()
     {
-        findBlinker();
-        boolean carFoundStreet=findNextCar();
-        if(!carFoundStreet)
-        {
-            setForce(maxForce);
+        
+        if(!paused){
+           boolean carFoundStreet=findNextCar();
+            if(!carFoundStreet)
+            {
+                setForce(maxForce);
+            } 
         }
+        
         
     }
 
@@ -556,11 +566,6 @@ public class Vehicle {
         newForce*=breakRatio;
         if(newForce>maxForce)
             newForce=maxForce;
-            
-            
-        
-        
-        
         this.force = newForce;
     }
     private void setDefCar(Image img)
@@ -596,7 +601,6 @@ public class Vehicle {
             }
         };
         blinkerOn=true;
-        blinkerCountDown=-1;
         blinkerTimer.schedule(blinkerTimerTask, 0,600);
     }
     public void stopBlink()
@@ -608,16 +612,15 @@ public class Vehicle {
     }
     private void stopBlinker()
     {
-        if(actualSegment.isBlinkerLeft() || actualSegment.isBlinkerRight())
+        if(actualSegment.isStopBlinker())
         {
-            blinkerCountDown=4;
+            if(blinkerOn)
+            {
+                setDefCar(actualCar);
+                stopBlink();
+                blinkerOn=false;
+            }
         }
-        if(blinkerCountDown==0 && blinkerOn)
-        {
-            setDefCar(actualCar);
-            stopBlink();
-            blinkerOn=false;
-        }
-        blinkerCountDown--;
+        
     }
 }

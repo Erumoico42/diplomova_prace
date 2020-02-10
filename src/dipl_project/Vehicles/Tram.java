@@ -13,7 +13,7 @@ import javafx.scene.image.Image;
  *
  * @author Honza
  */
-public class Tram extends Vehicle{
+public class Tram extends Bot{
     
     public Tram(RoadSegment startSegment) {
         super(startSegment);
