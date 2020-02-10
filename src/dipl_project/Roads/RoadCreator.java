@@ -123,7 +123,18 @@ public class RoadCreator {
                         startTramSegments.add(startCurve.getFirstCurveSegment());
                 }
             }
+            checkEndBlinkers(connect);
         }
+    }
+    private void checkEndBlinkers(Connect connect)
+    {
+         if(connect.getEndCurves().size()==1)
+        {
+            
+            connect.getEndCurves().get(0).getFirstCurveSegment().setBlinkerLeft(false);
+            connect.getEndCurves().get(0).getFirstCurveSegment().setBlinkerRight(false);
+        }
+        
     }
     private void setBlinkers(Connect connect)
     {
@@ -132,7 +143,7 @@ public class RoadCreator {
             List<BlinkerAngle> angles=new ArrayList<>();
             double angleDef=MyMath.angle(connect.getStartCurves().get(0).getP0(), connect.getStartCurves().get(0).getP1());
             for (MyCurve startCurve : connect.getStartCurves()) {
-                double angle=MyMath.angle(startCurve.getP1(), startCurve.getP2());
+                double angle=MyMath.angle(startCurve.getP1(), startCurve.getP3());
                 angle-=angleDef;
                 angles.add(new BlinkerAngle(angle, startCurve));
             }
@@ -152,11 +163,45 @@ public class RoadCreator {
             else
             {
                 boolean runLeft=(Math.abs(baLeft.getAngle())-Math.abs(baRight.getAngle()))>0;
+                
                 baLeft.setRun(runLeft);
                 baRight.setRun(!runLeft);
             }
+            
             baLeft.getMc().getFirstCurveSegment().setBlinkerLeft(baLeft.isRun());
             baRight.getMc().getFirstCurveSegment().setBlinkerRight(baRight.isRun());
+             baLeft.getMc().getLastCurveSegment().setStopBlinker(true);
+             baRight.getMc().getLastCurveSegment().setStopBlinker(true);
+        }
+        else if(connect.getStartCurves().size()==1 && connect.getEndCurves().size()>0)
+        {
+            MyCurve mcBlinker=connect.getStartCurves().get(0);
+            double angle1=MyMath.angle(mcBlinker.getP0(), mcBlinker.getP1());
+            double angle2=MyMath.angle(mcBlinker.getP1(), mcBlinker.getP3());
+            if(angle1>Math.PI || angle2>Math.PI)
+            {
+                angle1-=Math.PI;
+                angle2-=Math.PI;
+            }
+            angle2-=angle1;
+            angle1=0;
+            boolean right=((angle2>0 || angle2<-Math.PI) && angle2<Math.PI);
+            if(Math.abs(angle2)>Math.PI/4)
+            {
+                if(right)
+                {
+                    mcBlinker.getFirstCurveSegment().setBlinkerLeft(false);
+                    mcBlinker.getFirstCurveSegment().setBlinkerRight(true);
+                }
+                else
+                {
+                    mcBlinker.getFirstCurveSegment().setBlinkerLeft(true);
+                    mcBlinker.getFirstCurveSegment().setBlinkerRight(false);
+                }
+                mcBlinker.getLastCurveSegment().setStopBlinker(true);
+            }
+            
+                
         }
     }
     public void findIntersects()
