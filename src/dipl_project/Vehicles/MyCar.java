@@ -20,6 +20,7 @@ public class MyCar extends Vehicle{
         super.setForce(0);
         super.setSpeed(0);
         setMyCarImage();
+        setBreaksLayout(-5);
         super.setVehicleLenght(0);
         
     }
@@ -27,9 +28,9 @@ public class MyCar extends Vehicle{
     {
         String carName="moje";
         Image carDef= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+".png").toString());
-        Image carLeft= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-l.png").toString());
-        Image carRight= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-p.png").toString());
-        Image carBreak= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b.png").toString());
+        Image carLeft= new Image(Dipl_project.class.getResource("Resources/vehicles/blinker-l.png").toString());
+        Image carRight= new Image(Dipl_project.class.getResource("Resources/vehicles/blinker-r.png").toString());
+        Image carBreak= new Image(Dipl_project.class.getResource("Resources/vehicles/breaks.png").toString());
         initVehicleImage(carDef, carLeft, carRight, carBreak, 50, 50, 40, 18);
 
     }

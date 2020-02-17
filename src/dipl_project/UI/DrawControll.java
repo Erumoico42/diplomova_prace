@@ -192,6 +192,7 @@ public  class DrawControll {
             menuBG.setWidth(oldWidth+newWidth);
             moveCanvas.setWidth(oldWidth+newWidth);
             ui.updateCPsPosition();
+            EditationControll.setCanvasSize(oldWidth+newWidth, canvas.getHeight());
         });
         ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
             double oldHeight=canvas.getHeight();
@@ -199,6 +200,7 @@ public  class DrawControll {
             canvas.setHeight(oldHeight+newHeight);
             moveCanvas.setHeight(oldHeight+newHeight);
             ui.updateCPsPosition();
+            EditationControll.setCanvasSize(canvas.getWidth(), oldHeight+newHeight);
         });
         moveCanvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
@@ -282,6 +284,7 @@ public  class DrawControll {
             if(actualConnect.isTramConnect())
                 curve.setTramCurve();
             ui.addCurve(curve);
+            
             actualCurve=curve;
             actualConnect.deselect();
             actualConnect=endConnect;

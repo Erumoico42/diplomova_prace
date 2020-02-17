@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javafx.util.Pair;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,7 +59,9 @@ public class StreetStore {
         loadConnects();
         loadSegments();
         loadCurves();
+        
         setSegments(tls);
+        setRSConnects();
         dc.setLoadingMap(false);
         loadStartSegments();
         dipl_project.Dipl_project.getRC().setCurves(ui.getCurves());
@@ -76,6 +79,26 @@ public class StreetStore {
             Attr position=doc.createAttribute("position");
             position.setValue(String.valueOf((int)connect.getLocation().getX()+","+(int)connect.getLocation().getY()));
             conn.setAttributeNode(position);
+            
+            for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connect.getConnectSegmentsMap().entrySet()) {
+                RoadSegment segment = rs.getValue();
+                Pair<MyCurve, MyCurve> curves=rs.getKey();
+                
+                Element rsConnect=doc.createElement("rsConnect");
+                Attr idRsConnect=doc.createAttribute("idRsConnect");
+                idRsConnect.setValue(String.valueOf(segment.getId()));
+                rsConnect.setAttributeNode(idRsConnect);
+                
+                Attr idCurve1=doc.createAttribute("idCurve1");
+                idCurve1.setValue(String.valueOf(curves.getKey().getId()));
+                rsConnect.setAttributeNode(idCurve1);
+                
+                Attr idCurve2=doc.createAttribute("idCurve2");
+                idCurve2.setValue(String.valueOf(curves.getValue().getId()));
+                rsConnect.setAttributeNode(idCurve2);
+                
+                conn.appendChild(rsConnect);
+            }
             root.appendChild(conn);
         }
     }
@@ -97,8 +120,30 @@ public class StreetStore {
             connects.put(idConn, connect);
             ui.addConnect(connect);
             dc.addConnect(connect);
+            
+            
         }
         dc.setIdLastConnect(maxId);
+    }
+    private void setRSConnects()
+    {
+        NodeList conn=doc.getElementsByTagName("connect");
+        for (int i = 0; i < conn.getLength(); i++) {
+            Node con=conn.item(i);           
+            int idConn=Integer.parseInt(con.getAttributes().getNamedItem("idConnect").getNodeValue());
+            Connect connect=connects.get(idConn);
+            NodeList rsConnects=((Element)con).getElementsByTagName("rsConnect");
+            for (int j = 0; j < rsConnects.getLength(); j++) {
+                int idRsConnect=Integer.parseInt(rsConnects.item(j).getAttributes().getNamedItem("idRsConnect").getNodeValue());
+                int idCurve1=Integer.parseInt(rsConnects.item(j).getAttributes().getNamedItem("idCurve1").getNodeValue());
+                int idCurve2=Integer.parseInt(rsConnects.item(j).getAttributes().getNamedItem("idCurve2").getNodeValue());
+                RoadSegment segment=segments.get(idRsConnect);
+                segment.setVisible(false);
+                MyCurve mc1=curves.get(idCurve1);
+                MyCurve mc2=curves.get(idCurve2);
+                connect.addConnectSegment(segment, mc1, mc2);
+            }
+        }
     }
     public void saveStartSegments()
     {
@@ -160,6 +205,22 @@ public class StreetStore {
             Attr rsP3=doc.createAttribute("rsP3");
             rsP3.setValue(String.valueOf((int)rs.getP3().getX()+","+(int)rs.getP3().getY()));
             roadSegment.setAttributeNode(rsP3);
+            
+            Attr blinkerLeft=doc.createAttribute("blinkerLeft");
+            blinkerLeft.setValue(String.valueOf(rs.isBlinkerLeft()));
+            roadSegment.setAttributeNode(blinkerLeft);
+            
+            Attr blinkerRight=doc.createAttribute("blinkerRight");
+            blinkerRight.setValue(String.valueOf(rs.isBlinkerRight()));
+            roadSegment.setAttributeNode(blinkerRight);
+            
+            Attr blinkerStop=doc.createAttribute("blinkerStop");
+            blinkerStop.setValue(String.valueOf(rs.isStopBlinker()));
+            roadSegment.setAttributeNode(blinkerStop);
+            
+            Attr segmentLenght=doc.createAttribute("segmentLenght");
+            segmentLenght.setValue(String.valueOf((int)rs.getSegmentLenght()));
+            roadSegment.setAttributeNode(segmentLenght);
             
             for (TrafficLight tl : rs.getTrafficLights()) {
                 Element trl=doc.createElement("tl");
@@ -374,15 +435,19 @@ public class StreetStore {
             String[] s3=p.split(",");
             Point p3=new Point(Integer.parseInt(s3[0]),Integer.parseInt(s3[1]));
             
+            int segmentLenght=Integer.parseInt(roadSegment.getAttributes().getNamedItem("segmentLenght").getNodeValue());
+            
+            boolean blinkerLeft=Boolean.parseBoolean(roadSegment.getAttributes().getNamedItem("blinkerLeft").getNodeValue());
+            boolean blinkerRight=Boolean.parseBoolean(roadSegment.getAttributes().getNamedItem("blinkerRight").getNodeValue());
+            boolean blinkerStop=Boolean.parseBoolean(roadSegment.getAttributes().getNamedItem("blinkerStop").getNodeValue());
             RoadSegment rsNew=new RoadSegment(p0, p3);
             rsNew.setId(idRoadSegment);
             rsNew.setP1(p1);
             rsNew.setP2(p2);
-            /*NodeList tl=((Element)rs).getElementsByTagName("tl");
-            for (int j = 0; j < tl.getLength(); j++) {
-                int idTL=Integer.parseInt(rsSWs.item(j).getAttributes().getNamedItem("idTL").getNodeValue());
-                newRS.addTrafficLight(trafficLights.get(idTL));
-            }*/
+            rsNew.setSegmentLenght(segmentLenght);
+            rsNew.setBlinkerLeft(blinkerLeft);
+            rsNew.setBlinkerRight(blinkerRight);
+            rsNew.setStopBlinker(blinkerStop);
             segments.put(idRoadSegment, rsNew);
             if(idRoadSegment>idMax)
                 idMax=idRoadSegment+1;

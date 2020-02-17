@@ -23,15 +23,18 @@ public class RoadCreator {
     private  double segLength=30, arrowLengthMin=120, collisDistance=30;
     private RoadSegment lastRS, newRS;
     private MyCurve actualCurve;
-    private boolean newCurve;
-    private double curveLength=0;
-    private int curveSegmentsSize=0;
+    private boolean newCurve, newSegment=true;
+    private double curveLength=0, startAngle=0, startControllLenght=0;
+    private int curveSegmentsSize=0, newCurveSegmentsSize=0;
     private List<RoadSegment> startTramSegments=new ArrayList<>();
     private List<RoadSegment> startCarSegments=new ArrayList<>();
-    private List<RoadSegment> curveSegments;
     private List<MyCurve> curves;
     private int id=0, idMax=0;
     public RoadCreator() {
+    }
+    public void enableNewSegment(boolean enable)
+    {
+        newSegment=enable;
     }
     public void createRoad(List<Connect> connects, List<MyCurve> curves)
     {
@@ -39,29 +42,24 @@ public class RoadCreator {
         for (Connect connect : connects) {
             
             for (MyCurve startCurve : connect.getStartCurves()) { 
-                actualCurve=startCurve;
-                boolean endExist=false;
-                for (MyCurve endCurve : connect.getEndCurves()) {
-                    RoadSegment rsEnd=endCurve.getLastCurveSegment();
-                    if(rsEnd!=null)
-                    {
-                        pOld=rsEnd.getP3();
-                        endExist=true;
-                        break;
-                    }
-                }  
+                startAngle=MyMath.angle(startCurve.getP0(), startCurve.getP1());
+                startControllLenght=MyMath.length(connect.getLocation(), startCurve.getStartControll().getLocation());
                 curveSegmentsSize=0;
-                curveSegments=startCurve.getCurveSegments();
-                if(!endExist)
-                    pOld=connect.getLocation();
-                newCurve=true;
+                newCurveSegmentsSize=0;
+                lastRS=null;
+                pOld=connect.getLocation();
+                actualCurve=startCurve;
+                curveSegmentsSize=actualCurve.getCurveSegments().size();
+                
                 callBez(startCurve.getCurve());
                 
-                if(curveSegmentsSize<curveSegments.size())
+                
+                List<RoadSegment>curveSegments=actualCurve.getCurveSegments();
+                if(curveSegmentsSize>newCurveSegmentsSize)
                 {
-                    int size=curveSegments.size();
+                    int size=curveSegmentsSize;
                     List<RoadSegment> segments;
-                    for (int i = size-1; i > curveSegmentsSize-1; i--) {
+                    for (int i = size-1; i > newCurveSegmentsSize-1; i--) {
                         segments=curveSegments.get(i).getRsLast();
                         for (RoadSegment segment : segments) {
                             if(segment.getRsNext().contains(curveSegments.get(i)))
@@ -74,10 +72,7 @@ public class RoadCreator {
                         curveSegments.get(i).removeSegment();
                         curveSegments.remove(i);
                     }
-                }
-                lastRS=null;
-                
-                    
+                }  
             }
             setBlinkers(connect);
         }
@@ -88,29 +83,37 @@ public class RoadCreator {
             for (MyCurve startCurve : startCurves) {
                 for (MyCurve endCurve : endCurves) {
                     RoadSegment rsEnd=endCurve.getLastCurveSegment();
-                    RoadSegment rsStart=startCurve.getFirstCurveSegment();
-                    double angle; 
-                    if(rsStart!=null)
+                    RoadSegment rsStart=startCurve.getFirstCurveSegment(); 
+                    RoadSegment rsNew=connect.getConnectSegment(startCurve, endCurve);
+                    if(rsNew==null)
                     {
-                        if(rsStart.getRsNext()!=null && !rsStart.getRsNext().isEmpty())
-                        {
-                            RoadSegment rsStartNext=rsStart.getRsNext().get(0);
-                            angle=MyMath.angle(rsStartNext.getP0(), rsStartNext.getP1());
-                            Point p21=MyMath.rotate(rsStartNext.getP0(), segLength/2, angle);
-                            rsStart.setP2(p21); 
-                        }
-
-                        angle=MyMath.angle(rsStart.getP0(), rsStart.getP1());
-                        Point p21=MyMath.rotate(rsStart.getP0(), segLength/2, angle);
-                        rsEnd.setP2(p21); 
-                        connectSegments(rsEnd,rsStart);
+                        rsNew=new RoadSegment(new Point(rsEnd.getP3()), new Point(rsStart.getP0()));
+                        rsNew.setId(idMax);
+                        rsNew.setVisible(false);
+                        idMax++;
+                        connect.addConnectSegment(rsNew, startCurve, endCurve);
                     }
-                      
-                }
+                    else
+                    {
+                        rsNew.setP0(new Point(rsEnd.getP3()));
+                        rsNew.setP3(new Point(rsStart.getP0()));
+                        rsNew.disconnectRS();
+                        
+                    }
+                    double lenght=MyMath.length(rsNew.getP0(), rsNew.getP3())*1.2;
+                    rsNew.setSegmentLenght(lenght);
+                    Point p1=MyMath.rotate(rsEnd.getP3(), lenght/3,  MyMath.angle(rsNew.getP0(), rsEnd.getP2()));
+                    rsNew.setP1(p1);
+                    
+                    Point p2=MyMath.rotate(rsStart.getP0(), lenght/3, MyMath.angle(p1,rsStart.getP0()));
+                    rsNew.setP2(p2);
+                    connectSegments(rsEnd, rsNew);
+                    connectSegments(rsNew, rsStart);
                 
+                }
             }
             
-        }     
+        }    
         startCarSegments.clear();
         startTramSegments.clear();
         for (Connect connect : connects) {
@@ -123,7 +126,17 @@ public class RoadCreator {
                         startTramSegments.add(startCurve.getFirstCurveSegment());
                 }
             }
-            checkEndBlinkers(connect);
+            //checkEndBlinkers(connect);
+        }
+    }
+    public void findIntersects()
+    {
+        for (MyCurve curve : curves) {
+            List<MyCurve> intersectedCurves=findCurveIntersect(curve);
+            for (MyCurve intersectedCurve : intersectedCurves) {
+                findRoadSegmentIntersect(intersectedCurve, curve);
+                
+            }
         }
     }
     private void checkEndBlinkers(Connect connect)
@@ -138,11 +151,19 @@ public class RoadCreator {
     }
     private void setBlinkers(Connect connect)
     {
+        for (MyCurve startCurve : connect.getStartCurves()) {
+            startCurve.getFirstCurveSegment().setBlinkerLeft(false);
+            startCurve.getFirstCurveSegment().setBlinkerRight(false);
+            startCurve.getLastCurveSegment().setStopBlinker(false);
+        }
         if(connect.getStartCurves().size()>1)
         {
             List<BlinkerAngle> angles=new ArrayList<>();
             double angleDef=MyMath.angle(connect.getStartCurves().get(0).getP0(), connect.getStartCurves().get(0).getP1());
             for (MyCurve startCurve : connect.getStartCurves()) {
+                
+                
+                
                 double angle=MyMath.angle(startCurve.getP1(), startCurve.getP3());
                 angle-=angleDef;
                 angles.add(new BlinkerAngle(angle, startCurve));
@@ -159,11 +180,11 @@ public class RoadCreator {
             {
                 baLeft.setRun(true);
                 baRight.setRun(true);
+                
             }
             else
             {
                 boolean runLeft=(Math.abs(baLeft.getAngle())-Math.abs(baRight.getAngle()))>0;
-                
                 baLeft.setRun(runLeft);
                 baRight.setRun(!runLeft);
             }
@@ -198,20 +219,11 @@ public class RoadCreator {
                     mcBlinker.getFirstCurveSegment().setBlinkerLeft(true);
                     mcBlinker.getFirstCurveSegment().setBlinkerRight(false);
                 }
+                
                 mcBlinker.getLastCurveSegment().setStopBlinker(true);
             }
             
                 
-        }
-    }
-    public void findIntersects()
-    {
-        for (MyCurve curve : curves) {
-            List<MyCurve> intersectedCurves=findCurveIntersect(curve);
-            for (MyCurve intersectedCurve : intersectedCurves) {
-                findRoadSegmentIntersect(intersectedCurve, curve);
-                
-            }
         }
     }
     private List<MyCurve> findCurveIntersect(MyCurve curve)
@@ -414,66 +426,58 @@ public class RoadCreator {
     }
     private void newSegment(int x, int y)
     {
-        if(MyMath.length(pOld.getX(), pOld.getY(), x, y)>segLength)
+        double length=MyMath.length(pOld.getX(), pOld.getY(), x, y);
+        if(length>segLength)
         {
-            
-            double angle;
             pNew=new Point(x,y);
-            boolean newSegment=true;
-            curveSegmentsSize++;
             
-            newCurve=false;
-            if(curveSegments.size()>=curveSegmentsSize){
-                newSegment=false;
-                newRS=curveSegments.get(curveSegmentsSize-1);
-                newRS.setP0(new Point(pOld));
-                newRS.setP3(pNew);
-                newRS.moveSegment(pNew);
-                newRS.clearRsSameWay();
-                newRS.setErrorDistance(0);
-                if(newRS.getId()>idMax)
-                    idMax=newRS.getId()+1;
-            }
-            else{
-                if(lastRS!=null)
-                    lastRS.removeNext();
-                newRS=new RoadSegment(new Point(pOld), pNew);
-                actualCurve.addCurveSegments(newRS);
-                newRS.setMainCurve(actualCurve);
-                id++;
-                newRS.setId(id);
-                
-            }
-            if(lastRS==null)
+            if(newCurveSegmentsSize+1>curveSegmentsSize)
             {
-                angle=MyMath.angle(pNew, pOld);
-                Point p12=MyMath.rotate(pOld, segLength/2, angle);
-                //Point p2=MyMath.rotate(pOld, 15, angle);
-                newRS.setP1(p12);
-                newRS.setP2(p12);
+                if(newSegment)
+                {
+                    newRS=new RoadSegment(new Point(pOld), pNew);
+                    newRS.setSegmentLenght(length);
+                    newRS.setId(idMax);
+                    actualCurve.addCurveSegments(newRS);
+                    curveSegmentsSize++;
+                    idMax++;
+                    if(lastRS!=null)
+                        connectSegments(lastRS, newRS);
+                }
+                
             }
             else
             {
-                angle=MyMath.angle(pOld, lastRS.getP2());
-                Point p12=MyMath.rotate(pOld, segLength/3, angle);
-                newRS.setP1(p12);
+                newRS=actualCurve.getCurveSegments().get(newCurveSegmentsSize);
+                newRS.setP0(new Point(pOld));
+                newRS.setP3(pNew);
+                newRS.moveSegment(pNew);
+            }
                 
-                angle=MyMath.angle(p12, pNew);
-                Point p21=MyMath.rotate(pNew, segLength/3, angle);
-                newRS.setP2(p21);  
-                if(newSegment)
-                    connectSegments(lastRS, newRS);
+            newCurveSegmentsSize++;
+            
+            if(lastRS==null)
+            {
+                Point p1=MyMath.rotate(pOld, length/2, startAngle+Math.PI);
+                newRS.setP1(p1);
+                //Point p2=MyMath.rotate(pNew, length/3, startAngle);
+                newRS.setP2(new Point(p1));
             }
-            for (RoadSegment rs2 : newRS.getRsNext()) {
-                swSplit(newRS, rs2);
+            else
+            {
+                //double angle=MyMath.angle(lastRS.getP1(),pOld);
+                double angle=MyMath.angle(pOld, pNew);
+                Point p2Old=MyMath.rotate(pOld, segLength/3, angle);
+                lastRS.setP2(p2Old);
+                Point p1=MyMath.rotate(pOld, segLength/3,  MyMath.angle(pOld, lastRS.getP2()));
+                newRS.setP1(p1);
+                Point p2=MyMath.rotate(pNew, segLength/3, MyMath.angle(p1,pNew));
+                newRS.setP2(p2);
             }
-
-            for (RoadSegment rs2 : newRS.getRsNext()) {
-                swConnect(newRS, rs2);
-            }
-            idMax++;
             lastRS=newRS;
             pOld=pNew;
+            
+            
         }
         
     }
@@ -532,7 +536,7 @@ public class RoadCreator {
                     double angle=MyMath.angle(p1, p);
                     if(arrows.size()<countOfArrows)
                     {
-                        curve.addArrow(new Arrow(angle, p.getX(), p.getY()));
+                            curve.addArrow(new Arrow(angle, p.getX(), p.getY()));
                     }
                     else
                     {

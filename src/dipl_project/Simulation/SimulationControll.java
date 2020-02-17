@@ -190,9 +190,9 @@ public class SimulationControll {
                     changeSpeedLoop=true;
 
                     if(event.getCode()==KeyCode.UP)
-                        myCarSpeedChange=mycar.getMaxForce();
+                        myCarSpeedChange=mycar.getMaxForce()*4;
                     if(event.getCode()==KeyCode.DOWN)
-                        myCarSpeedChange=-mycar.getMaxForce()*2;
+                        myCarSpeedChange=-mycar.getMaxForce()*4;
                     changeSpeedLoop();
                 }
             }

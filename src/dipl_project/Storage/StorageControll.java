@@ -53,7 +53,7 @@ public  class StorageControll {
             Element root=doc.createElement("root");
             doc.appendChild(root);
             
-            new BackgroundStore(doc, root).saveBackground();
+            new BackgroundStore(doc, root).saveBackground(file);
             new StreetStore(doc, root).saveStreet();
             new TrafficLightsStore(doc, root).saveTrafficLights();
             
@@ -81,7 +81,6 @@ public  class StorageControll {
             EditationControll.zoomBack();
             saver(file);
             EditationControll.zoomRev();
-            //saver(dc.getCurves(), dc.getConnects(), lc.getLights(), pc.getPolices(), file, dc.getBgSource(), dc.getBG(), dc.getStartTram(), dc.getStartCar(), cc.getGenerDeleyCar(), cc.getGenerDeleyTram(), cc.isCarGeneratorRun(), cc.isTramGeneratorRun(), pc.getRunPolice(), lc.getRunLights());
         }
     }
     

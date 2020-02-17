@@ -29,9 +29,9 @@ public class Car extends Bot{
             carTemp+="0";
         String carName=carTemp+rnd;
         Image carDef= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+".png").toString());
-        Image carLeft= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-l.png").toString());
-        Image carRight= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b-p.png").toString());
-        Image carBreak= new Image(Dipl_project.class.getResource("Resources/vehicles/"+carName+"-b.png").toString());
+        Image carLeft= new Image(Dipl_project.class.getResource("Resources/vehicles/blinker-l.png").toString());
+        Image carRight= new Image(Dipl_project.class.getResource("Resources/vehicles/blinker-r.png").toString());
+        Image carBreak= new Image(Dipl_project.class.getResource("Resources/vehicles/breaks.png").toString());
         initVehicleImage(carDef, carLeft, carRight, carBreak, 40, 40, 34, 14);
 
     }

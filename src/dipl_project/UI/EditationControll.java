@@ -11,10 +11,15 @@ import dipl_project.Roads.Connect;
 import dipl_project.Roads.Controll;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.MyMath;
+import dipl_project.Roads.RoadCreator;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import javafx.application.Platform;
+import javafx.util.Pair;
 
 /**
  *
@@ -30,45 +35,60 @@ public  class EditationControll {
         zoomRatio=1;
         Dipl_project.getAnim().setZoomRatio(zoomRatio);
     }
+    public static void setCanvasSize(double width, double height)
+    {
+        canvasWidth=width/2;
+        canvasHeight=height/2;
+    }
     public static void zoomAll(double e)
     {
-        canvasWidth=Dipl_project.getUI().getCanvas().getWidth()/2;
-        canvasHeight=Dipl_project.getUI().getCanvas().getHeight()/2;
-        if(e<0)
-        {
-            zoomCount--;
-            zoomRatio*=zoomOutRatio;
-            Dipl_project.getAnim().changeZoomRatio(zoomOutRatio);
-            Dipl_project.getAnim().setZoomRatio(zoomRatio);
-            zoomByRatio(zoomOutRatio);
+            if(e<0)
+            {
+                if(zoomCount>-7)
+                {
+                    zoomCount--;
+                    zoomRatio*=zoomOutRatio;
+                    zoomByRatio(zoomOutRatio);
+                }
+                
+
+            }
+            else
+            {
+                if(zoomCount<7)
+                {
+                    zoomCount++;
+                    zoomRatio*=zoomInRatio;
+                    zoomByRatio(zoomInRatio);
+                }
+            }
             
-        }
-        else
-        {
-            zoomCount++;
-            zoomRatio*=zoomInRatio;
-            Dipl_project.getAnim().changeZoomRatio(zoomInRatio);
-            Dipl_project.getAnim().setZoomRatio(zoomRatio);
-            zoomByRatio(zoomInRatio);
-        }
-        Dipl_project.getRC().setArrows();
+        
     }
 
     public static double getZoomRatio() {
         return zoomRatio;
     }
    
-    public static void zoomByRatio(double zoomRatio)
+    public static void zoomByRatio(double zr)
     {
-        zoomRC(zoomRatio);
-        zoomConnects(zoomRatio);
-        zoomCurves(zoomRatio);
-        zoomSegments(zoomRatio);
-        zoomTLs(zoomRatio);
-        Dipl_project.getRC().setArrows();
+        Dipl_project.getAnim().changeZoomRatio(zr);
+        Dipl_project.getAnim().setZoomRatio(zoomRatio);
+        zoomRC(zr);
+        zoomConnects(zr);
+        zoomCurves(zr);
+        zoomSegments(zr);
+        zoomTLs(zr);
+        Dipl_project.getRC().enableNewSegment(false);
+        
+        
         if(BackgroundControll.isBackground())
-            BackgroundControll.zoomBackgroundByRatio(zoomRatio);
+            BackgroundControll.zoomBackgroundByRatio(zr);
         Dipl_project.getDC().newRoad();
+        Dipl_project.getRC().setArrows();
+        Dipl_project.getRC().enableNewSegment(true);
+        Dipl_project.getUI().refreshShowRoads();
+        
     }
     private static void zoomRC(double zoomRatio)
     {
@@ -96,8 +116,15 @@ public  class EditationControll {
     }
     private static void zoomSegments(double zoomRatio)
     {
-        for (RoadSegment segment : Dipl_project.getUI().getSegments()) {
-            Point p0=segment.getP0();
+        List<RoadSegment> segments=Dipl_project.getUI().getSegments();
+        for (RoadSegment segment : segments) {
+            zoomSegment(segment, zoomRatio);
+        }
+        
+    }
+    private static void zoomSegment(RoadSegment segment, double zoomRatio)
+    {
+        Point p0=segment.getP0();
             double p0layoutX = p0.getX()-(canvasWidth);
             p0layoutX*=zoomRatio;
             p0layoutX+=canvasWidth;
@@ -137,12 +164,14 @@ public  class EditationControll {
             p3.setLocation(p3layoutX,p3layoutY);
             segment.setP3(p3);
             segment.moveSegment(p3);
-        }
-        Dipl_project.getDC().newRoad();
+            double length=segment.getSegmentLenght();
+            length*=zoomRatio;
+            segment.setSegmentLenght(length);
     }
     private static void zoomCurves(double zoomRatio)
     {
-        for (MyCurve curve : Dipl_project.getUI().getCurves()) {
+        List<MyCurve> curves = Dipl_project.getUI().getCurves();
+        for (MyCurve curve : curves) {
             
             Point p0=curve.getP0();
             double p0layoutX = p0.getX()-(canvasWidth);
@@ -190,7 +219,8 @@ public  class EditationControll {
     }
     private static void zoomConnects(double zoomRatio)
     {
-        for (Connect connect : Dipl_project.getUI().getConnects()) {
+        List<Connect> connects = Dipl_project.getUI().getConnects();
+        for (Connect connect : connects) {
             Point p0=connect.getLocation();
             double p0layoutX = p0.getX()-(canvasWidth);
             p0layoutX*=zoomRatio;
@@ -200,18 +230,25 @@ public  class EditationControll {
             p0layoutY+=canvasHeight;
             p0.setLocation(p0layoutX,p0layoutY);
             connect.moveConnect(p0layoutX, p0layoutY);
+            for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connect.getConnectSegmentsMap().entrySet()) {
+                RoadSegment segment = rs.getValue();
+                zoomSegment(segment, zoomRatio);
+            }
         }
     }
     
     public static void moveAll(double x, double y)
     {
+        Dipl_project.getRC().enableNewSegment(false);
         BackgroundControll.moveBackground(x, y);
         moveSegments(x, y);
         moveCurves(x, y);
         moveConnects(x, y);
         moveTLs(x,y);
         moveVehicles(x, y);
-        //Dipl_project.getDC().newRoad();
+        Dipl_project.getDC().newRoad();
+        Dipl_project.getRC().setArrows();
+        Dipl_project.getRC().enableNewSegment(true);
     }
     public static void editClick(double x, double y)
     {
@@ -223,52 +260,75 @@ public  class EditationControll {
     }
     private static void clickSegments(double x, double y)
     {
-        for (RoadSegment segment : Dipl_project.getUI().getSegments()) {
-            Point p0=segment.getP0();
-            double p0layoutX = x-p0.getX();
-            double p0layoutY = y-p0.getY();
-            segment.setP0orig(new Point((int)p0layoutX, (int)p0layoutY));
-            Point p1=segment.getP0();
-            double p1layoutX = x-p1.getX();
-            double p1layoutY = y-p1.getY();
-            segment.setP1orig(new Point((int)p1layoutX, (int)p1layoutY));
-            Point p2=segment.getP2();
-            double p2layoutX = x-p2.getX();
-            double p2layoutY = y-p2.getY();
-            segment.setP2orig(new Point((int)p2layoutX, (int)p2layoutY));
-            Point p3=segment.getP3();
-            double p3layoutX = x-p3.getX();
-            double p3layoutY = y-p3.getY();
-            segment.setP3orig(new Point((int)p3layoutX, (int)p3layoutY));
+        List<RoadSegment> segments = Dipl_project.getUI().getSegments();
+        for (RoadSegment segment : segments) {
+            clickSegment(segment, x, y);
         }
     }
+    private static void clickSegment(RoadSegment segment, double x, double y)
+    {
+        Point p0=segment.getP0();
+        double p0layoutX = x-p0.getX();
+        double p0layoutY = y-p0.getY();
+        segment.setP0orig(new Point((int)p0layoutX, (int)p0layoutY));
+        Point p1=segment.getP0();
+        double p1layoutX = x-p1.getX();
+        double p1layoutY = y-p1.getY();
+        segment.setP1orig(new Point((int)p1layoutX, (int)p1layoutY));
+        Point p2=segment.getP2();
+        double p2layoutX = x-p2.getX();
+        double p2layoutY = y-p2.getY();
+        segment.setP2orig(new Point((int)p2layoutX, (int)p2layoutY));
+        Point p3=segment.getP3();
+        double p3layoutX = x-p3.getX();
+        double p3layoutY = y-p3.getY();
+        segment.setP3orig(new Point((int)p3layoutX, (int)p3layoutY));
+    }
+    
     public static void moveSegments(double x, double y)
     {
         List<RoadSegment> segments=dipl_project.Dipl_project.getUI().getSegments();
         for (RoadSegment segment : segments) {
+            moveSegment(segment,x,y);
             
-            Point p0orig=segment.getP0orig();
+        }
+        
+    }
+    private static void moveSegment(RoadSegment segment, double x, double y)
+    {
+        Point p0orig=segment.getP0orig();
+        if(p0orig!=null)
+        {
             double p0layoutX = x - p0orig.getX();
             double p0layoutY = y - p0orig.getY();
             Point p0=segment.getP0();
             p0.setLocation(p0layoutX, p0layoutY);
             segment.setP0(p0);
-            
-            Point p1orig=segment.getP1orig();
+        }
+        Point p1orig=segment.getP1orig();
+        if(p1orig!=null)
+        {
+        
             double p1layoutX = x - p1orig.getX();
             double p1layoutY = y - p1orig.getY();
             Point p1=segment.getP1();
             p1.setLocation(p1layoutX, p1layoutY);
             segment.setP1(p1);
-            
-            Point p2orig=segment.getP2orig();
+        }
+        Point p2orig=segment.getP2orig();
+        if(p2orig!=null)
+        {
+        
             double p2layoutX = x - p2orig.getX();
             double p2layoutY = y - p2orig.getY();
             Point p2=segment.getP2();
             p2.setLocation(p2layoutX, p2layoutY);
             segment.setP2(p2);
-            
-            Point p3orig=segment.getP3orig();
+        }
+        Point p3orig=segment.getP3orig();
+        if(p3orig!=null)
+        {
+        
             double p3layoutX = x - p3orig.getX();
             double p3layoutY = y - p3orig.getY();
             Point p3=segment.getP3();
@@ -276,7 +336,6 @@ public  class EditationControll {
             segment.setP3(p3);
             segment.moveSegment(p3);
         }
-        
     }
     private static void clickCurves(double x, double y)
     {
@@ -344,9 +403,8 @@ public  class EditationControll {
 
     private static void moveVehicles(double x, double y)
     {
-        for (Vehicle veh : Dipl_project.getAnim().getVehicles()) {
-            veh.move();
-        }
+        Dipl_project.getAnim().moveVehicles();
+        
     }
     private static void clickConnects(double x, double y)
     {
@@ -355,6 +413,10 @@ public  class EditationControll {
             double cLayoutX = x-c.getX();
             double cLayoutY = y-c.getY();
             connect.setLocOrigin(new Point((int)cLayoutX, (int)cLayoutY));
+            for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connect.getConnectSegmentsMap().entrySet()) {
+                RoadSegment segment = rs.getValue();
+                clickSegment(segment, x,y);
+            }
         }
     }
     private static void moveConnects(double x, double y)
@@ -364,6 +426,10 @@ public  class EditationControll {
             double cLayoutX = x-cOrig.getX();
             double cLayoutY = y-cOrig.getY();
             connect.moveConnect(cLayoutX, cLayoutY);
+            for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connect.getConnectSegmentsMap().entrySet()) {
+                RoadSegment segment = rs.getValue();
+                moveSegment(segment, x,y);
+            }
         }
     }
      private static void cliclTLs(double x, double y)

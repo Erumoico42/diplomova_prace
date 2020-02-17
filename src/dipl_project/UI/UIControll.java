@@ -24,6 +24,7 @@ import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -53,6 +54,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Pair;
 
 /**
  *
@@ -90,6 +92,7 @@ public class UIControll {
     private ToggleGroup createVehicleGroup;
     private List<RoadSegment> startTramSegments;
     private boolean wantDrive;
+    private CheckBox showRoads;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); 
@@ -354,6 +357,7 @@ public class UIControll {
         selectedCPs.setLayoutY(220);
         selectedCPs.setVisible(false);
         canvas=new Canvas(initialSizeX, initialSizeY);
+        EditationControll.setCanvasSize(initialSizeX, initialSizeY);
         moveCanvas=new Canvas(initialSizeX, initialSizeY-130);
         moveCanvas.setLayoutY(130);
         moveCanvas.setVisible(false);
@@ -619,14 +623,14 @@ public class UIControll {
                 
             }
         });
-        CheckBox showRoads=new CheckBox("Zobrazit cesty");
+        showRoads=new CheckBox("Zobrazit cesty");
         showRoads.setLayoutX(840);
         showRoads.setLayoutY(105);
         showRoads.setSelected(true);
         showRoads.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                showRoads(showRoads.isSelected());
+                refreshShowRoads();
             }
         });
         
@@ -643,6 +647,10 @@ public class UIControll {
                 addTrafficLight, connectTrafficLight, delayConnectTL,rbGreen,rbOrange,rbRed, enableSwitchRed, enableSwitchOrange, 
                 enableSwitchGreen,lblCurveEdit, btnRemoveBackhround, addMyCar, showRoads, selectedCPs, moveCanvas);
     }
+    public void refreshShowRoads()
+    {
+        showRoads(showRoads.isSelected());
+    }
     public void showRoads(boolean show)
     {
         for (MyCurve curve : curves) {
@@ -657,11 +665,16 @@ public class UIControll {
             curve.getStartArrow().getArrow().setVisible(show);
             curve.getEndArrow().getArrow().setVisible(show);
         }
-        for (Connect connect : connects) {
-            connect.getConnect().setVisible(show);
-        }
+        
         for (RoadSegment segment : segments) {
             segment.getRoadSegment().setVisible(show);
+        }
+        for (Connect connect : connects) {
+            connect.getConnect().setVisible(show);
+            for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connect.getConnectSegmentsMap().entrySet()) {
+                RoadSegment segment = rs.getValue();
+                segment.setVisible(false);
+            }
         }
         for (TrafficLight trafficLight : dc.getTrafficLights()) {
             for (TrafficLightsConnection allConnection : trafficLight.getAllConnections()) {

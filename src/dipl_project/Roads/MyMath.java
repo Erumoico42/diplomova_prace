@@ -14,6 +14,7 @@ import javafx.scene.shape.CubicCurve;
  * @author Honza
  */
 public class MyMath {
+    private static int curveLength=0;
     public static double angle(double x1, double y1, double x2, double y2)
     {
         double angle = (double) (Math.atan2(y1 - y2, x1 - x2));
@@ -62,4 +63,5 @@ public class MyMath {
         Point pRet=new Point((int)(p0.getX()+(time*u.getX())),(int)(p0.getY()+(time*u.getY())));
         return pRet;
     }
+  
 }

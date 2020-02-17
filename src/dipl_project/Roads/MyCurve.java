@@ -149,6 +149,8 @@ public class MyCurve {
         Dipl_project.getUI().removeComponents(arrow.getArrow());
     }
     public void removeArrowAt(int i) {
+        if(arrows.size()-1>i)
+            System.out.println("arrows fail");
         Dipl_project.getUI().removeComponents(arrows.get(i).getArrow());
         arrows.remove(i);
         

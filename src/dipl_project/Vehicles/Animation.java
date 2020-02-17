@@ -23,7 +23,7 @@ public class Animation {
     private double zoomRatio=1;
     public Animation()
     {
-        animationTimer();
+        startAnimation();
     }
     public void stopAnimation()
     {
@@ -38,34 +38,38 @@ public class Animation {
         Platform.runLater(() -> {
             vehicles.add(vehicle);
             vehicle.changeValues(zoomRatio);
-            Dipl_project.getUI().addComponent(vehicle.getIV());
+            Dipl_project.getUI().addComponents(vehicle.getIV(), vehicle.getIvMaskBlinker(), vehicle.getIvMaskBreaks());
         });
     }
     public void removeVehicle(Vehicle vehicle)
     {
         Platform.runLater(() -> {
             vehicles.remove(vehicle);
-            Dipl_project.getUI().removeComponents(vehicle.getIV());
+            Dipl_project.getUI().removeComponents(vehicle.getIV(), vehicle.getIvMaskBlinker(), vehicle.getIvMaskBreaks());
         });
     }
-    private void animationTimer()
+    public void startAnimation()
     {
         timer=new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run(){
-                Platform.runLater(() -> {
+                
                     tick();
-                });
+               
             }
         };
         timer.schedule(timerTask, 20, 20);
     }
     private void tick()
     {
-        for (int i = 0; i < vehicles.size(); i++) {
-            vehicles.get(i).tick();
+        Platform.runLater(() -> {
+        for (Vehicle vehicle : vehicles) {
+            
+                vehicle.tick();
+            
         }
+        });
     }
     public void cleanVehicles()
     {
@@ -81,12 +85,20 @@ public class Animation {
     }
     public void changeZoomRatio(double zoomRatio)
     {
-        
+         Platform.runLater(() -> {
         for (Vehicle vehicle : vehicles) {
-            Platform.runLater(() -> {
+           
                 vehicle.changeValues(zoomRatio);
                 vehicle.move();
-            });
+            
+        }
+        });
+    }
+    public void moveVehicles()
+    {
+        
+        for (Vehicle vehicle : vehicles) {
+            vehicle.move();
         }
     }
     public List<Vehicle> getVehicles()

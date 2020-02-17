@@ -10,13 +10,16 @@ import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import javafx.util.Pair;
 
 /**
  *
@@ -29,6 +32,7 @@ public class Connect {
     private UIControll ui=Dipl_project.getUI();
     private List<MyCurve> startCurves=new ArrayList<>();
     private List<MyCurve> endCurves=new ArrayList<>();
+    private Map<Pair<MyCurve, MyCurve>,RoadSegment> connectSegmentsMap=new HashMap<>();
     private double xOld, yOld;
     private Connect thisConnect;
     private Connect connectToConnect;
@@ -47,6 +51,23 @@ public class Connect {
 
     public int getId() {
         return id;
+    }
+    public void addConnectSegment(RoadSegment rs, MyCurve mc1, MyCurve mc2)
+    {
+        connectSegmentsMap.put(new Pair(mc1, mc2), rs);
+    }
+    public void removeConnectSegment(MyCurve mc1, MyCurve mc2)
+    {
+        connectSegmentsMap.remove(new Pair(mc1, mc2));
+    }
+
+    public Map<Pair<MyCurve, MyCurve>, RoadSegment> getConnectSegmentsMap() {
+        return connectSegmentsMap;
+    }
+    
+    public RoadSegment getConnectSegment(MyCurve mc1, MyCurve mc2)
+    {
+        return connectSegmentsMap.get(new Pair(mc1, mc2));
     }
     
     private void initHandler()
@@ -170,6 +191,9 @@ public class Connect {
               ui.removeCurve(endCurve);
             for (RoadSegment segment : endCurve.getCurveSegments()) {
                 segment.removeSegment();
+            }
+            for (MyCurve startCurve : startCurves) {
+                connectSegmentsMap.remove(new Pair(endCurve,startCurve));
             }
         }
         for (MyCurve startCurve : startCurves) {

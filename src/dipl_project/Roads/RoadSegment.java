@@ -56,7 +56,7 @@ public class RoadSegment {
     private UIControll ui=Dipl_project.getUI();
     private DrawControll dc=Dipl_project.getDC();
     private int id;
-    private double errorDistance=0;
+    private double errorDistance=0, segmentLenght;
     private boolean run=false, blinkerLeft=false, blinkerRight=false, blinkerStop=false;
     public RoadSegment(Point p0, Point p3) {
         this.p0=p0;
@@ -94,6 +94,18 @@ public class RoadSegment {
             }
         });
         Dipl_project.getUI().addRoadSegment(this);
+    }
+
+    public double getSegmentLenght() {
+        return segmentLenght;
+    }
+
+    public void setSegmentLenght(double segmentLenght) {
+        this.segmentLenght = segmentLenght;
+    }
+    public void setVisible(boolean visible)
+    {
+        roadSegment.setVisible(visible);
     }
     public void runSecondary(int distanceStart, int distanceEnd, int distanceOld, RoadSegment rsToCheck)
     {
@@ -547,13 +559,13 @@ public class RoadSegment {
         this.p3orig = p3orig;
     }
 
-    void setBlinkerLeft(boolean run) {
+    public void setBlinkerLeft(boolean run) {
         blinkerLeft=run;
         if(run)
             blinkerRight=false;
     }
 
-    void setBlinkerRight(boolean run) {
+    public void setBlinkerRight(boolean run) {
         blinkerRight=run;
         if(run)
             blinkerLeft=false;
@@ -573,5 +585,15 @@ public class RoadSegment {
     public boolean isBlinkerRight() {
         return blinkerRight;
     }
-    
+    public void disconnectRS()
+    {
+        for (RoadSegment roadSegment1 : rsNext) {
+            roadSegment1.getRsLast().remove(this);
+        }
+        for (RoadSegment roadSegment1 : rsLast) {
+            roadSegment1.getRsNext().remove(this);
+        }
+        rsNext.clear();
+        rsLast.clear();
+    }
 }

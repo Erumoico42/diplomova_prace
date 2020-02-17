@@ -11,10 +11,16 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import org.w3c.dom.Attr;
@@ -36,7 +42,7 @@ public class BackgroundStore {
         this.root=root;
     }
     
-    public void saveBackground()
+    public void saveBackground(File destFile)
     {
         String bgSource=BackgroundControll.getBgSource();
         double bgWidth=BackgroundControll.getWidth();
@@ -54,9 +60,10 @@ public class BackgroundStore {
             Attr pos=doc.createAttribute("position");     
             Attr rot=doc.createAttribute("rotation");      
             Attr resRatio=doc.createAttribute("resRatio");   
-            bgs.setValue(bgSource);
+            
             if(bgSource!=null)
             {
+                bgs.setValue(copyBackground(bgSource,destFile));
                 width.setValue(String.valueOf((int)bgWidth));
                 height.setValue(String.valueOf((int)bgHeight));
                 rot.setValue(String.valueOf((int)rotate));
@@ -66,6 +73,7 @@ public class BackgroundStore {
             }
             else
             {
+                bgs.setValue(null);
                 width.setValue("null");
                 height.setValue("null");
                 rot.setValue("null");
@@ -81,6 +89,34 @@ public class BackgroundStore {
             background.setAttributeNode(resRatio);
             background.setAttributeNode(isnull); 
             root.appendChild(background);
+    }
+    private String copyBackground(String bgSource, File destFile)
+    {
+        String savePath=destFile.getPath().split("."+destFile.getName())[0];
+        String extension = "";
+
+        int i = bgSource.lastIndexOf('.');
+        if (i > 0) {
+            extension = bgSource.substring(i+1);
+        }
+        String newBGPath=savePath+"\\"+destFile.getName().split(".xml")[0]+"-bg."+extension;
+        File newBGloc=new File(newBGPath);
+        try (
+            InputStream in = new BufferedInputStream(
+              new FileInputStream(new File(bgSource.split("file:/")[1])));
+            OutputStream out = new BufferedOutputStream(
+              new FileOutputStream(newBGloc))) {
+
+              byte[] buffer = new byte[1024];
+              int lengthRead;
+              while ((lengthRead = in.read(buffer)) > 0) {
+                  out.write(buffer, 0, lengthRead);
+                  out.flush();
+              }
+          } catch (IOException ex) {
+            Logger.getLogger(BackgroundStore.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "file:/"+newBGPath;
     }
     public void loadBackground()
     {
