@@ -52,28 +52,6 @@ public class RulesCalculator {
     }
     private double defuzzificationCOG()
     {
-        
-        /*double[][] truthMatrix=outputVariable.getMatrixOfTruth();
-        double[]valuesMatrix=outputVariable.getValues();
-        
-        double truthSum=0;
-        double truthValueSum=0;
-                
-        for (int i = 0; i < outputVariable.getSets().size(); i++) {
-            FuzzySet set=outputVariable.getSets().get(i);
-            for (FuzzySet firedOutput : firedOutputs) {
-                if(firedOutput.getName().equals(set.getName()))
-                {
-                    for (int j = 0; j < truthMatrix[i].length; j++) {
-                        double truthValMatrix=truthMatrix[i][j];
-                        if(truthMatrix[i][j]>firedOutput.getAlfaCut())
-                            truthValMatrix=firedOutput.getAlfaCut();
-                        truthValueSum+=truthValMatrix*valuesMatrix[j];
-                        truthSum+=truthValMatrix;
-                    }
-                }
-            } 
-        }*/
         double[]valuesMatrix=outputVariable.getValues();
         double[][] totalTruthMatrix=outputVariable.getMatrixOfTruth();
         double[][] truthMatrix=new double[firedOutputs.size()][valuesMatrix.length];
@@ -96,16 +74,6 @@ public class RulesCalculator {
         
         double truthSum=0;
         double truthValueSum=0;
-        //System.out.println(firedOutputs.size());
-        /*for (double[] ds : truthMatrix) {
-            for (double d : ds) {
-                System.out.print(d+"\t");
-            }
-            System.out.println("");
-        }*/
-        /*for (FuzzySet firedOutput : firedOutputs) {
-            System.out.println(firedOutput.getName());
-        }*/
         for (int i = 0; i < valuesMatrix.length; i++) {
             double maxTruthValueMatrix=0;
             for (int j = 0; j < truthMatrix.length; j++) {

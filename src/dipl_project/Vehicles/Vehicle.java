@@ -9,13 +9,16 @@ import TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.MyMath;
+import dipl_project.Roads.MyPoint;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
 import java.awt.Point;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -29,8 +32,11 @@ import javafx.scene.shape.Shape;
  * @author Honza
  */
 public class Vehicle {
+    private DecimalFormat df=new DecimalFormat("##.######");
+    private MyPoint lastPosition, newPosition, lastPositionStep;
+    private double lastForce, lastDistance;
     private List<RoadSegment> road=new ArrayList<>();
-    private RoadSegment actualSegment,oldSegment;
+    private RoadSegment actualSegment;
     private Point p0, p1, p2, p3;
     private double x0, y0, x1, y1, x2, y2, x3, y3, xLast, yLast, angle, actSegmentLenght, breaksLayout;
     private Animation animation;
@@ -42,6 +48,7 @@ public class Vehicle {
     private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
     private double speed=maxSpeed/2, force=0.0003, time=0, breakRatio=1, vehicleLenght;
     private boolean watch=false;
+    private int id;
     private int watchCount=0, freeCount=0;
     private Timer blinkerTimer;
     private TimerTask blinkerTimerTask;
@@ -50,7 +57,6 @@ public class Vehicle {
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
-        //iv=new ImageView(new Image(Dipl_project.class.getResource("Resources/vehicles/auto-01.png").toString()));
         iv=new ImageView();
         iv.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -76,6 +82,44 @@ public class Vehicle {
         
        
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getStatisticsStep()
+    {
+        double distance=MyMath.length(lastPositionStep.getX(),lastPositionStep.getY(), lastPosition.getX(),lastPosition.getY());
+        
+        lastPositionStep=lastPosition;
+        
+        String out=id+";"+df.format(distance)+";"+df.format(lastDistance);
+        lastDistance=0;
+        return out;
+    }
+    
+    public String getStatisticsInsta()
+    {
+        double distance=MyMath.length(lastPosition.getX(),lastPosition.getY(), newPosition.getX(),newPosition.getY());
+        
+        lastPosition=newPosition;
+        lastDistance+=distance;
+        String out=id+";"+df.format(distance);
+        return out;
+    }
+
+    public double getLastForce() {
+        return lastForce;
+    }
+
+    public void setLastForce(double lastForce) {
+        this.lastForce = lastForce;
+    }
+    
     public void initVehicleImage(Image carDef, Image carBlinkerLeft,Image carBlinkerRight, Image carBreak, double width, double height, double controlWidth, double controlHeight)
     {
         iv.setImage(carDef);
@@ -94,12 +138,17 @@ public class Vehicle {
         this.controlHeight=controlHeight;
         vehWidth=width;
         vehHeight=height;
-        controlRectangle=new Rectangle(controlWidth,controlHeight, Color.TRANSPARENT);
-        controlRectangle.setX(x0-controlWidth/2);
-        controlRectangle.setY(y0-controlHeight/2);
+        //controlRectangle=new Rectangle(controlWidth,controlHeight, Color.TRANSPARENT);
+        
+        
+        //controlRectangle.setX(lastPosition.getX());
+        //controlRectangle.setY(lastPosition.getY());
          move(0);
          time=0.01;
+         
         move(time);
+        lastPosition=new MyPoint((xLast-vehWidth/2), (yLast-vehHeight/2));
+        lastPositionStep=new MyPoint(lastPosition.getX(), lastPosition.getY());
         animation.addVehicle(this);
         actSegmentLenght=actualSegment.getSegmentLenght();
     }
@@ -161,15 +210,15 @@ public class Vehicle {
         actualSegment.setVehicle(null);
         if(!road.isEmpty())
         {
-            oldSegment=actualSegment;
             actualSegment=road.get(0);
             actSegmentLenght=actualSegment.getSegmentLenght();
             
             stopBlinker();
             
-            road.remove(actualSegment);
+            
             setPoints();
             actualSegment.setVehicle(this); 
+            road.remove(actualSegment);
         }
         else
         {
@@ -197,8 +246,8 @@ public class Vehicle {
         ivMaskBreaks.setFitHeight(vehHeight);
         controlWidth*=zoomRatio;
         controlHeight*=zoomRatio;
-        controlRectangle.setArcWidth(controlWidth);
-        controlRectangle.setArcHeight(controlHeight);
+        //controlRectangle.setArcWidth(controlWidth);
+        //controlRectangle.setArcHeight(controlHeight);
     }
     public void removeCar()
     {
@@ -237,19 +286,19 @@ public class Vehicle {
             iv.setRotate(angle);
             ivMaskBlinker.setRotate(angle);
             ivMaskBreaks.setRotate(angle);
-            controlRectangle.setRotate(angle);
+            //controlRectangle.setRotate(angle);
         }
         xLast=x;
         yLast=y;
-
-        iv.setX(x-vehWidth/2);
-        iv.setY(y-vehHeight/2); 
-        ivMaskBlinker.setX(breaksLayout+x-vehWidth/2);
-        ivMaskBlinker.setY(y-vehHeight/2); 
-        ivMaskBreaks.setX(breaksLayout+x-vehWidth/2);
-        ivMaskBreaks.setY(y-vehHeight/2); 
-        controlRectangle.setX(x-controlWidth/2);
-        controlRectangle.setY(y-controlHeight/2);
+        newPosition=new MyPoint((x-vehWidth/2), (y-vehHeight/2));
+        iv.setX(newPosition.getX());
+        iv.setY(newPosition.getY()); 
+        ivMaskBlinker.setX(breaksLayout+newPosition.getX());
+        ivMaskBlinker.setY(newPosition.getY()); 
+        ivMaskBreaks.setX(breaksLayout+newPosition.getX());
+        ivMaskBreaks.setY(newPosition.getY()); 
+        //controlRectangle.setX(x-controlWidth/2);
+        //controlRectangle.setY(y-controlHeight/2);
 
         
     }
@@ -262,13 +311,17 @@ public class Vehicle {
     }
     public void tick()
     {
-        time+=speed*(Dipl_project.getRC().getSegLenght()/actSegmentLenght);
+        double newSpeed=speed*(Dipl_project.getRC().getSegLenght()/actSegmentLenght);
+        double newMaxSpeed=maxSpeed*(Dipl_project.getRC().getSegLenght()/actSegmentLenght);
+        time+=newSpeed;
         move(time);
         updateSpeed(force);
-        if(speed>maxSpeed){
+        
+        if(newSpeed>newMaxSpeed){
            force=0;
-           speed=maxSpeed;
+           speed=newMaxSpeed;
         }
+            
         if(time>=1){
             time-=1;
             nextSegment();
@@ -314,12 +367,13 @@ public class Vehicle {
     {
         paused=true;
         watch=true;
-        force=-maxForce;
+        setForce(-maxForce);
     }
     private void play()
     {
        watch=false;
         paused=false;
+        setForce(maxForce/2);
         force=maxForce/2;
     }
 
@@ -462,10 +516,10 @@ public class Vehicle {
                                 int tlTime=trafficLight.getTime();
                                 int tlMaxTime=trafficLight.getMaxTime();
                                 trafficLightFound=true;
-                                if((status==1 && actDist-time<2) || status==2 || status==3)
+                                if((status==1 && actDist-vehicleLenght-time<2) || status==2 || status==3)
                                 {
                                     carFound=true;
-                                    fuzzySpeed(actDist-time, speed);
+                                    fuzzySpeed(actDist-vehicleLenght-time, speed);
                                 }
                                 if(status==0  || (status==1  && tlMaxTime-tlTime<1))
                                 {
@@ -578,6 +632,7 @@ public class Vehicle {
             }
     }
     public void setForce(double newForce) {
+        lastForce=force;
         newForce*=breakRatio;
         if(newForce>maxForce)
             newForce=maxForce;
@@ -585,11 +640,23 @@ public class Vehicle {
     }
     private void setBreaks(Image img)
     {
-        ivMaskBreaks.setImage(img);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                ivMaskBreaks.setImage(img);
+            }
+        });
+        
     }
     private void setBlinkers(Image img)
     {
-        ivMaskBlinker.setImage(img);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                ivMaskBlinker.setImage(img);
+            }
+        });
+        
     }
     public double getForce()
     {

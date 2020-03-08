@@ -6,6 +6,7 @@
 package dipl_project.Storage;
 
 import TrafficLights.TrafficLight;
+import dipl_project.Dipl_project;
 import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
@@ -64,12 +65,14 @@ public class StreetStore {
         setRSConnects();
         dc.setLoadingMap(false);
         loadStartSegments();
-        dipl_project.Dipl_project.getRC().setCurves(ui.getCurves());
-        dipl_project.Dipl_project.getRC().setArrows();
+        Dipl_project.getDC().newRoad();
+        //dipl_project.Dipl_project.getRC().setCurves(ui.getCurves());
+        Dipl_project.getRC().setArrows();
+        
     }
     public void saveConnects()
     {
-        List<Connect> connects=dipl_project.Dipl_project.getUI().getConnects();
+        List<Connect> connects=Dipl_project.getUI().getConnects();
         for (Connect connect : connects) {
             Element conn=doc.createElement("connect"); 
             
@@ -449,10 +452,10 @@ public class StreetStore {
             rsNew.setBlinkerRight(blinkerRight);
             rsNew.setStopBlinker(blinkerStop);
             segments.put(idRoadSegment, rsNew);
-            if(idRoadSegment>idMax)
+            if(idRoadSegment>=idMax)
                 idMax=idRoadSegment+1;
         }
-        dipl_project.Dipl_project.getRC().setId(idMax);
+        Dipl_project.getRC().setId(idMax+1);
         
         
         

@@ -72,22 +72,28 @@ public  class EditationControll {
    
     public static void zoomByRatio(double zr)
     {
-        Dipl_project.getAnim().changeZoomRatio(zr);
-        Dipl_project.getAnim().setZoomRatio(zoomRatio);
-        zoomRC(zr);
-        zoomConnects(zr);
-        zoomCurves(zr);
-        zoomSegments(zr);
-        zoomTLs(zr);
-        Dipl_project.getRC().enableNewSegment(false);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                Dipl_project.getAnim().changeZoomRatio(zr);
+                Dipl_project.getAnim().setZoomRatio(zoomRatio);
+                zoomRC(zr);
+                zoomConnects(zr);
+                zoomCurves(zr);
+                zoomSegments(zr);
+                zoomTLs(zr);
+                Dipl_project.getRC().enableNewSegment(false);
+
+
+                if(BackgroundControll.isBackground())
+                    BackgroundControll.zoomBackgroundByRatio(zr);
+                Dipl_project.getDC().newRoad();
+                Dipl_project.getRC().setArrows();
+                Dipl_project.getRC().enableNewSegment(true);
+                Dipl_project.getUI().refreshShowRoads();
+            }
+        });
         
-        
-        if(BackgroundControll.isBackground())
-            BackgroundControll.zoomBackgroundByRatio(zr);
-        Dipl_project.getDC().newRoad();
-        Dipl_project.getRC().setArrows();
-        Dipl_project.getRC().enableNewSegment(true);
-        Dipl_project.getUI().refreshShowRoads();
         
     }
     private static void zoomRC(double zoomRatio)
@@ -239,16 +245,18 @@ public  class EditationControll {
     
     public static void moveAll(double x, double y)
     {
-        Dipl_project.getRC().enableNewSegment(false);
-        BackgroundControll.moveBackground(x, y);
-        moveSegments(x, y);
-        moveCurves(x, y);
-        moveConnects(x, y);
-        moveTLs(x,y);
-        moveVehicles(x, y);
-        Dipl_project.getDC().newRoad();
-        Dipl_project.getRC().setArrows();
-        Dipl_project.getRC().enableNewSegment(true);
+                Dipl_project.getRC().enableNewSegment(false);
+                BackgroundControll.moveBackground(x, y);
+                moveSegments(x, y);
+                moveCurves(x, y);
+                moveConnects(x, y);
+                moveTLs(x,y);
+                moveVehicles(x, y);
+                Dipl_project.getDC().newRoad();
+                Dipl_project.getRC().setArrows();
+                Dipl_project.getRC().enableNewSegment(true);
+
+        
     }
     public static void editClick(double x, double y)
     {
