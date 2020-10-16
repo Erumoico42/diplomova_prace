@@ -115,7 +115,6 @@ public class Connect {
         connect.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                
                 if(event.getButton()==MouseButton.PRIMARY)
                 {
                     if(selected && !dragged)

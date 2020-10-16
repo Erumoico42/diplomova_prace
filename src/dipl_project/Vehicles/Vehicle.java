@@ -212,7 +212,6 @@ public class Vehicle {
         {
             actualSegment=road.get(0);
             actSegmentLenght=actualSegment.getSegmentLenght();
-            
             stopBlinker();
             
             
@@ -311,9 +310,13 @@ public class Vehicle {
     }
     public void tick()
     {
-        double newSpeed=speed*(Dipl_project.getRC().getSegLenght()/actSegmentLenght);
-        double newMaxSpeed=maxSpeed*(Dipl_project.getRC().getSegLenght()/actSegmentLenght);
-        time+=newSpeed;
+        double segmentLenghtKoef=Dipl_project.getRC().getSegLenght()/actSegmentLenght;
+        double newSpeed=speed*segmentLenghtKoef;
+        double newMaxSpeed=maxSpeed*segmentLenghtKoef;
+        time+=newSpeed;     
+        if(time>1)
+            time=1;
+        
         move(time);
         updateSpeed(force);
         

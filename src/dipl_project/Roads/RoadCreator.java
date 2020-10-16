@@ -29,7 +29,7 @@ public class RoadCreator {
     private List<RoadSegment> startTramSegments=new ArrayList<>();
     private List<RoadSegment> startCarSegments=new ArrayList<>();
     private List<MyCurve> curves;
-    private int id=0, idMax=0;
+    private int idMax=0;
     public RoadCreator() {
     }
     public void enableNewSegment(boolean enable)
@@ -52,6 +52,11 @@ public class RoadCreator {
                 curveSegmentsSize=actualCurve.getCurveSegments().size();
                 
                 callBez(startCurve.getCurve());
+                if(newCurveSegmentsSize<1)
+                {
+                    shortCurveSegment(actualCurve);
+                }
+                    
                 
                 
                 List<RoadSegment>curveSegments=actualCurve.getCurveSegments();
@@ -91,6 +96,7 @@ public class RoadCreator {
                         rsNew.setId(idMax);
                         rsNew.setVisible(false);
                         idMax++;
+                        rsNew.setSegmentLenght(MyMath.length(rsNew.getP0(), rsNew.getP3()));
                         connect.addConnectSegment(rsNew, startCurve, endCurve);
                     }
                     else
@@ -129,6 +135,18 @@ public class RoadCreator {
             //checkEndBlinkers(connect);
         }
     }
+    private void shortCurveSegment(MyCurve mc)
+    {
+        Point p0=new Point(mc.getP0());
+        Point p3=new Point(mc.getP3());
+        newRS=new RoadSegment(p0,p3);
+        newRS.setSegmentLenght(MyMath.length(p0, p3));
+        newRS.setId(idMax);
+        mc.addCurveSegments(newRS);
+        curveSegmentsSize=1;
+        newCurveSegmentsSize=1;
+        idMax++;
+    }
     public void findIntersects()
     {
         for (MyCurve curve : curves) {
@@ -152,9 +170,14 @@ public class RoadCreator {
     private void setBlinkers(Connect connect)
     {
         for (MyCurve startCurve : connect.getStartCurves()) {
-            startCurve.getFirstCurveSegment().setBlinkerLeft(false);
-            startCurve.getFirstCurveSegment().setBlinkerRight(false);
-            startCurve.getLastCurveSegment().setStopBlinker(false);
+            RoadSegment firstCurveSegment=startCurve.getFirstCurveSegment();
+            if(firstCurveSegment!=null)
+            {
+               firstCurveSegment.setBlinkerLeft(false);
+               firstCurveSegment.setBlinkerRight(false);
+            }
+            RoadSegment lastCurveSegment=startCurve.getLastCurveSegment();
+            lastCurveSegment.setStopBlinker(false);
         }
         if(connect.getStartCurves().size()>1)
         {
@@ -207,7 +230,7 @@ public class RoadCreator {
             angle2-=angle1;
             angle1=0;
             boolean right=((angle2>0 || angle2<-Math.PI) && angle2<Math.PI);
-            if(Math.abs(angle2)>Math.PI/4)
+            if(Math.abs(angle2)>Math.PI/6)
             {
                 if(right)
                 {
@@ -482,8 +505,8 @@ public class RoadCreator {
         
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setId(int idMax) {
+        this.idMax = idMax;
     }
     
     private void callBez(CubicCurve curve)

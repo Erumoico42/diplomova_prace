@@ -382,13 +382,15 @@ public class MyCurve {
         return curveSegments;
     }
 
-    public void addCurveSegments(RoadSegment curveSegments) {
-        this.curveSegments.add(curveSegments);
+    public void addCurveSegments(RoadSegment curveSegment) {
+        curveSegments.add(curveSegment);
     }
     public RoadSegment getLastCurveSegment()
     {
         if(curveSegments.isEmpty())
             return null;
+        
+            
         return curveSegments.get(curveSegments.size()-1);
     }
 

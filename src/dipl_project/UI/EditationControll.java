@@ -27,6 +27,7 @@ import javafx.util.Pair;
  */
 public  class EditationControll {
     private static double zoomInRatio=1.2, zoomOutRatio=(double)5/6, zoomRatio=1;
+    private static final int MAX_ZOOM=7, MIN_ZOOM=-5;
     private static double canvasWidth, canvasHeight;
     private static int zoomCount=0;
     public static void setDefRatio()
@@ -44,7 +45,7 @@ public  class EditationControll {
     {
             if(e<0)
             {
-                if(zoomCount>-7)
+                if(zoomCount>MIN_ZOOM)
                 {
                     zoomCount--;
                     zoomRatio*=zoomOutRatio;
@@ -55,7 +56,7 @@ public  class EditationControll {
             }
             else
             {
-                if(zoomCount<7)
+                if(zoomCount<MAX_ZOOM)
                 {
                     zoomCount++;
                     zoomRatio*=zoomInRatio;
@@ -83,7 +84,6 @@ public  class EditationControll {
                 zoomSegments(zr);
                 zoomTLs(zr);
                 Dipl_project.getRC().enableNewSegment(false);
-
 
                 if(BackgroundControll.isBackground())
                     BackgroundControll.zoomBackgroundByRatio(zr);
@@ -236,25 +236,21 @@ public  class EditationControll {
             p0layoutY+=canvasHeight;
             p0.setLocation(p0layoutX,p0layoutY);
             connect.moveConnect(p0layoutX, p0layoutY);
-            for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connect.getConnectSegmentsMap().entrySet()) {
-                RoadSegment segment = rs.getValue();
-                zoomSegment(segment, zoomRatio);
-            }
         }
     }
     
     public static void moveAll(double x, double y)
     {
-                Dipl_project.getRC().enableNewSegment(false);
-                BackgroundControll.moveBackground(x, y);
-                moveSegments(x, y);
-                moveCurves(x, y);
-                moveConnects(x, y);
-                moveTLs(x,y);
-                moveVehicles(x, y);
-                Dipl_project.getDC().newRoad();
-                Dipl_project.getRC().setArrows();
-                Dipl_project.getRC().enableNewSegment(true);
+        Dipl_project.getRC().enableNewSegment(false);
+        BackgroundControll.moveBackground(x, y);
+        moveSegments(x, y);
+        moveCurves(x, y);
+        moveConnects(x, y);
+        moveTLs(x,y);
+        moveVehicles(x, y);
+        Dipl_project.getDC().newRoad();
+        Dipl_project.getRC().setArrows();
+        Dipl_project.getRC().enableNewSegment(true);
 
         
     }
