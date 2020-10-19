@@ -5,6 +5,7 @@
  */
 package dipl_project;
 
+import TrafficLights.TrafficLightsControll;
 import dipl_project.Fuzzy.*;
 import dipl_project.Roads.RoadCreator;
 import dipl_project.Simulation.SimulationControll;
@@ -28,8 +29,10 @@ public class Dipl_project extends Application {
     private static RulesCalculator rcFollow,rcCross;
     private static SimulationControll sc;
     private static StorageControll stc; 
+    private static TrafficLightsControll tlc;
     @Override
     public void start(Stage primaryStage) {
+        tlc=new TrafficLightsControll();
         rc=new RoadCreator();
         ui=new UIControll(primaryStage);
         dc=new DrawControll(ui, rc);
@@ -37,6 +40,7 @@ public class Dipl_project extends Application {
         anim=new Animation();
         sc=new SimulationControll();
         stc=new StorageControll();
+        
         ui.setSc(sc);
         loadRules();
     }
@@ -78,6 +82,10 @@ public class Dipl_project extends Application {
 
     public static SimulationControll getSc() {
         return sc;
+    }
+
+    public static TrafficLightsControll getTlc() {
+        return tlc;
     }
     
     

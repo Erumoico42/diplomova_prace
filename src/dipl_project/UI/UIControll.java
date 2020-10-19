@@ -6,7 +6,8 @@
 package dipl_project.UI;
 
 import TrafficLights.TrafficLight;
-import TrafficLights.TrafficLightsConnection;
+import TrafficLights.TrafficLightSwitch;
+import TrafficLights.TrafficLightsGroup;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Arrow;
 import dipl_project.Roads.CheckPoint;
@@ -64,17 +65,18 @@ public class UIControll {
     private Stage primaryStage;
     private Group root;
     private Scene scene;
-    private boolean popupShown=false, addCP=false, runGenerator=false, watchCP=false;
+    private boolean popupShown=false, addCP=false, runGenerator=false, watchCP=false, addTLToList=false;
     private int initialSizeX=1200, initialSizeY=800, moveStatus=0;
-    private ContextMenu popupClick, popupTL, popupTLConnection;
-    private MenuItem popupSplit, popupRemove, popupRemoveTL, popupRemoveTLConnection;
+    private ContextMenu popupClick, popupTL;
+    private MenuItem popupSplit, popupRemove, popupRemoveTL;
     private Canvas canvas, moveCanvas;
     private ListView<HBox> selectedCPs;
+    private ListView<ListView> trafficLightsGroups;
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
     private List<RoadSegment> startCarSegments=new ArrayList<>();
     private List<Connect> connects=new ArrayList<>();
-    private CheckBox checkBoxNewCP, editBackground, addTrafficLight, connectTrafficLight, enableSwitchRed, enableSwitchGreen, enableSwitchOrange;
+    private CheckBox checkBoxNewCP, editBackground, addTrafficLight;
     private Button btnRemoveBackhround, saveEditedCurve;
     private SimulationControll sc;
     private Slider curveEdit= new Slider(0, 100, 0);
@@ -82,7 +84,6 @@ public class UIControll {
     private DrawControll dc;
     private ToggleGroup trafficLightsColorGroup, priorityGroup;
     private RadioButton rbGreen, rbOrange, rbRed, priority, watch;
-    private Spinner<Integer> timeTLRed, timeTLOrange, timeTLGreen, delayConnectTL;
     private TrafficLight actualTL;
     private Rectangle menuBG;
     private boolean priorityCP, isTramCreating=false;
@@ -93,6 +94,7 @@ public class UIControll {
     private List<RoadSegment> startTramSegments;
     private boolean wantDrive;
     private CheckBox showRoads;
+    private TrafficLightsGroup actualTLGroup;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); 
@@ -111,7 +113,7 @@ public class UIControll {
             public void handle(WindowEvent event) {
                 Dipl_project.getAnim().stopAnimation();
                 Dipl_project.getSc().stopSimulation();
-                Dipl_project.getSc().stopTrafficLights();
+                Dipl_project.getTlc().stopTrafficLights();
             }
         });
     }
@@ -133,11 +135,27 @@ public class UIControll {
     public Rectangle getMenuBG() {
         return menuBG;
     }
+
+    public boolean isAddTLToList() {
+        return addTLToList;
+    }
+
+    public void setAddTLToList(boolean addTLToList) {
+        this.addTLToList = addTLToList;
+    }
     
     public void setStartSegments(List<RoadSegment> carSegments, List<RoadSegment> tramSegments)
     {
         startCarSegments=carSegments;
         startTramSegments=tramSegments;
+    }
+
+    public TrafficLightsGroup getActualTLGroup() {
+        return actualTLGroup;
+    }
+
+    public void setActualTLGroup(TrafficLightsGroup actualTLGroup) {
+        this.actualTLGroup = actualTLGroup;
     }
     
     public void setDc(DrawControll dc) {
@@ -243,21 +261,9 @@ public class UIControll {
         rbGreen.setDisable(!enable);
         rbOrange.setDisable(!enable);
         rbRed.setDisable(!enable);
-        timeTLGreen.setDisable(!enable);
-        timeTLOrange.setDisable(!enable);
-        timeTLRed.setDisable(!enable);
-        enableSwitchGreen.setDisable(!enable);
-        enableSwitchOrange.setDisable(!enable);
-        enableSwitchRed.setDisable(!enable);
         if(enable)
         {
             actualTL=dc.getActualTL();
-            timeTLGreen.getValueFactory().setValue(actualTL.getTimeToSwitchGreen());
-            timeTLOrange.getValueFactory().setValue(actualTL.getTimeToSwitchOrange());
-            timeTLRed.getValueFactory().setValue(actualTL.getTimeToSwitchRed());
-            enableSwitchGreen.setSelected(actualTL.isEnableSwitchGreen());
-            enableSwitchOrange.setSelected(actualTL.isEnableSwitchOrange());
-            enableSwitchRed.setSelected(actualTL.isEnableSwitchRed());
             switch(actualTL.getStatus())
             {
                 case 0:
@@ -300,10 +306,33 @@ public class UIControll {
     {
         selectedCPs.setMinSize(125, canvas.getHeight()-45);
         selectedCPs.setMaxSize(125, canvas.getHeight()-45);
-        selectedCPs.setLayoutX(canvas.getWidth()-130);
-        checkBoxNewCP.setLayoutX(canvas.getWidth()-130);
-        watch.setLayoutX(canvas.getWidth()-130);
-        priority.setLayoutX(canvas.getWidth()-130);
+        //selectedCPs.setLayoutX(canvas.getWidth()-130);
+        //checkBoxNewCP.setLayoutX(canvas.getWidth()-130);
+        //watch.setLayoutX(canvas.getWidth()-130);
+        //priority.setLayoutX(canvas.getWidth()-130);
+    }
+    public void updateTLGsPosition()
+    {
+        trafficLightsGroups.setMinSize(200, canvas.getHeight()-200);
+        trafficLightsGroups.setMaxSize(200, canvas.getHeight()-200);
+        trafficLightsGroups.setLayoutX(canvas.getWidth()-205);
+    }
+    private void initTrafficLightsGroups()
+    {
+        
+        trafficLightsGroups=new ListView<>();
+        trafficLightsGroups.setLayoutY(140);
+        /*TrafficLightsGroup tlg=new TrafficLightsGroup(0, 10);
+        tlg.addTrafficLightSwitch(new TrafficLightSwitch(4, 5, new TrafficLight(5, 5, 5)));
+        trafficLightsGroups.getItems().add(tlg.getGroupViews());
+        trafficLightsGroups.getItems().add(new TrafficLightsGroup(1, 5).getGroupViews());*/
+        for (int i = 0; i < 5; i++) {
+            TrafficLightsGroup tlg=new TrafficLightsGroup(i, i);
+            trafficLightsGroups.getItems().add(tlg.getGroupViews());
+            Dipl_project.getTlc().addTLGroup(tlg);
+        }
+        //pridani nove skupiny
+        //dropdown list(bez exitujicich
     }
     private void initComponents()
     {
@@ -361,6 +390,10 @@ public class UIControll {
         moveCanvas=new Canvas(initialSizeX, initialSizeY-130);
         moveCanvas.setLayoutY(130);
         moveCanvas.setVisible(false);
+        selectedCPs.setLayoutX(10);
+        checkBoxNewCP.setLayoutX(10);
+        watch.setLayoutX(10);
+        priority.setLayoutX(10);
         updateCPsPosition();
         
         Button btnAdd=new Button("Spustit");
@@ -374,7 +407,7 @@ public class UIControll {
                 if(runGenerator)
                 {
                     Dipl_project.getSc().stopSimulation();
-                    Dipl_project.getSc().stopTrafficLights();
+                    Dipl_project.getTlc().stopTrafficLights();
                     runGenerator=false;
                     btnAdd.setText("Spustit");
                 }
@@ -382,7 +415,7 @@ public class UIControll {
                 {
                     Dipl_project.getSc().startSimulationCar();
                     Dipl_project.getSc().startSimulationTram();
-                    Dipl_project.getSc().startTrafficLights();
+                    Dipl_project.getTlc().startTrafficLights();
                     runGenerator=true;
                     btnAdd.setText("Zastavit");
                 }
@@ -391,7 +424,7 @@ public class UIControll {
         });
         
         
-        Slider carGeneratorSize=new Slider(1, 150, 40);
+        Slider carGeneratorSize=new Slider(0, 150, 40);
         carGeneratorSize.setLayoutX(35);
         carGeneratorSize.setLayoutY(45);
         Label lblCarGenerSize=new Label("20");
@@ -402,7 +435,7 @@ public class UIControll {
             lblCarGenerSize.setText(String.valueOf(newValue.intValue()));
         });
         
-        Slider tramGeneratorSize=new Slider(1, 50, 10);
+        Slider tramGeneratorSize=new Slider(0, 50, 10);
         tramGeneratorSize.setLayoutX(35);
         tramGeneratorSize.setLayoutY(65);
         Label lblTramGenerSize=new Label("5");
@@ -635,7 +668,8 @@ public class UIControll {
         });
         
         initTrafficLights();
-        
+        initTrafficLightsGroups();
+        updateTLGsPosition();
         popupClick.getItems().addAll(popupSplit, popupRemove);
         menuBG=new Rectangle();
         menuBG.setFill(Color.LIGHTGRAY);
@@ -643,9 +677,8 @@ public class UIControll {
         menuBG.setWidth(initialSizeX);
         root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, btnClean, carGeneratorSize,lblCarGenerSize,tramGeneratorSize,lblTramGenerSize, btnCheckIntersect,
                 btnHideAutoFound, checkBoxNewCP, watch, priority, editBackground, editConcept,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, 
-                carCreate, tramCreate, timeTLGreen, timeTLOrange, timeTLRed,
-                addTrafficLight, connectTrafficLight, delayConnectTL,rbGreen,rbOrange,rbRed, enableSwitchRed, enableSwitchOrange, 
-                enableSwitchGreen,lblCurveEdit, btnRemoveBackhround, addMyCar, showRoads, selectedCPs, moveCanvas);
+                carCreate, tramCreate,
+                addTrafficLight,rbGreen,rbOrange,rbRed,lblCurveEdit, btnRemoveBackhround, addMyCar, showRoads, selectedCPs,trafficLightsGroups, moveCanvas);
     }
     public void refreshShowRoads()
     {
@@ -676,11 +709,6 @@ public class UIControll {
                 segment.setVisible(false);
             }
         }
-        for (TrafficLight trafficLight : dc.getTrafficLights()) {
-            for (TrafficLightsConnection allConnection : trafficLight.getAllConnections()) {
-                allConnection.getConnectCurve().setVisible(show);
-            }
-        }
     }
     public void newMyCar()
     {
@@ -706,99 +734,37 @@ public class UIControll {
                     
             }
         });
-        connectTrafficLight=new CheckBox("Propojit semafory");
-        connectTrafficLight.setLayoutX(840);
-        connectTrafficLight.setLayoutY(10);
-        connectTrafficLight.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                for (TrafficLight trafficLight : dc.getTrafficLights()) {
-                    trafficLight.enableConnectLights(connectTrafficLight.isSelected());
-                }
-            }
-        });
-        
-        SpinnerValueFactory.IntegerSpinnerValueFactory valueFactoryDelayConnect = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 200);
-        delayConnectTL=new Spinner<>(valueFactoryDelayConnect);
-        delayConnectTL.setLayoutX(840);
-        delayConnectTL.setLayoutY(35);
-        delayConnectTL.setEditable(false);
-        delayConnectTL.setDisable(true);
-        delayConnectTL.setMaxWidth(80);
-        delayConnectTL.valueProperty().addListener(new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                TrafficLightsConnection actualConnectionConnection=dc.getSelectedConnection();
-                actualConnectionConnection.setSwitchDelay(newValue);
-            }
-        });
-        
-        
-        
-        enableSwitchRed=new CheckBox();
-        enableSwitchRed.setLayoutX(610);
-        enableSwitchRed.setLayoutY(35);
-        enableSwitchRed.setSelected(true);
-        enableSwitchRed.setDisable(true);
-        enableSwitchRed.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                actualTL.setEnableSwitchRed(enableSwitchRed.isSelected());
-            }
-        });
-        enableSwitchOrange=new CheckBox();
-        enableSwitchOrange.setLayoutX(610);
-        enableSwitchOrange.setLayoutY(67);
-        enableSwitchOrange.setSelected(true);
-        enableSwitchOrange.setDisable(true);
-        enableSwitchOrange.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                actualTL.setEnableSwitchOrange(enableSwitchOrange.isSelected());
-            }
-        });
-        
-        enableSwitchGreen=new CheckBox(); 
-        enableSwitchGreen.setLayoutX(610);
-        enableSwitchGreen.setLayoutY(99);
-        enableSwitchGreen.setSelected(true);
-        enableSwitchGreen.setDisable(true);
-        enableSwitchGreen.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                actualTL.setEnableSwitchGreen(enableSwitchGreen.isSelected());
-            }
-        });
+
         
         
         trafficLightsColorGroup=new ToggleGroup();
         rbRed=new RadioButton("Červené");
-        rbRed.setLayoutX(725);
+        rbRed.setLayoutX(640);
         rbRed.setLayoutY(35);
         rbRed.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                actualTL.setStatus(2, true);
+                actualTL.setStatus(2);
             }
         });
         
         rbOrange=new RadioButton("Oranžová");
-        rbOrange.setLayoutX(725);
+        rbOrange.setLayoutX(640);
         rbOrange.setLayoutY(70);
         rbOrange.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                actualTL.setStatus(3, true);
+                actualTL.setStatus(3);
             }
         });
         rbGreen=new RadioButton("Zelená");
         rbGreen.setSelected(true);
-        rbGreen.setLayoutX(725);
+        rbGreen.setLayoutX(640);
         rbGreen.setLayoutY(105);
         rbGreen.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                actualTL.setStatus(0, true);
+                actualTL.setStatus(0);
             }
         });
         
@@ -809,49 +775,7 @@ public class UIControll {
         rbOrange.setDisable(true);
         rbRed.setDisable(true);
         
-        SpinnerValueFactory.IntegerSpinnerValueFactory valueFactoryGreen = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 200);
-        SpinnerValueFactory.IntegerSpinnerValueFactory valueFactoryOrange = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 200);
-        SpinnerValueFactory.IntegerSpinnerValueFactory valueFactoryRed = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 200);
-        timeTLRed=new Spinner<>(valueFactoryRed);
-        timeTLRed.setLayoutX(640);
-        timeTLRed.setLayoutY(35);
-        timeTLRed.setEditable(false);
-        timeTLRed.setDisable(true);
-        timeTLRed.setMaxWidth(80);
-        timeTLRed.valueProperty().addListener(new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                TrafficLight actualTL=dc.getActualTL();
-                actualTL.setTimeToSwitchRed(newValue);
-            }
-        });
         
-        timeTLOrange=new Spinner<>(valueFactoryOrange);
-        timeTLOrange.setLayoutX(640);
-        timeTLOrange.setLayoutY(65);
-        timeTLOrange.setEditable(false);
-        timeTLOrange.setDisable(true);
-        timeTLOrange.setMaxWidth(80);
-        timeTLOrange.valueProperty().addListener(new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                TrafficLight actualTL=dc.getActualTL();
-                actualTL.setTimeToSwitchOrange(newValue);
-            }
-        });
-        timeTLGreen=new Spinner<>(valueFactoryGreen);
-        timeTLGreen.setLayoutX(640);
-        timeTLGreen.setLayoutY(95);
-        timeTLGreen.setEditable(false);
-        timeTLGreen.setDisable(true);
-        timeTLGreen.setMaxWidth(80);
-        timeTLGreen.valueProperty().addListener(new ChangeListener<Integer>() {
-            @Override
-            public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue) {
-                TrafficLight actualTL=dc.getActualTL();
-                actualTL.setTimeToSwitchGreen(newValue);
-            }
-        });
         
         popupTL=new ContextMenu();
         popupTL.setOnHiding(new EventHandler<WindowEvent>() {
@@ -867,27 +791,8 @@ public class UIControll {
                 actualTL.removeTL();
             }
         });
-        popupTLConnection=new ContextMenu();
-        popupTLConnection.setOnHiding(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent event) {
-                popupShown=false;
-            }
-        });
-        popupRemoveTLConnection=new MenuItem("Odstranit");
-        popupRemoveTLConnection.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dc.getSelectedConnection().removeConnection();
-            }
-        });
-        popupTLConnection.getItems().addAll(popupRemoveTLConnection);
         popupTL.getItems().addAll(popupRemoveTL);
         
-    }
-    public boolean isEnabledConnectTL()
-    {
-        return connectTrafficLight.isSelected();
     }
     public void showPopUp(Point loc)
     {
@@ -902,12 +807,6 @@ public class UIControll {
 
     public int getMoveStatus() {
         return moveStatus;
-    }
-    
-    public void showPopUpTLConnection(Point loc)
-    {
-        popupShown=true;
-        popupTLConnection.show(root, primaryStage.getX()+loc.getX()+9, primaryStage.getY()+loc.getY()+30);
     }
     public void setAddCP(boolean add)
     {
@@ -1023,8 +922,9 @@ public class UIControll {
     public RoadSegment getRandomStart(List<RoadSegment> startSegm)
     {
         List<RoadSegment> sstoGen=new ArrayList<>();
-        sstoGen.addAll(startSegm);
-
+        if(startSegm!=null) 
+            sstoGen.addAll(startSegm);
+        
         while(!sstoGen.isEmpty())
         {
             
@@ -1075,15 +975,6 @@ public class UIControll {
     public CheckBox getEditBackground() {
         return editBackground;
     }
-    public void setChangeConnectDelay(int delay)
-    {
-        delayConnectTL.getValueFactory().setValue(delay);
-    }
-    public void enableChangeConnectDelay(boolean enable)
-    {
-        delayConnectTL.setDisable(!enable);
-    }
-
     public List<RoadSegment> getSegments() {
         return segments;
     }
