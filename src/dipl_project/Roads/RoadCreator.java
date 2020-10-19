@@ -61,7 +61,8 @@ public class RoadCreator {
                         actualCurve.getFirstCurveSegment().removeSegment();
                         actualCurve.getCurveSegments().clear();
                     }
-                    shortCurveSegment(actualCurve);
+                    newShortCurveSegment(actualCurve);
+                    
                 }
                 
                 
@@ -146,20 +147,29 @@ public class RoadCreator {
             //checkEndBlinkers(connect);
         }
     }
-    private void shortCurveSegment(MyCurve mc)
+    private void newShortCurveSegment(MyCurve mc)
     {
         Point p0=new Point(mc.getP0());
         Point p3=new Point(mc.getP3());
         newRS=new RoadSegment(p0,p3);
-        newRS.setSegmentLenght(MyMath.length(p0, p3));
+        
+        double segmentLenght=MyMath.length(p0, p3);
+        newRS.setSegmentLenght(segmentLenght);
         newRS.setId(idMax);
-        /*if(!mc.getStartConnect().getEndCurves().isEmpty())
+        if(!mc.getStartConnect().getEndCurves().isEmpty())
         {
-            Point p1=MyMath.rotate(p0, segLength/3,  MyMath.angle(p0, mc.getStartConnect().getEndCurves().get(0).getLastCurveSegment().getP2()));
+            Point p1=MyMath.rotate(p0, segmentLenght/3,  MyMath.angle(p0, mc.getStartConnect().getEndCurves().get(0).getLastCurveSegment().getP2()));
             newRS.setP1(p1);
-            Point p2=MyMath.rotate(p0, segLength/3, MyMath.angle(p1,p0));
+            Point p2=MyMath.rotate(p0, segmentLenght/3, MyMath.angle(p1,p0));
             newRS.setP2(p2);
-        }*/
+        }
+        else
+        {
+            Point p1=MyMath.rotate(p0, segmentLenght/3,  MyMath.angle(p0, p3));
+            newRS.setP1(p1);
+            Point p2=MyMath.rotate(p0, segmentLenght*2/3, MyMath.angle(p0,p3));
+            newRS.setP2(p2);
+        }
         mc.addCurveSegments(newRS);
         curveSegmentsSize=1;
         newCurveSegmentsSize=1;

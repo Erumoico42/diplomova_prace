@@ -72,63 +72,42 @@ public class Connect {
     
     private void initHandler()
     {
-        connect.setOnMouseDragged(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                move(event.getX(), event.getY());
-                dragged=true;
-                Dipl_project.getUI().enableCurveEdit(false);
-            }
+        connect.setOnMouseDragged((MouseEvent event) -> {
+            move(event.getX(), event.getY());
+            dragged=true;
+            Dipl_project.getUI().enableCurveEdit(false);
         });
-        connect.setOnMouseReleased(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(tryConnect)
-                {
-                    connectConnects();
-                    
-                }
-                   
-            }
-        });
-        connect.setOnMouseEntered(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(!selected)
-                    connect.setRadius(8);
+        connect.setOnMouseReleased((MouseEvent event) -> {
+            if(tryConnect)
+            {
+                connectConnects();
                 
             }
         });
-        connect.setOnMouseExited(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(!selected)
-                    connect.setRadius(6);
-            }
+        connect.setOnMouseEntered((MouseEvent event) -> {
+            if(!selected)
+                connect.setRadius(8);
         });
-        connect.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                
-                ui.moveComponentUp(connect);
-            }
+        connect.setOnMouseExited((MouseEvent event) -> {
+            if(!selected)
+                connect.setRadius(6);
         });
-        connect.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(event.getButton()==MouseButton.PRIMARY)
-                {
-                    if(selected && !dragged)
-                        deselect();
-                    else
-                        select();
-                    dragged=false; 
-                }
-                else if(event.getButton()==MouseButton.SECONDARY)
-                {
+        connect.setOnMousePressed((MouseEvent event) -> {
+            ui.moveComponentUp(connect);
+        });
+        connect.setOnMouseClicked((MouseEvent event) -> {
+            if(event.getButton()==MouseButton.PRIMARY)
+            {
+                if(selected && !dragged)
+                    deselect();
+                else
                     select();
-                    ui.showPopUp(location);
-                }
+                dragged=false;
+            }
+            else if(event.getButton()==MouseButton.SECONDARY)
+            {
+                select();
+                ui.showPopUp(location);
             }
         });
     }
