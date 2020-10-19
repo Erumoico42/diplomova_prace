@@ -502,7 +502,7 @@ public class Vehicle {
                         {   
                             double speedNextCar=rsCheck.getVehicle().getSpeed()*speedMinus;
                             double tNextCar=rsCheck.getVehicle().getTime();
-                            double dist=actDist+tNextCar-getTime()+distMinus+rsCheck.getErrorDistance();
+                            double dist=actDist+tNextCar-getTime()+distMinus;
                             dist-=rsCheck.getVehicle().getVehicleLenght();
                             
                             if(dist<0.5 || distMinus==-1)

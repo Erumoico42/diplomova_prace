@@ -109,6 +109,7 @@ public class Connect {
         connect.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                
                 ui.moveComponentUp(connect);
             }
         });
@@ -148,37 +149,55 @@ public class Connect {
     
     public void splitConnect()
     {
-        for (MyCurve startCurve : startCurves) {
-            Connect endCon=startCurve.getEndConnect();
-            Point endConLoc=endCon.getLocation();
-            Point newLoc=MyMath.rotate(endConLoc, 
-                    MyMath.length(location, endConLoc)-10, MyMath.angle(location, endConLoc));
-            /*Connect newCon=new Connect(newLoc);
-            startCurve.setStartConnect(newCon); 
-            newCon.addStartCurves(startCurve);
-            
-            
-            newCon.move(newLoc.getX(), newLoc.getY());
-            ui.addConnect(newCon);*/
+        for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connectSegmentsMap.entrySet()) {
+            RoadSegment segment = rs.getValue();
+            for (RoadSegment rsLast : segment.getRsLast()) {
+                for (RoadSegment rsLast2 : rsLast.getRsLast()) {
+                    rsLast2.getRsNext().clear();
+                }
+            }
+            segment.removeSegment();
         }
         
+        for (MyCurve startCurve : startCurves) {   
+            
+            Point p1Loc=startCurve.getP1();
+            Point newLoc=MyMath.rotate(p1Loc, 
+                    MyMath.length(location, p1Loc)-10, MyMath.angle(location, p1Loc));
+            int lastConnID=Dipl_project.getDC().getIdLastConnect()+1;
+            Dipl_project.getDC().setIdLastConnect(lastConnID);
+            Connect newCon=new Connect(newLoc,lastConnID);
+            startCurve.setStartConnect(newCon); 
+            newCon.addStartCurves(startCurve);
+            newCon.move(newLoc.getX(), newLoc.getY());
+            ui.addConnect(newCon);
+            dc.addConnect(newCon);
+        }
+        
+        
         for (MyCurve endCurve : endCurves) {
-            Connect startCon=endCurve.getStartConnect();
-            Point startConLoc=startCon.getLocation();
-            Point newLoc=MyMath.rotate(startConLoc, 
-                    MyMath.length(location, startConLoc)-10, MyMath.angle(location, startConLoc));
-            /*Connect newCon=new Connect(newLoc);
+            Point p2Loc=endCurve.getP2();
+            Point newLoc=MyMath.rotate(p2Loc, 
+                    MyMath.length(location, p2Loc)-10, MyMath.angle(location, p2Loc));
+            int lastConnID=Dipl_project.getDC().getIdLastConnect()+1;
+            Dipl_project.getDC().setIdLastConnect(lastConnID);
+            Connect newCon=new Connect(newLoc,lastConnID);
+            
             endCurve.setEndConnect(newCon);
             newCon.addEndCurves(endCurve);
-            
-            endCurve.getLastRS().removeNext();
-            
-            
             newCon.move(newLoc.getX(), newLoc.getY());
-            ui.addConnect(newCon);*/
+            ui.addConnect(newCon);
+            dc.addConnect(newCon);
         }
+        
+        endCurves.clear();
         ui.removeConnect(thisConnect);
+        dc.removeConnect(thisConnect);
         dc.newRoad();
+        for (Connect connect : ui.getConnects()) {
+            connect.setTryConnect(false);
+        }
+        
     }
     public void removeConnect()
     {
@@ -235,7 +254,10 @@ public class Connect {
         connect.setStroke(null);
         connect.setRadius(6);
     }
-
+    public void setTryConnect(boolean tryConnect)
+    {
+        this.tryConnect=tryConnect;
+    }
     public double getX()
     {
         return location.getX();
@@ -276,6 +298,7 @@ public class Connect {
                         connect).getBoundsInLocal().getWidth()>0)
                 {
                     selectToConnect(con);
+                    
                     break;
                 }
                 else

@@ -10,9 +10,11 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import javafx.geometry.Bounds;
 import javafx.scene.shape.CubicCurve;
 import javafx.scene.shape.Shape;
+import javafx.util.Pair;
 
 /**
  *
@@ -23,7 +25,7 @@ public class RoadCreator {
     private  double segLength=30, arrowLengthMin=120, collisDistance=30;
     private RoadSegment lastRS, newRS;
     private MyCurve actualCurve;
-    private boolean newCurve, newSegment=true;
+    private boolean newCurve, newSegment=true, zooming=false;
     private double curveLength=0, startAngle=0, startControllLenght=0;
     private int curveSegmentsSize=0, newCurveSegmentsSize=0;
     private List<RoadSegment> startTramSegments=new ArrayList<>();
@@ -50,18 +52,24 @@ public class RoadCreator {
                 pOld=connect.getLocation();
                 actualCurve=startCurve;
                 curveSegmentsSize=actualCurve.getCurveSegments().size();
+                RoadSegment firtstRSShort=actualCurve.getFirstCurveSegment();
                 
                 callBez(startCurve.getCurve());
                 if(newCurveSegmentsSize<1)
                 {
+                    if(firtstRSShort!=null){
+                        actualCurve.getFirstCurveSegment().removeSegment();
+                        actualCurve.getCurveSegments().clear();
+                    }
                     shortCurveSegment(actualCurve);
                 }
-                    
                 
                 
                 List<RoadSegment>curveSegments=actualCurve.getCurveSegments();
-                if(curveSegmentsSize>newCurveSegmentsSize)
+                
+                if(curveSegmentsSize>newCurveSegmentsSize && !zooming)
                 {
+                    
                     int size=curveSegmentsSize;
                     List<RoadSegment> segments;
                     for (int i = size-1; i > newCurveSegmentsSize-1; i--) {
@@ -106,7 +114,7 @@ public class RoadCreator {
                         rsNew.disconnectRS();
                         
                     }
-                    double lenght=MyMath.length(rsNew.getP0(), rsNew.getP3())*1.2;
+                    double lenght=MyMath.length(rsNew.getP0(), rsNew.getP3());
                     rsNew.setSegmentLenght(lenght);
                     Point p1=MyMath.rotate(rsEnd.getP3(), lenght/3,  MyMath.angle(rsNew.getP0(), rsEnd.getP2()));
                     rsNew.setP1(p1);
@@ -123,6 +131,9 @@ public class RoadCreator {
         startCarSegments.clear();
         startTramSegments.clear();
         for (Connect connect : connects) {
+                checkSameWay(connect);
+            
+            
             if(connect.getEndCurves().isEmpty())
             {
                 for (MyCurve startCurve : connect.getStartCurves()) {
@@ -142,6 +153,13 @@ public class RoadCreator {
         newRS=new RoadSegment(p0,p3);
         newRS.setSegmentLenght(MyMath.length(p0, p3));
         newRS.setId(idMax);
+        /*if(!mc.getStartConnect().getEndCurves().isEmpty())
+        {
+            Point p1=MyMath.rotate(p0, segLength/3,  MyMath.angle(p0, mc.getStartConnect().getEndCurves().get(0).getLastCurveSegment().getP2()));
+            newRS.setP1(p1);
+            Point p2=MyMath.rotate(p0, segLength/3, MyMath.angle(p1,p0));
+            newRS.setP2(p2);
+        }*/
         mc.addCurveSegments(newRS);
         curveSegmentsSize=1;
         newCurveSegmentsSize=1;
@@ -177,7 +195,8 @@ public class RoadCreator {
                firstCurveSegment.setBlinkerRight(false);
             }
             RoadSegment lastCurveSegment=startCurve.getLastCurveSegment();
-            lastCurveSegment.setStopBlinker(false);
+            if(lastCurveSegment!=null)
+                lastCurveSegment.setStopBlinker(false);
         }
         if(connect.getStartCurves().size()>1)
         {
@@ -217,7 +236,7 @@ public class RoadCreator {
              baLeft.getMc().getLastCurveSegment().setStopBlinker(true);
              baRight.getMc().getLastCurveSegment().setStopBlinker(true);
         }
-        else if(connect.getStartCurves().size()==1 && connect.getEndCurves().size()>0)
+        else if(connect.getStartCurves().size()>1 && connect.getEndCurves().size()>0)
         {
             MyCurve mcBlinker=connect.getStartCurves().get(0);
             double angle1=MyMath.angle(mcBlinker.getP0(), mcBlinker.getP1());
@@ -328,15 +347,6 @@ public class RoadCreator {
     {
         
         if(oldRS!=null && newRS!=null){
-            //rozdeleni
-            
-                swSplit(oldRS, newRS);
-                
-            
-            //spojeni
-                swConnect(oldRS, newRS);
-            
-            
             if(!oldRS.getRsNext().contains(newRS))
                 oldRS.addNextRs(newRS);
             if(!newRS.getRsLast().contains(oldRS))
@@ -345,88 +355,63 @@ public class RoadCreator {
             
         }
     }
-
-    private boolean checkSameWay(Point prs1, Point prs2)
+    
+    private void checkSameWay(Connect connect)
     { 
-        double distance=MyMath.length(prs1, prs2);
-        boolean sameWay= distance<collisDistance;
-        return sameWay;
-    }
-    public void setCurves(List<MyCurve> curves)
-    {
-        this.curves=curves;
-    }
-    private void swConnect(RoadSegment rs1, RoadSegment rs2)
-    {
-        //set distance between end points
-        for (RoadSegment rs : rs2.getRsLast()) {
-            if(!rs.equals(rs1))
-            {
-                joinSWConnect(rs, rs1);
-            }    
-        }
-    }
-    private void joinSWConnect(RoadSegment rs1, RoadSegment rs2)
-    {
+        for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs1 : connect.getConnectSegmentsMap().entrySet()) {
+            for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs2 : connect.getConnectSegmentsMap().entrySet()) {
+                if(!rs1.equals(rs2))
+                {
 
-        boolean connect=checkSameWay(rs1.getP3(), rs2.getP3());
-        double errorAngle=Math.toDegrees(MyMath.angle(rs1.getP0(), rs1.getP3())-MyMath.angle(rs1.getP3(), rs2.getP3()));
-        double errorDistRs1=0;
-        double errorDistRs2=0;
-        double errorDistance=MyMath.length(rs1.getP3(), rs2.getP3());
-        if(errorAngle>-60 && errorAngle<60)
-        {
-            errorDistRs1=-errorDistance/segLength;
-            errorDistRs2=errorDistance/segLength;
-            
-        }else if(errorAngle>120 && errorAngle<240)
-        {
-            errorDistRs1=errorDistance/segLength;
-            errorDistRs2=-segLength/errorDistance/segLength;
-        }
-        rs1.setErrorDistance(errorDistRs1);
-        rs2.setErrorDistance(errorDistRs2);
-        boolean joined=joinedSW(rs1, rs2);
-        joinSW(rs1, rs2, connect);
-
-        if(!(!joined && !connect))
-        {
-            for (RoadSegment rs1N : rs1.getRsLast()) {
-                for (RoadSegment rs2N : rs2.getRsLast()) {
-                    joinSWConnect(rs1N, rs2N);
+                    isSameWayLast(rs1.getValue(), rs2.getValue());
+                    for (RoadSegment rsNext1 : rs1.getValue().getRsNext()) {
+                        for (RoadSegment rsNext2 : rs2.getValue().getRsNext()) {
+                            if(!rsNext1.equals(rsNext2))
+                            {
+                                isSameWayNext(rsNext1, rsNext2);
+                            }
+                        }
+                    }
                 }
-            } 
+            }
         }
         
+       
     }
-    private void swSplit(RoadSegment rs1, RoadSegment rs2)
+    private void isSameWayLast(RoadSegment rs1, RoadSegment rs2)
     {
-        for (RoadSegment rs : rs1.getRsNext()) {
-            if(!rs.equals(rs2))
-            {
-                joinSWSplit(rs, rs2);
-            }    
-        }
-    }
-    private void joinSWSplit(RoadSegment rs1, RoadSegment rs2)
-    {
-        boolean connect=checkSameWay(rs1.getP0(), rs2.getP0());
-        boolean joined=joinedSW(rs1, rs2);
-        joinSW(rs1, rs2, connect);
-
-        if(!(!joined && !connect))
+        double distanceLast=Math.min(MyMath.distanceFromLine(rs1.getP0(),rs1.getP3(), rs2.getP0()), MyMath.distanceFromLine(rs1.getP0(),rs1.getP3(), rs2.getP3()));
+        boolean sameWayLast= distanceLast<collisDistance;
+        joinSW(rs1, rs2, sameWayLast);
+        if(sameWayLast)
         {
-            for (RoadSegment rs1N : rs1.getRsNext()) {
-                for (RoadSegment rs2N : rs2.getRsNext()) {
-                    joinSWSplit(rs1N, rs2N);
+            for (RoadSegment rsLast1 : rs1.getRsLast()) {
+                for (RoadSegment rsLast2 : rs2.getRsLast()) {
+                    if(!rsLast1.equals(rsLast2))
+                    {
+                        isSameWayLast(rsLast1, rsLast2);
+                    }
                 }
-            } 
+            }
         }
-        
     }
-    private boolean joinedSW(RoadSegment rs1, RoadSegment rs2)
+    private void isSameWayNext(RoadSegment rs1, RoadSegment rs2)
     {
-        return (rs1.getRsSameWay().contains(rs2) && rs2.getRsSameWay().contains(rs1));
+        
+        double distanceNext=Math.min(MyMath.distanceFromLine(rs1.getP0(),rs1.getP3(), rs2.getP0()), MyMath.distanceFromLine(rs1.getP0(),rs1.getP3(), rs2.getP3()));
+        boolean sameWayNext= distanceNext<collisDistance;
+        joinSW(rs1, rs2, sameWayNext);
+        if(sameWayNext)
+        {
+            for (RoadSegment rsNext1 : rs1.getRsNext()) {
+                for (RoadSegment rsNext2 : rs2.getRsNext()) {
+                    if(!rsNext1.equals(rsNext2))
+                    {
+                        isSameWayNext(rsNext1, rsNext2);
+                    }
+                }
+            }
+        }
     }
     private void joinSW(RoadSegment rs1, RoadSegment rs2, boolean connect)
     {
@@ -450,7 +435,7 @@ public class RoadCreator {
     private void newSegment(int x, int y)
     {
         double length=MyMath.length(pOld.getX(), pOld.getY(), x, y);
-        if(length>segLength)
+        if(length>=segLength)
         {
             pNew=new Point(x,y);
             
@@ -472,6 +457,7 @@ public class RoadCreator {
             else
             {
                 newRS=actualCurve.getCurveSegments().get(newCurveSegmentsSize);
+                newRS.getRsSameWay().clear();
                 newRS.setP0(new Point(pOld));
                 newRS.setP3(pNew);
                 newRS.moveSegment(pNew);
@@ -616,6 +602,7 @@ public class RoadCreator {
 
     public void setSegLenght(double segLength) {
         this.segLength = segLength;
+        collisDistance=segLength;
     }
 
     public double getArrowLengthMin() {
@@ -632,6 +619,14 @@ public class RoadCreator {
 
     public void setCollisDistance(double collisDistance) {
         this.collisDistance = collisDistance;
+    }
+
+    public boolean isZooming() {
+        return zooming;
+    }
+
+    public void setZooming(boolean zooming) {
+        this.zooming = zooming;
     }
     
 }

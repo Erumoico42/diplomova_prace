@@ -265,6 +265,10 @@ public  class DrawControll {
     {
         connects.add(con);
     }
+    public void removeConnect(Connect con)
+    {
+        connects.remove(con);
+    }
     public void addCurve(MyCurve curve)
     {
         curves.add(curve);
@@ -343,4 +347,9 @@ public  class DrawControll {
         
         BackgroundControll.removeBG();
     }
+
+    public int getIdLastConnect() {
+        return idLastConnect;
+    }
+    
 }
