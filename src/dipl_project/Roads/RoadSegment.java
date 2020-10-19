@@ -56,7 +56,7 @@ public class RoadSegment {
     private UIControll ui=Dipl_project.getUI();
     private DrawControll dc=Dipl_project.getDC();
     private int id;
-    private double errorDistance=0, segmentLenght;
+    private double segmentLenght;
     private boolean run=false, blinkerLeft=false, blinkerRight=false, blinkerStop=false;
     public RoadSegment(Point p0, Point p3) {
         this.p0=p0;
@@ -65,6 +65,7 @@ public class RoadSegment {
         roadSegment.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                
                 if(!selectedRS)
                     selectRS();
                 else
@@ -286,14 +287,6 @@ public class RoadSegment {
     }
     public void setMainCurve(MyCurve mainCurve) {
         this.mainCurve = mainCurve;
-    }
-
-    public double getErrorDistance() {
-        return errorDistance;
-    }
-
-    public void setErrorDistance(double errorDistance) {
-        this.errorDistance = errorDistance;
     }
 
     public List<TrafficLight> getTrafficLights() {

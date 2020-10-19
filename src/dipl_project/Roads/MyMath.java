@@ -63,5 +63,11 @@ public class MyMath {
         Point pRet=new Point((int)(p0.getX()+(time*u.getX())),(int)(p0.getY()+(time*u.getY())));
         return pRet;
     }
-  
+    public static double distanceFromLine(Point a1, Point a2, Point b)
+    {
+            double distance = Math.abs((a2.getX() - a1.getX())*(a1.getY() - b.getY()) - (a1.getX() - b.getX())*(a2.getY() - a1.getY()))/
+                    Math.sqrt(Math.pow(a2.getX() - a1.getX(), 2) + Math.pow(a2.getY() - a1.getY(), 2));
+            return distance;
+        
+    }
 }

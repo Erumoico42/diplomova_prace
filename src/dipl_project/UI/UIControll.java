@@ -483,11 +483,11 @@ public class UIControll {
         });
         popupClick=new ContextMenu();
         popupSplit=new MenuItem("Rozdělit");
-        popupSplit.setDisable(true);
         popupSplit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 Dipl_project.getDC().getActualConnect().splitConnect();
+                
             }
         });
         popupRemove=new MenuItem("Odstranit");

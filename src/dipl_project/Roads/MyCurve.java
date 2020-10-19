@@ -448,7 +448,6 @@ public class MyCurve {
     public Point getP3() {
         return p3;
     }
-
     public boolean isTramCurve() {
         return tramCurve;
     }

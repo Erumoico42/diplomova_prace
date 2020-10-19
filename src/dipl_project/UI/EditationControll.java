@@ -84,12 +84,13 @@ public  class EditationControll {
                 zoomSegments(zr);
                 zoomTLs(zr);
                 Dipl_project.getRC().enableNewSegment(false);
-
+                Dipl_project.getRC().setZooming(true);
                 if(BackgroundControll.isBackground())
                     BackgroundControll.zoomBackgroundByRatio(zr);
                 Dipl_project.getDC().newRoad();
                 Dipl_project.getRC().setArrows();
                 Dipl_project.getRC().enableNewSegment(true);
+                Dipl_project.getRC().setZooming(false);
                 Dipl_project.getUI().refreshShowRoads();
             }
         });
@@ -247,9 +248,9 @@ public  class EditationControll {
         moveCurves(x, y);
         moveConnects(x, y);
         moveTLs(x,y);
-        moveVehicles(x, y);
-        Dipl_project.getDC().newRoad();
-        Dipl_project.getRC().setArrows();
+        moveVehicles();
+        //Dipl_project.getDC().newRoad();
+        //Dipl_project.getRC().setArrows();
         Dipl_project.getRC().enableNewSegment(true);
 
         
@@ -405,7 +406,7 @@ public  class EditationControll {
         }
     }
 
-    private static void moveVehicles(double x, double y)
+    private static void moveVehicles()
     {
         Dipl_project.getAnim().moveVehicles();
         
