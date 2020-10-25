@@ -13,6 +13,7 @@ import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.Background;
@@ -22,6 +23,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javax.swing.Box;
 
 /**
@@ -39,13 +41,16 @@ public class TrafficLightsGroup {
     public TrafficLightsGroup(int id, int time) {
         
         Button btnAdd=new Button("+");
-        btnAdd.setFont(Font.font(10));
-        btnAdd.setMaxSize(30, 30);
-        btnAdd.setMinSize(30, 30);
-        Label lblTime=new Label(" Čas: "+String.valueOf(time));
-        lblTime.setMinSize(130, 30);
-        lblTime.setMaxSize(130, 30);
-        groupInfo.getChildren().addAll(lblTime,btnAdd);
+        btnAdd.setMaxSize(60, 30);
+        btnAdd.setMinSize(60, 30);
+        addToGroup.setAlignment(Pos.CENTER);
+        btnAdd.setTextAlignment(TextAlignment.CENTER);
+        Label lblTime=new Label(" "+String.valueOf(time)+"s");
+        lblTime.setMinSize(160, 30);
+        lblTime.setMaxSize(160, 30);
+
+        groupInfo.getChildren().addAll(lblTime);
+        addToGroup.getChildren().add(btnAdd);
         groupInfo.setBackground(new Background(new BackgroundFill(Color.rgb(240, 240, 240),new CornerRadii(2),null)));
         btnAdd.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -54,8 +59,8 @@ public class TrafficLightsGroup {
                 Dipl_project.getUI().setActualTLGroup(getThis());
             }
         });
-        
-        groupViews.getItems().addAll(groupInfo);
+        groupViews.setFocusTraversable(false);
+        groupViews.getItems().addAll(groupInfo,addToGroup);
         this.id = id;
         this.time = time;
         
@@ -71,14 +76,14 @@ public class TrafficLightsGroup {
     }
     public void fitGroupViewsBySize()
     {
-        groupViews.setMaxWidth(180);
-        groupViews.setPrefHeight(trafficLightSwitchList.size() * 38 + 70);
+        groupViews.setMaxWidth(210);
+        groupViews.setPrefHeight(trafficLightSwitchList.size() * 38 + 80);
         
     }
     public void addTrafficLightSwitch(TrafficLightSwitch tls)
     {
         trafficLightSwitchList.add(tls);
-        groupViews.getItems().add(tls.getTlSwitchBox());
+        groupViews.getItems().add(groupViews.getItems().size()-1,tls.getTlSwitchBox());
         fitGroupViewsBySize();
         
     }

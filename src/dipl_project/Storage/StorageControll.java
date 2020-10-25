@@ -94,6 +94,7 @@ public  class StorageControll {
             doc.getDocumentElement().normalize();
             
             Dipl_project.getDC().cleanAll();
+            
             Map<Integer, TrafficLight> tls = new TrafficLightsStore(doc, null).loadTrafficLights();
             new StreetStore(doc, null).loadStreet(tls);
             new BackgroundStore(doc, null).loadBackground();

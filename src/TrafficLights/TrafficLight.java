@@ -11,6 +11,8 @@ import dipl_project.UI.DrawControll;
 import dipl_project.UI.EditationControll;
 import dipl_project.UI.UIControll;
 import java.awt.Point;
+import java.util.Timer;
+import java.util.TimerTask;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -28,6 +30,7 @@ public class TrafficLight {
     private Image imgOrangeToRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/orangeToRed.png").toString());
     private Image imgRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/red.png").toString());
     private Image imgOrangeToGreen=new Image(Dipl_project.class.getResource("Resources/trafficLights/orangeToGreen.png").toString());
+    private Image imgNone=new Image(Dipl_project.class.getResource("Resources/trafficLights/none.png").toString());
     private Point location, locOrig;
     private double layoutX, layoutY, startX, startY, distX, distY;
     private final String STYLE_SELECT_PRIM="-fx-border-color: blue;"
@@ -44,7 +47,11 @@ public class TrafficLight {
     private double tlWidth=20, tlHeight=50;
     private ImageView tlImage=new ImageView();
     private int status;
+    private int timeCountDown;
     UIControll ui=Dipl_project.getUI();
+    private Timer timer;
+    private TimerTask timerTask;
+    private boolean orangeSwitching=false;
     public TrafficLight(double x, double y, int id) {
         this.id=id;
 
@@ -77,7 +84,7 @@ public class TrafficLight {
                     
                     if(ui.isAddTLToList())
                     {
-                        ui.getActualTLGroup().addTrafficLightSwitch(new TrafficLightSwitch(2, 1, getThis(), ui.getActualTLGroup()));
+                        ui.getActualTLGroup().addTrafficLightSwitch(new TrafficLightSwitch(1, getThis(), ui.getActualTLGroup()));
                         ui.setAddTLToList(false);
                     }
                     else
@@ -177,6 +184,16 @@ public class TrafficLight {
         layoutY=y;
         location.setLocation(x, y);
     }
+
+    public int getTimeCountDown() {
+        return timeCountDown;
+    }
+
+    public void setTimeCountDown(int timeCountDown) {
+        System.out.println(timeCountDown);
+        this.timeCountDown = timeCountDown;
+    }
+    
     public void selectTL()
     {
         tlBox.setStyle(STYLE_SELECT_PRIM);
@@ -193,6 +210,44 @@ public class TrafficLight {
         layoutY-=2;
         tlBox.setLayoutX(layoutX);
         tlBox.setLayoutY(layoutY);
+    }
+    public void startOrangeSwitching()
+    {
+        timer=new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run(){
+               
+               activateSwitch();
+            }
+        };
+        timer.schedule(timerTask, 1000, 1000);
+    }
+    public void stopOrangeSwitching()
+    {
+        if(timer!=null)
+            timer.cancel();
+        if(timerTask!=null)
+            timerTask.cancel();
+    }
+    private void activateSwitch()
+    {
+        if(status==4)
+        {
+            setStatus(1);
+        }
+        else
+        {
+            setStatus(4);
+        }
+    }
+
+    public void setOrangeSwitching(boolean orangeSwitching) {
+        this.orangeSwitching = orangeSwitching;
+    }
+    
+    public boolean isOrangeSwitching() {
+        return orangeSwitching;
     }
     public void deselectTL()
     {
@@ -246,6 +301,11 @@ public class TrafficLight {
             case 3:
             {
                 tlImage.setImage(imgOrangeToGreen);
+                break;
+            }
+            case 4:
+            {
+                tlImage.setImage(imgNone);
                 break;
             }
             

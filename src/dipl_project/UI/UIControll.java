@@ -29,6 +29,8 @@ import java.util.Map;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -37,8 +39,11 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
@@ -47,6 +52,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -62,6 +68,10 @@ import javafx.util.Pair;
  * @author Honza
  */
 public class UIControll {
+    private Image imgSwitchGreen=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchGreen.png").toString());
+    private Image imgSwitchRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchRed.png").toString());
+    private Image imgSwitchOrange=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchOrange.png").toString());
+    private ComboBox comboChangeColorTL;
     private Stage primaryStage;
     private Group root;
     private Scene scene;
@@ -80,10 +90,10 @@ public class UIControll {
     private Button btnRemoveBackhround, saveEditedCurve;
     private SimulationControll sc;
     private Slider curveEdit= new Slider(0, 100, 0);
-    private Label lblCurveEdit;
+    private Label lblCurveEdit, tlGroupsTime;
     private DrawControll dc;
     private ToggleGroup trafficLightsColorGroup, priorityGroup;
-    private RadioButton rbGreen, rbOrange, rbRed, priority, watch;
+    private RadioButton priority, watch;
     private TrafficLight actualTL;
     private Rectangle menuBG;
     private boolean priorityCP, isTramCreating=false;
@@ -258,30 +268,12 @@ public class UIControll {
     }
     public void enableEditTL(boolean enable)
     {
-        rbGreen.setDisable(!enable);
-        rbOrange.setDisable(!enable);
-        rbRed.setDisable(!enable);
+        comboChangeColorTL.setDisable(!enable);
         if(enable)
         {
             actualTL=dc.getActualTL();
-            switch(actualTL.getStatus())
-            {
-                case 0:
-                {
-                    rbGreen.setSelected(true);
-                    break;
-                }
-                case 1: case 3:
-                {
-                    rbOrange.setSelected(true);
-                    break;
-                }
-                case 2:
-                {
-                    rbRed.setSelected(true);
-                    break;
-                }
-            }
+            comboChangeColorTL.getSelectionModel().select(actualTL.getStatus());
+
         }
     }
     public void addComponent(Node node)
@@ -304,35 +296,33 @@ public class UIControll {
     }
     public void updateCPsPosition()
     {
-        selectedCPs.setMinSize(125, canvas.getHeight()-45);
-        selectedCPs.setMaxSize(125, canvas.getHeight()-45);
-        //selectedCPs.setLayoutX(canvas.getWidth()-130);
-        //checkBoxNewCP.setLayoutX(canvas.getWidth()-130);
-        //watch.setLayoutX(canvas.getWidth()-130);
-        //priority.setLayoutX(canvas.getWidth()-130);
+        selectedCPs.setMinSize(125, canvas.getHeight()-230);
+        selectedCPs.setMaxSize(125, canvas.getHeight()-230);
     }
     public void updateTLGsPosition()
     {
-        trafficLightsGroups.setMinSize(200, canvas.getHeight()-200);
-        trafficLightsGroups.setMaxSize(200, canvas.getHeight()-200);
-        trafficLightsGroups.setLayoutX(canvas.getWidth()-205);
+        trafficLightsGroups.setMinSize(230, canvas.getHeight()-180);
+        trafficLightsGroups.setMaxSize(230, canvas.getHeight()-180);
+        trafficLightsGroups.setLayoutX(canvas.getWidth()-235);
+        tlGroupsTime.setLayoutX(canvas.getWidth()-235);
+        tlGroupsTime.setLayoutY(canvas.getHeight()-40);
     }
     private void initTrafficLightsGroups()
     {
-        
-        trafficLightsGroups=new ListView<>();
+        tlGroupsTime=new Label("Čas: 0s");
+        trafficLightsGroups=Dipl_project.getTlc().getTrafficLightsGroups();
         trafficLightsGroups.setLayoutY(140);
-        /*TrafficLightsGroup tlg=new TrafficLightsGroup(0, 10);
-        tlg.addTrafficLightSwitch(new TrafficLightSwitch(4, 5, new TrafficLight(5, 5, 5)));
-        trafficLightsGroups.getItems().add(tlg.getGroupViews());
-        trafficLightsGroups.getItems().add(new TrafficLightsGroup(1, 5).getGroupViews());*/
-        for (int i = 0; i < 5; i++) {
-            TrafficLightsGroup tlg=new TrafficLightsGroup(i, i);
-            trafficLightsGroups.getItems().add(tlg.getGroupViews());
-            Dipl_project.getTlc().addTLGroup(tlg);
-        }
-        //pridani nove skupiny
-        //dropdown list(bez exitujicich
+        
+    }
+    public void setTlGroupTime(String time)
+    {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tlGroupsTime.setText(time);
+            }
+        });
+        
     }
     private void initComponents()
     {
@@ -678,7 +668,7 @@ public class UIControll {
         root.getChildren().addAll(canvas, menuBG, btnAdd, btnSave,btnLoad, btnClean, carGeneratorSize,lblCarGenerSize,tramGeneratorSize,lblTramGenerSize, btnCheckIntersect,
                 btnHideAutoFound, checkBoxNewCP, watch, priority, editBackground, editConcept,  btnLoadBackground,btnReload, curveEdit, saveEditedCurve, 
                 carCreate, tramCreate,
-                addTrafficLight,rbGreen,rbOrange,rbRed,lblCurveEdit, btnRemoveBackhround, addMyCar, showRoads, selectedCPs,trafficLightsGroups, moveCanvas);
+                addTrafficLight,comboChangeColorTL,lblCurveEdit, btnRemoveBackhround, addMyCar, showRoads, selectedCPs,trafficLightsGroups,tlGroupsTime, moveCanvas);
     }
     public void refreshShowRoads()
     {
@@ -738,42 +728,22 @@ public class UIControll {
         
         
         trafficLightsColorGroup=new ToggleGroup();
-        rbRed=new RadioButton("Červené");
-        rbRed.setLayoutX(640);
-        rbRed.setLayoutY(35);
-        rbRed.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                actualTL.setStatus(2);
-            }
-        });
         
-        rbOrange=new RadioButton("Oranžová");
-        rbOrange.setLayoutX(640);
-        rbOrange.setLayoutY(70);
-        rbOrange.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                actualTL.setStatus(3);
-            }
-        });
-        rbGreen=new RadioButton("Zelená");
-        rbGreen.setSelected(true);
-        rbGreen.setLayoutX(640);
-        rbGreen.setLayoutY(105);
-        rbGreen.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                actualTL.setStatus(0);
-            }
-        });
         
-        rbGreen.setToggleGroup(trafficLightsColorGroup);
-        rbOrange.setToggleGroup(trafficLightsColorGroup);
-        rbRed.setToggleGroup(trafficLightsColorGroup);
-        rbGreen.setDisable(true);
-        rbOrange.setDisable(true);
-        rbRed.setDisable(true);
+        ObservableList<Image> switchImages = FXCollections.observableArrayList();
+        switchImages.addAll(imgSwitchGreen, imgSwitchOrange, imgSwitchRed);
+        comboChangeColorTL= createComboBox(switchImages);
+        comboChangeColorTL.setMinWidth(60);
+        comboChangeColorTL.setMaxWidth(60);
+        comboChangeColorTL.setLayoutX(640);
+        comboChangeColorTL.setLayoutY(40);
+        comboChangeColorTL.getSelectionModel().selectedItemProperty().addListener( (options, oldValue, newValue) -> {
+            int newStatus=switchImages.indexOf((Image)newValue);
+            actualTL.setStatus(newStatus);
+            actualTL.setOrangeSwitching(newStatus==1);
+            
+        });
+        comboChangeColorTL.setDisable(true);
         
         
         
@@ -793,6 +763,34 @@ public class UIControll {
         });
         popupTL.getItems().addAll(popupRemoveTL);
         
+    }
+    private ComboBox<Image> createComboBox(ObservableList<Image> data) {
+        ComboBox<Image> combo = new ComboBox<>();
+        combo.getItems().addAll(data);
+        combo.setButtonCell(new ImageListCell());
+        combo.setCellFactory(listView -> new ImageListCell());
+        combo.getSelectionModel().select(0);
+        return combo;
+    }
+    class ImageListCell extends ListCell<Image> {
+        private final ImageView view;
+ 
+        ImageListCell() {
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            view = new ImageView();
+        }
+ 
+        @Override protected void updateItem(Image item, boolean empty) {
+            super.updateItem(item, empty);
+ 
+            if (item == null || empty) {
+                setGraphic(null);
+            } else {
+                view.setImage(item);
+                setGraphic(view);
+            }
+        }
+ 
     }
     public void showPopUp(Point loc)
     {

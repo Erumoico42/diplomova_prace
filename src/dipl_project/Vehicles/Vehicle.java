@@ -517,7 +517,7 @@ public class Vehicle {
                             for (TrafficLight trafficLight : rsCheck.getTrafficLights()) {
                                 
                                 int status=trafficLight.getStatus();
-                                //int tlTime=trafficLight.getTime();
+                                int tlTime=trafficLight.getTimeCountDown();
                                 //int tlMaxTime=trafficLight.getMaxTime();
                                 
                                 trafficLightFound=true;
@@ -526,7 +526,7 @@ public class Vehicle {
                                     carFound=true;
                                     fuzzySpeed(actDist-vehicleLenght-time, speed);
                                 }
-                                if(status==0 /* || (status==1  && tlMaxTime-tlTime<1)*/)
+                                if(status==0  || (status==1  && tlTime>1))
                                 {
                                     setForce(maxForce);
                                 }

@@ -151,6 +151,7 @@ public class StreetStore {
     public void saveStartSegments()
     {
         List<RoadSegment> startCarSegments=dipl_project.Dipl_project.getUI().getStartCarSegments();
+        if(startCarSegments!=null)
         for (RoadSegment rs : startCarSegments) {
             Element startCarSegment=doc.createElement("startCarSegment");  
             Attr idStartCarSegment=doc.createAttribute("idStartCarSegment");
@@ -159,6 +160,7 @@ public class StreetStore {
             root.appendChild(startCarSegment);
         }
         List<RoadSegment> startTramSegments=dipl_project.Dipl_project.getUI().getStartTramSegments();
+        if(startTramSegments!=null)
         for (RoadSegment rs : startTramSegments) {
             Element startTramSegment=doc.createElement("startTramSegment");  
             Attr idStartTramSegment=doc.createAttribute("idStartTramSegment");

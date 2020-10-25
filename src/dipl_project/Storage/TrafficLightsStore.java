@@ -6,6 +6,9 @@
 package dipl_project.Storage;
 
 import TrafficLights.TrafficLight;
+import TrafficLights.TrafficLightSwitch;
+import TrafficLights.TrafficLightsControll;
+import TrafficLights.TrafficLightsGroup;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.UI.BackgroundControll;
@@ -42,7 +45,6 @@ public class TrafficLightsStore {
     public Map<Integer, TrafficLight> loadTrafficLights()
     {
         loadTLS();
-        setTLs();
         return trafficLights;
     }
     public void saveTrafficLights()
@@ -54,12 +56,60 @@ public class TrafficLightsStore {
             idTL.setValue(String.valueOf(trafficLight.getId()));
             tl.setAttributeNode(idTL);
             
+            Attr tlPosition=doc.createAttribute("tlPosition");
+            tlPosition.setValue(String.valueOf(String.valueOf((int)trafficLight.getPosition().getX()+","+(int)trafficLight.getPosition().getY())));
+            tl.setAttributeNode(tlPosition);
             
+            Attr tlStatus=doc.createAttribute("tlStatus");
+            tlStatus.setValue(String.valueOf(trafficLight.getStatus()));
+            tl.setAttributeNode(tlStatus);
+            
+            Attr orangeSwitching=doc.createAttribute("orangeSwitching");
+            orangeSwitching.setValue(String.valueOf(trafficLight.isOrangeSwitching()));
+            tl.setAttributeNode(orangeSwitching);
             
             root.appendChild(tl);
         }
+       saveGroups();
         
-        
+    }
+    private void saveGroups()
+    {
+         TrafficLightsControll tlc=Dipl_project.getTlc();
+        List<TrafficLightsGroup> tlGroups = tlc.getTlsGroups();
+        for (TrafficLightsGroup tlGroup : tlGroups) {
+            
+            Element tlg=doc.createElement("trafficLightGroup"); 
+            Attr idTLG=doc.createAttribute("idTLG");
+            idTLG.setValue(String.valueOf(tlGroup.getId()));
+            tlg.setAttributeNode(idTLG);
+            
+            
+            Attr timeTLG=doc.createAttribute("timeTLG");
+            timeTLG.setValue(String.valueOf(tlGroup.getTime()));
+            tlg.setAttributeNode(timeTLG);
+            
+            
+            
+            List<TrafficLightSwitch> tlss=tlGroup.getTrafficLightSwitchList();
+            for (TrafficLightSwitch tls : tlss) {
+                Element tlSwitch=doc.createElement("tlSwitch"); 
+                Attr tlTLid=doc.createAttribute("tlTLid");
+                tlTLid.setValue(String.valueOf(tls.getTrafficLight().getId()));
+                tlSwitch.setAttributeNode(tlTLid);
+                
+                Attr tlsNewStatus=doc.createAttribute("tlsNewStatus");
+                tlsNewStatus.setValue(String.valueOf(tls.getNewStatus()));
+                tlSwitch.setAttributeNode(tlsNewStatus);
+                
+                Attr tlsSwitchTime=doc.createAttribute("tlsSwitchTime");
+                tlsSwitchTime.setValue(String.valueOf(tls.getSwitchTime()));
+                tlSwitch.setAttributeNode(tlsSwitchTime);
+                
+                tlg.appendChild(tlSwitch);
+            }
+            root.appendChild(tlg);
+        }
     }
     public void loadTLS()
     {
@@ -74,29 +124,47 @@ public class TrafficLightsStore {
             Point pp=new Point(Integer.parseInt(s[0]),Integer.parseInt(s[1]));
             if(idTL>=maxId)
                 maxId=idTL+1;
-            
+            int status=Integer.parseInt(trafficLight.getAttributes().getNamedItem("tlStatus").getNodeValue());
             TrafficLight newTL=new TrafficLight(pp.getX(), pp.getY(), idTL);
-            int timeToSwitchGreen=Integer.parseInt(trafficLight.getAttributes().getNamedItem("timeToSwitchGreen").getNodeValue());
-            int timeToSwitchOrange=Integer.parseInt(trafficLight.getAttributes().getNamedItem("timeToSwitchOrange").getNodeValue());
-            int timeToSwitchRed=Integer.parseInt(trafficLight.getAttributes().getNamedItem("timeToSwitchRed").getNodeValue());
-            int tlTime=Integer.parseInt(trafficLight.getAttributes().getNamedItem("tlTime").getNodeValue());
-            int tlStatus=Integer.parseInt(trafficLight.getAttributes().getNamedItem("tlStatus").getNodeValue());
-            boolean tlSwitchGreen=Boolean.parseBoolean(trafficLight.getAttributes().getNamedItem("tlSwitchGreen").getNodeValue());
-            boolean tlSwitchOrange=Boolean.parseBoolean(trafficLight.getAttributes().getNamedItem("tlSwitchOrange").getNodeValue());
-            boolean tlSwitchRed=Boolean.parseBoolean(trafficLight.getAttributes().getNamedItem("tlSwitchRed").getNodeValue());
-            
+            newTL.setStatus(status);
+                
+            boolean orangeSwitching=Boolean.parseBoolean(trafficLight.getAttributes().getNamedItem("orangeSwitching").getNodeValue());
+            newTL.setOrangeSwitching(orangeSwitching);
+       
             ui.addComponents(newTL.getTlImage());
             trafficLights.put(idTL, newTL);
             Dipl_project.getDC().addTrafficLight(newTL);
         }
+        loadTLGroups();
         dc.setIdLastTL(maxId);
     }
-    private void setTLs()
+    private void loadTLGroups()
     {
-        NodeList tls=doc.getElementsByTagName("trafficLight");
-        for (int i = 0; i < tls.getLength(); i++) {
-
+        NodeList tlGroups=doc.getElementsByTagName("trafficLightGroup");
+        TrafficLightsControll tlc=Dipl_project.getTlc();
+        
+        tlc.getTlsGroups().clear();
+        tlc.getTrafficLightsGroups().getItems().clear();
+        tlc.initAddNewGroup();
+        for (int i = 0; i < tlGroups.getLength(); i++) {
+            Node tlGroup=tlGroups.item(i); 
+            int idTLG=Integer.parseInt(tlGroup.getAttributes().getNamedItem("idTLG").getNodeValue());
+            int timeTLG=Integer.parseInt(tlGroup.getAttributes().getNamedItem("timeTLG").getNodeValue()); 
+            TrafficLightsGroup tlg=new TrafficLightsGroup(idTLG, timeTLG);
+            
+            NodeList tlss=((Element)tlGroup).getElementsByTagName("tlSwitch");
+            for (int j = 0; j < tlss.getLength(); j++) {
+                Node tls=tlss.item(j); 
+                int tlTLid=Integer.parseInt(tls.getAttributes().getNamedItem("tlTLid").getNodeValue());
+                
+                int tlsNewStatus=Integer.parseInt(tls.getAttributes().getNamedItem("tlsNewStatus").getNodeValue());
+                int tlsSwitchTime=Integer.parseInt(tls.getAttributes().getNamedItem("tlsSwitchTime").getNodeValue());
+                TrafficLightSwitch newTLS=new TrafficLightSwitch(tlsSwitchTime, trafficLights.get(tlTLid), tlg);
+                newTLS.setNewStatus(tlsNewStatus);
+                tlg.addTrafficLightSwitch(newTLS);
+            }
+            tlc.addTLGroup(i, tlg);
         }
-    
     }
+
 }

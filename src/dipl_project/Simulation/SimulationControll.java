@@ -46,8 +46,6 @@ public class SimulationControll {
     }
     public void stopSimulation()
     {
-        
-        
         stopSimulationCar();
         stopSimulationTram();
         
@@ -55,9 +53,9 @@ public class SimulationControll {
     private void stopSimulationCar()
     {
         if(timerTaskCars!=null)
-        timerTaskCars.cancel();
+            timerTaskCars.cancel();
         if(timerCars!=null)
-        timerCars.cancel();
+            timerCars.cancel();
     }
     private void stopSimulationTram()
     {
