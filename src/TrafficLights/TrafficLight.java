@@ -13,6 +13,7 @@ import dipl_project.UI.UIControll;
 import java.awt.Point;
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -163,8 +164,7 @@ public class TrafficLight {
         
         layoutX=x-distX;
         layoutY=y-distY;
-        tlBox.setLayoutX(layoutX);
-        tlBox.setLayoutY(layoutY);
+        moveImg(layoutX,layoutY);
         distX = startX-layoutX;
         distY = startY-layoutY;
         location.setLocation(layoutX, layoutY);
@@ -173,13 +173,11 @@ public class TrafficLight {
     {
         layoutX=x;
         layoutY=y;
-        tlBox.setLayoutX(layoutX);
-        tlBox.setLayoutY(layoutY);
+        moveImg(layoutX,layoutY);
     }
     public void setTLPosition(double x, double y)
     {
-        tlBox.setLayoutX(x);
-        tlBox.setLayoutY(y);
+        moveImg(x,y);
         layoutX=x;
         layoutY=y;
         location.setLocation(x, y);
@@ -200,16 +198,14 @@ public class TrafficLight {
         layoutX-=2;
         layoutY-=2;
         location.setLocation(layoutX, layoutY);
-        tlBox.setLayoutX(layoutX);
-        tlBox.setLayoutY(layoutY);
+        moveImg(layoutX,layoutY);
     }
     public void rsSelect()
     {
         tlBox.setStyle(STYLE_SELECT_SEC);
         layoutX-=2;
         layoutY-=2;
-        tlBox.setLayoutX(layoutX);
-        tlBox.setLayoutY(layoutY);
+        moveImg(layoutX,layoutY);
     }
     public void startOrangeSwitching()
     {
@@ -259,8 +255,7 @@ public class TrafficLight {
         }
         location.setLocation(layoutX, layoutY);
         tlBox.setStyle(STYLE_DEF);
-        tlBox.setLayoutX(layoutX);
-        tlBox.setLayoutY(layoutY);
+        moveImg(layoutX,layoutY);
     }
     private TrafficLight getThis()
     {
@@ -270,8 +265,14 @@ public class TrafficLight {
     {
         tlWidth*=ratio;
         tlHeight*=ratio;
-        tlImage.setFitWidth(tlWidth);
-        tlImage.setFitHeight(tlHeight);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tlImage.setFitWidth(tlWidth);
+                tlImage.setFitHeight(tlHeight);
+            }
+        });
+        
 
     }
     public int getStatus()
@@ -285,31 +286,50 @@ public class TrafficLight {
         {
             case 0:
             {
-                tlImage.setImage(imgGreen);
+                changeImage(imgGreen);
                 break;
             }
             case 1:
             {
-                tlImage.setImage(imgOrangeToRed);
+                changeImage(imgOrangeToRed);
                 break;
             }
             case 2:
             {
-                tlImage.setImage(imgRed);
+                changeImage(imgRed);
                 break;
             }
             case 3:
             {
-                tlImage.setImage(imgOrangeToGreen);
+                changeImage(imgOrangeToGreen);
                 break;
             }
             case 4:
             {
-                tlImage.setImage(imgNone);
+                changeImage(imgNone);
                 break;
             }
             
         }
+    }
+    private void changeImage(Image newImg)
+    {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tlImage.setImage(newImg);
+            }
+        });
+    }
+    private void moveImg(double newX, double newY)
+    {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                tlBox.setLayoutX(newX);
+                tlBox.setLayoutY(newY);
+            }
+        });
     }
     public void removeTL()
     {

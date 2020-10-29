@@ -100,8 +100,7 @@ public class TrafficLightsControll {
                     TrafficLightsGroup tlg=tlsGroups.get(i);
                     if(tlg.getTime()==oldTime)
                     {
-                        tlsGroups.remove(tlg);
-                        trafficLightsGroups.getItems().remove(tlg.getGroupViews());
+                        removeTLG(tlg);
                         if(!tlsGroups.isEmpty())
                             spinnerTime.getValueFactory().setValue(tlsGroups.get(tlsGroups.size()-1).getTime());
                         else
@@ -190,6 +189,11 @@ public class TrafficLightsControll {
 
     public List<TrafficLightsGroup> getTlsGroups() {
         return tlsGroups;
+    }
+    public void removeTLG(TrafficLightsGroup tlg)
+    {
+        tlsGroups.remove(tlg);
+        trafficLightsGroups.getItems().remove(tlg.getGroupViews());
     }
     
     public void stopTrafficLights()

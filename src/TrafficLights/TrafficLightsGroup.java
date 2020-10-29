@@ -46,10 +46,10 @@ public class TrafficLightsGroup {
         addToGroup.setAlignment(Pos.CENTER);
         btnAdd.setTextAlignment(TextAlignment.CENTER);
         Label lblTime=new Label(" "+String.valueOf(time)+"s");
-        lblTime.setMinSize(160, 30);
-        lblTime.setMaxSize(160, 30);
+        lblTime.setMinSize(145, 30);
+        lblTime.setMaxSize(145, 30);
 
-        groupInfo.getChildren().addAll(lblTime);
+        
         addToGroup.getChildren().add(btnAdd);
         groupInfo.setBackground(new Background(new BackgroundFill(Color.rgb(240, 240, 240),new CornerRadii(2),null)));
         btnAdd.setOnAction(new EventHandler<ActionEvent>() {
@@ -59,6 +59,16 @@ public class TrafficLightsGroup {
                 Dipl_project.getUI().setActualTLGroup(getThis());
             }
         });
+        Button removeButton=new Button("-");
+        removeButton.setMaxSize(40, 30);
+        removeButton.setMinSize(40, 30);
+        removeButton.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Dipl_project.getTlc().removeTLG(getThis());
+            }
+        });
+        groupInfo.getChildren().addAll(lblTime,removeButton);
         groupViews.setFocusTraversable(false);
         groupViews.getItems().addAll(groupInfo,addToGroup);
         this.id = id;
