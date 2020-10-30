@@ -77,7 +77,7 @@ public class Connect {
         connect.setOnMouseDragged((MouseEvent event) -> {
             move(event.getX(), event.getY());
             dragged=true;
-            Dipl_project.getUI().enableCurveEdit(false);
+            Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false);
         });
         connect.setOnMouseReleased((MouseEvent event) -> {
             if(tryConnect)

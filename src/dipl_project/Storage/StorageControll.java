@@ -5,7 +5,7 @@
  */
 package dipl_project.Storage;
 
-import TrafficLights.TrafficLight;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;

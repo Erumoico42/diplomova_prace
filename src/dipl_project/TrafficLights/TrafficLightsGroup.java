@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package TrafficLights;
+package dipl_project.TrafficLights;
 
 import dipl_project.Dipl_project;
 import dipl_project.UI.UIControll;
@@ -46,8 +46,8 @@ public class TrafficLightsGroup {
         addToGroup.setAlignment(Pos.CENTER);
         btnAdd.setTextAlignment(TextAlignment.CENTER);
         Label lblTime=new Label(" "+String.valueOf(time)+"s");
-        lblTime.setMinSize(145, 30);
-        lblTime.setMaxSize(145, 30);
+        lblTime.setMinSize(130, 30);
+        lblTime.setMaxSize(130, 30);
 
         
         addToGroup.getChildren().add(btnAdd);

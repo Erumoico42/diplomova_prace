@@ -149,8 +149,6 @@ public class MyCurve {
         Dipl_project.getUI().removeComponents(arrow.getArrow());
     }
     public void removeArrowAt(int i) {
-        if(arrows.size()-1>i)
-            System.out.println("arrows fail");
         Dipl_project.getUI().removeComponents(arrows.get(i).getArrow());
         arrows.remove(i);
         
@@ -224,7 +222,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveStartControll(event.getX(),event.getY());
                 adaptControlls(startConnect, p1, true);
-                Dipl_project.getUI().enableCurveEdit(false);
+                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false);
             }
         });
         endControll.getControll().setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -232,7 +230,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveEndControll(event.getX(),event.getY());
                 adaptControlls(endConnect, p2, false);
-                Dipl_project.getUI().enableCurveEdit(false);
+                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false);
             }
         });
     }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package TrafficLights;
+package dipl_project.TrafficLights;
 
 import dipl_project.Dipl_project;
 import dipl_project.Roads.RoadSegment;
@@ -113,7 +113,8 @@ public class TrafficLight {
                     
                 }else if(event.getButton()==MouseButton.SECONDARY){
                     RoadSegment rsAct = dc.getActualRS();
-                    if(rsAct!=null)
+                    int status=Dipl_project.getDC().getDrawStatus();
+                    if(rsAct!=null && status==0)
                     {
                         if(rsAct.getTrafficLights().contains(getThis()))
                         {
@@ -188,7 +189,6 @@ public class TrafficLight {
     }
 
     public void setTimeCountDown(int timeCountDown) {
-        System.out.println(timeCountDown);
         this.timeCountDown = timeCountDown;
     }
     
@@ -247,7 +247,6 @@ public class TrafficLight {
     }
     public void deselectTL()
     {
-        
         if(!tlBox.getStyle().equals(STYLE_DEF))
         {
             layoutX+=2;

@@ -5,7 +5,7 @@
  */
 package dipl_project.Simulation;
 
-import TrafficLights.TrafficLight;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.UI.DrawControll;

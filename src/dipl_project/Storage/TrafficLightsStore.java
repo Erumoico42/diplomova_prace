@@ -5,10 +5,7 @@
  */
 package dipl_project.Storage;
 
-import TrafficLights.TrafficLight;
-import TrafficLights.TrafficLightSwitch;
-import TrafficLights.TrafficLightsControll;
-import TrafficLights.TrafficLightsGroup;
+import dipl_project.TrafficLights.*;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.UI.BackgroundControll;

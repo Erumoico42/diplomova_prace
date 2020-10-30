@@ -5,10 +5,12 @@
  */
 package dipl_project.Roads;
 
-import TrafficLights.TrafficLight;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
+import dipl_project.UI.UILeftMenu;
+import dipl_project.UI.UIRightMenu;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -23,6 +25,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.SwipeEvent;
 import javafx.scene.layout.HBox;
@@ -54,6 +57,7 @@ public class RoadSegment {
     private HBox checkPointInfo;
     private boolean selectedRS=false;
     private UIControll ui=Dipl_project.getUI();
+    private UILeftMenu uiRight=ui.getUiLeftMenu();
     private DrawControll dc=Dipl_project.getDC();
     private int id;
     private double segmentLenght;
@@ -67,7 +71,7 @@ public class RoadSegment {
             public void handle(MouseEvent event) {
                 
                 if(!selectedRS)
-                    selectRS();
+                    selectRS(event);
                 else
                     deselectRS();
             }
@@ -91,7 +95,7 @@ public class RoadSegment {
         shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                ui.setVisibleCPs(true, getThisSegment());
+                uiRight.setVisibleCPs(true, getThisSegment());
             }
         });
         Dipl_project.getUI().addRoadSegment(this);
@@ -141,56 +145,58 @@ public class RoadSegment {
             cp.addSecondaryCP(new CheckPoint(actRS,rsToCheck, -1));
         }
     }
-    public void selectRS()
+    public void selectRS(MouseEvent event)
     {
-        if(ui.isAddCP())
+        if(event.getButton()==MouseButton.SECONDARY)
         {
+            
             RoadSegment actRS=dc.getActualRS();
-            if(ui.isSetPriority())
+            if(uiRight.isSetPriority())
             {
                 if(actRS.getCheckPoints().contains(actRS.getCPByRS(getThisSegment())))
                 {
                     CheckPoint remCP=actRS.getCPByRS(getThisSegment());
                     actRS.removeCP(remCP);
                     setDefRoadSegment();
-                    ui.removeCPFromList(remCP);
+                    uiRight.removeCPFromList(remCP);
 
                 }else
                 {
                     CheckPoint newCP=new CheckPoint(actRS,getThisSegment());
                     actRS.addCP(newCP);
                     setMainRoadSegment();
-                    ui.addCPToList(newCP);
+                    uiRight.addCPToList(newCP);
 
                 }
             }
-            else if(ui.isSetWatch())
+            else if(uiRight.isSetWatch())
             {
                 if(actRS.getWatchPoints().contains(actRS.getWPByRS(getThisSegment())))
                 {
                     WatchPoint remWP=actRS.getWPByRS(getThisSegment());
                     actRS.removeWP(remWP);
                     setDefRoadSegment();
-                    ui.removeWPFromList(remWP);
+                    uiRight.removeWPFromList(remWP);
 
                 }else
                 {
                     WatchPoint newWP=new WatchPoint(actRS,getThisSegment(),2);
                     actRS.addWP(newWP);
                     setWatchRoadSegment();
-                    ui.addWPToList(newWP);
+                    uiRight.addWPToList(newWP);
 
                 }
             }
             
             
         }
-        else
+        else if(event.getButton()==MouseButton.PRIMARY)
         {
             RoadSegment actual=dc.getActualRS();
             if(actual!=null)
                 actual.deselectRS();
-            ui.setVisibleCPs(true, getThisSegment());
+            ui.getUiLeftMenu().setAddCP(true);
+            uiRight.setVisibleCPs(true, getThisSegment());
             selectedRS=true;
             setSideRoadSegment();
             dc.setActualRS(getThisSegment());
@@ -203,7 +209,6 @@ public class RoadSegment {
             for (TrafficLight trafficLight : trafficLights) {
                 trafficLight.rsSelect();
             }
-            System.out.println(id);
         }
                     
             
@@ -227,11 +232,11 @@ public class RoadSegment {
     }
     public void deselectRS()
     {
-        if(!ui.isAddCP() || dc.getActualRS().equals(getThisSegment()))
+        if(!uiRight.isSetWatch()|| dc.getActualRS().equals(getThisSegment()))
         {
             selectedRS=false;
             setDefRoadSegment();
-            ui.setVisibleCPs(false, null);
+            uiRight.setVisibleCPs(false, null);
             dc.setActualRS(null);
             for (CheckPoint checkPoint : checkPoints) {
                 checkPoint.getRs().setDefRoadSegment();
@@ -242,7 +247,7 @@ public class RoadSegment {
             for (WatchPoint watchPoint : watchPoints) {
                 watchPoint.getRs().setDefRoadSegment();
             }
-            ui.setAddCP(false);
+            uiRight.setAddCP(false);
                     
         }
         

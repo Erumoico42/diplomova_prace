@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package TrafficLights;
+package dipl_project.TrafficLights;
 
 import dipl_project.Dipl_project;
 import java.util.Timer;

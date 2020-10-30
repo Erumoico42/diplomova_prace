@@ -123,7 +123,7 @@ public class CheckPoint {
                 CheckPoint cpRem=getThisCP();
                 dc.getActualRS().removeCP(cpRem);
                 sec.setDefRoadSegment();
-                ui.removeCPFromList(cpRem);
+                ui.getUiLeftMenu().removeCPFromList(cpRem);
             }
         });
         lblInfo=new Label();

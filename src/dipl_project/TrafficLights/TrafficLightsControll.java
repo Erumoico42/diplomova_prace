@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package TrafficLights;
+package dipl_project.TrafficLights;
 
 import dipl_project.Dipl_project;
 import java.util.ArrayList;
@@ -173,7 +173,7 @@ public class TrafficLightsControll {
                 
                if(timeSeconds>maxTime)
                    timeSeconds=0;
-               Dipl_project.getUI().setTlGroupTime("Čas: "+String.valueOf(timeSeconds)+"s");
+               Dipl_project.getUI().getUiRightMenu().setTlGroupTime("Čas: "+String.valueOf(timeSeconds)+"s");
             }
         };
         timer.schedule(timerTask, 1000, 1000);
