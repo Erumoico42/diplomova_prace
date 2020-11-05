@@ -43,7 +43,7 @@ public class Animation {
         for (Vehicle vehicle : vehicles) {
             vehicle.stopBlink();
         }
-        stopSaveData();
+        //stopSaveData();
     }
     private void statStepStart()
     {
