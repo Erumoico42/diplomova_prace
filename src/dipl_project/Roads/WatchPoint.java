@@ -73,7 +73,7 @@ public class WatchPoint {
                 WatchPoint wpRem=getThisWP();
                 dc.getActualRS().removeWP(wpRem);
                 sec.setDefRoadSegment();
-                ui.removeWPFromList(wpRem);
+                ui.getUiLeftMenu().removeWPFromList(wpRem);
             }
         });
         lblInfo=new Label();

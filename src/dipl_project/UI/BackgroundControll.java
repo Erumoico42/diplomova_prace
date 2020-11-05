@@ -44,6 +44,7 @@ public class BackgroundControll {
             {
                 background=new ImageView();
                 ui.addBackground(background);
+                ui.getUiTopMenu().enableRemoveBG(true);
             }
             
             background.setImage(image);
@@ -52,8 +53,7 @@ public class BackgroundControll {
             background.setFitHeight(height);
             background.setFitWidth(width);
             resizeRatio=image.getWidth()/image.getHeight();
-            ui.getEditBackground().setDisable(false);
-            ui.getEditConcept().setSelected(false);
+            ui.getUiTopMenu().getEditBackground().setDisable(false);
             ui.setMoveStatus(1);
             layoutX=-(image.getWidth()-backgroundCanvas.getWidth())/2;
             layoutY=-(image.getHeight()-backgroundCanvas.getHeight())/2;

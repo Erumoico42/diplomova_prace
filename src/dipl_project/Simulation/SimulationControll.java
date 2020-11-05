@@ -5,7 +5,7 @@
  */
 package dipl_project.Simulation;
 
-import TrafficLights.TrafficLight;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.UI.DrawControll;
@@ -46,28 +46,23 @@ public class SimulationControll {
     }
     public void stopSimulation()
     {
-        if(timerTaskCars!=null)
-        timerTaskCars.cancel();
-        if(timerCars!=null)
-        timerCars.cancel();
+        stopSimulationCar();
+        stopSimulationTram();
         
+    }
+    private void stopSimulationCar()
+    {
+        if(timerTaskCars!=null)
+            timerTaskCars.cancel();
+        if(timerCars!=null)
+            timerCars.cancel();
+    }
+    private void stopSimulationTram()
+    {
         if(timerTaskTrams!=null)
             timerTaskTrams.cancel();
         if(timerTrams!=null)
             timerTrams.cancel();
-        
-    }
-    public void stopTrafficLights()
-    {
-        for (TrafficLight trafficLight : dc.getTrafficLights()) {
-            trafficLight.setRun(false);
-        }
-    }
-    public void startTrafficLights()
-    {
-        for (TrafficLight trafficLight : dc.getTrafficLights()) {
-            trafficLight.setRun(true);
-        }
     }
     public void startSimulationCar()
     {
@@ -121,13 +116,18 @@ public class SimulationControll {
     }
     public void changeGenerateCarSize(int size)
     {
-
-        generateCarSize=60000/size;
+        if(size!=0)
+            generateCarSize=60000/size;
+        else
+            stopSimulationCar();
         deleyChangedCar=true;
     }
     public void changeGenerateTramSize(int size)
     {
-        generateTramSize=60000/size;
+        if(size!=0)
+            generateTramSize=60000/size;
+        else
+            stopSimulationTram();
         deleyChangedTram=true;
     }
 

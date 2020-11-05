@@ -9,10 +9,16 @@ import dipl_project.Fuzzy.*;
 import dipl_project.Roads.RoadCreator;
 import dipl_project.Simulation.SimulationControll;
 import dipl_project.Storage.StorageControll;
+import dipl_project.TrafficLights.TrafficLightsControll;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import dipl_project.Vehicles.Animation;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
@@ -28,8 +34,10 @@ public class Dipl_project extends Application {
     private static RulesCalculator rcFollow,rcCross;
     private static SimulationControll sc;
     private static StorageControll stc; 
+    private static TrafficLightsControll tlc;
     @Override
     public void start(Stage primaryStage) {
+        tlc=new TrafficLightsControll();
         rc=new RoadCreator();
         ui=new UIControll(primaryStage);
         dc=new DrawControll(ui, rc);
@@ -42,10 +50,9 @@ public class Dipl_project extends Application {
     }
     public static void loadRules()
     {
-        
-        rbrFollow=new RuleBaseReader("Resources/fuzzyRules/rules_follow.rb");
+        rbrFollow=new RuleBaseReader(Dipl_project.class.getResourceAsStream("Resources/fuzzyRules/rules_follow.rb"));
         rcFollow=new RulesCalculator(rbrFollow.getOutputVariable(), rbrFollow.getFuzzyRules());
-        rbrCross=new RuleBaseReader("Resources/fuzzyRules/rules_cross_v3.rb");
+        rbrCross=new RuleBaseReader(Dipl_project.class.getResourceAsStream("Resources/fuzzyRules/rules_cross_v3.rb"));
         rcCross=new RulesCalculator(rbrCross.getOutputVariable(), rbrCross.getFuzzyRules());
         
     }
@@ -78,6 +85,10 @@ public class Dipl_project extends Application {
 
     public static SimulationControll getSc() {
         return sc;
+    }
+
+    public static TrafficLightsControll getTlc() {
+        return tlc;
     }
     
     

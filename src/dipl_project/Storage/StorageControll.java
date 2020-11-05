@@ -5,7 +5,7 @@
  */
 package dipl_project.Storage;
 
-import TrafficLights.TrafficLight;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
@@ -94,6 +94,7 @@ public  class StorageControll {
             doc.getDocumentElement().normalize();
             
             Dipl_project.getDC().cleanAll();
+            
             Map<Integer, TrafficLight> tls = new TrafficLightsStore(doc, null).loadTrafficLights();
             new StreetStore(doc, null).loadStreet(tls);
             new BackgroundStore(doc, null).loadBackground();

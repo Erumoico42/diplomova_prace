@@ -5,6 +5,7 @@
  */
 package dipl_project.Storage;
 
+import dipl_project.Dipl_project;
 import dipl_project.UI.BackgroundControll;
 import java.awt.Point;
 import java.io.BufferedInputStream;
@@ -138,8 +139,8 @@ public class BackgroundStore {
                 if(!bgImage.isError())
                 {
                      BackgroundControll.setBackground(position.getX(), position.getY(), Double.valueOf(angle),  Double.valueOf(width), Double.valueOf(height),Double.valueOf(resRatio), source);  
-                     dipl_project.Dipl_project.getUI().setEditBackground(false);
-                     dipl_project.Dipl_project.getUI().getEditBackground().setDisable(false);
+                     Dipl_project.getUI().getUiTopMenu().setEditBackground(false);
+                     Dipl_project.getUI().getUiTopMenu().enableRemoveBG(true);
                 }
         }
     }

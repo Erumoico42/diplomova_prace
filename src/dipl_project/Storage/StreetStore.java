@@ -5,7 +5,7 @@
  */
 package dipl_project.Storage;
 
-import TrafficLights.TrafficLight;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.Connect;
@@ -151,6 +151,7 @@ public class StreetStore {
     public void saveStartSegments()
     {
         List<RoadSegment> startCarSegments=dipl_project.Dipl_project.getUI().getStartCarSegments();
+        if(startCarSegments!=null)
         for (RoadSegment rs : startCarSegments) {
             Element startCarSegment=doc.createElement("startCarSegment");  
             Attr idStartCarSegment=doc.createAttribute("idStartCarSegment");
@@ -159,6 +160,7 @@ public class StreetStore {
             root.appendChild(startCarSegment);
         }
         List<RoadSegment> startTramSegments=dipl_project.Dipl_project.getUI().getStartTramSegments();
+        if(startTramSegments!=null)
         for (RoadSegment rs : startTramSegments) {
             Element startTramSegment=doc.createElement("startTramSegment");  
             Attr idStartTramSegment=doc.createAttribute("idStartTramSegment");
@@ -250,6 +252,7 @@ public class StreetStore {
                 Element rsLast=doc.createElement("rsLast");
                 Attr idRsLast=doc.createAttribute("idRsLast");
                 idRsLast.setValue(String.valueOf(rsL.getId()));
+                
                 rsLast.setAttributeNode(idRsLast);
                 roadSegment.appendChild(rsLast);
             }
@@ -350,6 +353,8 @@ public class StreetStore {
             NodeList rsLast=((Element)roadSegment).getElementsByTagName("rsLast");
             for (int j = 0; j < rsLast.getLength(); j++) {
                 int idRsLast=Integer.parseInt(rsLast.item(j).getAttributes().getNamedItem("idRsLast").getNodeValue());
+                if(segments.get(idRsLast)==null)
+                    newRS.setSideRoadSegment();
                 newRS.addLastRs(segments.get(idRsLast));
             }
             

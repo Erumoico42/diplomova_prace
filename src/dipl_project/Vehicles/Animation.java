@@ -30,8 +30,8 @@ public class Animation {
     public Animation()
     {
         startAnimation();
-        startSaveData();
-        statStepStart();
+        //startSaveData();
+        //statStepStart();
     }
     public void stopAnimation()
     {

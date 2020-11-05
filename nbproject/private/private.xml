@@ -3,15 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/Roads/RoadCreator.java</file>
             <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/Dipl_project.java</file>
-            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/Roads/RoadSegment.java</file>
-            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/UI/EditationControll.java</file>
-            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/Roads/Connect.java</file>
-            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/UI/DrawControll.java</file>
-            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/Roads/MyCurve.java</file>
-            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/UI/BackgroundControll.java</file>
+            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/UI/UILeftMenu.java</file>
+            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/TrafficLights/TrafficLight.java</file>
+            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/TrafficLights/TrafficLightSwitch.java</file>
+            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/UI/UITopMenu.java</file>
             <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/UI/UIControll.java</file>
+            <file>file:/C:/Users/Honza/Desktop/Projekty/dipl/diplomova_prace/src/dipl_project/TrafficLights/TrafficLightsControll.java</file>
         </group>
     </open-files>
 </project-private>

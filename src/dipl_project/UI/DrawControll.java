@@ -5,8 +5,7 @@
  */
 package dipl_project.UI;
 
-import TrafficLights.TrafficLight;
-import TrafficLights.TrafficLightsConnection;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.Connect;
@@ -39,7 +38,6 @@ public  class DrawControll {
     private MyCurve actualCurve, selectedCurve;
     private TrafficLight actualTL;
     private RoadSegment actualRS;
-    private TrafficLightsConnection actualTLConnection;
     private List<Connect> connects=new ArrayList<>();
     private List<MyCurve> curves=new ArrayList<>();
     private List<TrafficLight> trafficLights=new ArrayList<>();
@@ -53,7 +51,6 @@ public  class DrawControll {
         this.ui=ui;
         this.rc=rc;
         this.canvas=ui.getCanvas();
-        menuBG=ui.getMenuBG();
         moveCanvas=ui.getMoveCanvas();
         initHandlers();
     }
@@ -93,12 +90,18 @@ public  class DrawControll {
 
     public void setActualTL(TrafficLight actualTL) {
         this.actualTL = actualTL;
-        ui.enableEditTL(actualTL!=null);
+        ui.setActualTL(actualTL);
+        //ui.getUiTopMenu().enableEditTL(actualTL!=null);
     }
     
     public void setDrawStatus(int drawStatus) {
         this.drawStatus = drawStatus;
     }
+
+    public int getDrawStatus() {
+        return drawStatus;
+    }
+    
 
     public List<TrafficLight> getTrafficLights() {
         return trafficLights;
@@ -145,9 +148,7 @@ public  class DrawControll {
                                 TrafficLight tl=new TrafficLight(event.getX(), event.getY(), idLastTL);
                                 idLastTL++;
                                 trafficLights.add(tl);
-                                tl.enableConnectLights(ui.isEnabledConnectTL());
-                                ui.addComponents(tl.getTlImage(), tl.getCircleRed(), 
-                                        tl.getCircleOrange(), tl.getCircleGreen());
+                                ui.addComponents(tl.getTlImage());
                                 break;
                             }
                         }
@@ -189,9 +190,10 @@ public  class DrawControll {
             double oldWidth=canvas.getWidth();
             double newWidth=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setWidth(oldWidth+newWidth);
-            menuBG.setWidth(oldWidth+newWidth);
             moveCanvas.setWidth(oldWidth+newWidth);
-            ui.updateCPsPosition();
+            ui.getUiLeftMenu().updateCPsPosition();
+            ui.getUiTopMenu().updateMenuSize((double)newValue);
+            ui.getUiRightMenu().updateTLGsPosition();
             EditationControll.setCanvasSize(oldWidth+newWidth, canvas.getHeight());
         });
         ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
@@ -199,7 +201,8 @@ public  class DrawControll {
             double newHeight=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setHeight(oldHeight+newHeight);
             moveCanvas.setHeight(oldHeight+newHeight);
-            ui.updateCPsPosition();
+            ui.getUiLeftMenu().updateCPsPosition();
+            ui.getUiRightMenu().updateTLGsPosition();
             EditationControll.setCanvasSize(canvas.getWidth(), oldHeight+newHeight);
         });
         moveCanvas.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -318,21 +321,9 @@ public  class DrawControll {
 
     public void setSelectedCurve(MyCurve selectedCurve) {
         this.selectedCurve = selectedCurve;
-        ui.enableCurveEdit(selectedCurve!=null);
+        ui.getUiTopMenu().enableCurveEdit(selectedCurve!=null);
     }
 
-    public TrafficLightsConnection getSelectedConnection() {
-        return actualTLConnection;
-    }
-
-    public void setSelectedConnection(TrafficLightsConnection connection) {
-        actualTLConnection=connection;
-        if(connection!=null)
-        {
-            ui.setChangeConnectDelay(connection.getSwitchDelay());
-        }
-        ui.enableChangeConnectDelay(connection!=null);
-    }
     public void cleanAll()
     {
         Dipl_project.getAnim().cleanVehicles();
@@ -344,7 +335,7 @@ public  class DrawControll {
         for (TrafficLight trafficLight : tls) {
             trafficLight.removeTL();
         }
-        
+        Dipl_project.getTlc().cleanTLG();
         BackgroundControll.removeBG();
     }
 

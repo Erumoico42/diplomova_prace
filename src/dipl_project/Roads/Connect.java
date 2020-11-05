@@ -44,6 +44,8 @@ public class Connect {
     {
         this.id=id;
         connect=new Circle(location.getX(), location.getY(), 7, Color.BLUE);
+            
+        
         thisConnect=this;
         this.location=location;
         initHandler();
@@ -75,7 +77,7 @@ public class Connect {
         connect.setOnMouseDragged((MouseEvent event) -> {
             move(event.getX(), event.getY());
             dragged=true;
-            Dipl_project.getUI().enableCurveEdit(false);
+            Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false);
         });
         connect.setOnMouseReleased((MouseEvent event) -> {
             if(tryConnect)
@@ -181,28 +183,51 @@ public class Connect {
     public void removeConnect()
     {
         for (MyCurve endCurve : endCurves) {
-            endCurve.getStartConnect().getStartCurves().remove(endCurve); 
-            if(endCurve.getStartConnect().getStartCurves().isEmpty() 
-                    && endCurve.getStartConnect().getEndCurves().isEmpty())
-                endCurve.getStartConnect().removeConnect();
+            Connect startConnect=endCurve.getStartConnect();
+            for (MyCurve endCurve1 : startConnect.getEndCurves()) {
+                RoadSegment rs=startConnect.getConnectSegment(endCurve, endCurve1);
+                if(rs!=null)
+                    rs.removeSegment();
+                startConnect.removeConnectSegment(endCurve,endCurve1);
+            }
+            startConnect.getStartCurves().remove(endCurve); 
+            
+            if(startConnect.getStartCurves().isEmpty() 
+                    && startConnect.getEndCurves().isEmpty())
+                startConnect.removeConnect();
               ui.removeCurve(endCurve);
             for (RoadSegment segment : endCurve.getCurveSegments()) {
                 segment.removeSegment();
             }
             for (MyCurve startCurve : startCurves) {
-                connectSegmentsMap.remove(new Pair(endCurve,startCurve));
+                RoadSegment rs= getConnectSegment(endCurve, startCurve);
+                if(rs!=null)
+                    rs.removeSegment();
             }
         }
         for (MyCurve startCurve : startCurves) {
-            startCurve.getEndConnect().getEndCurves().remove(startCurve);
-            if(startCurve.getEndConnect().getEndCurves().isEmpty() 
-                    && startCurve.getEndConnect().getStartCurves().isEmpty())
-                startCurve.getEndConnect().removeConnect();
+            Connect endConnect=startCurve.getEndConnect();
+            for (MyCurve startCurve1 : endConnect.getStartCurves()) {
+                RoadSegment rs= endConnect.getConnectSegment(startCurve1, startCurve);
+                if(rs!=null){
+                    rs.removeSegment();
+                }
+                endConnect.removeConnectSegment(startCurve1,startCurve);
+            }
+            endConnect.getEndCurves().remove(startCurve);
+            
+            if(endConnect.getEndCurves().isEmpty() 
+                    && endConnect.getStartCurves().isEmpty())
+                endConnect.removeConnect();
             ui.removeCurve(startCurve);
             for (RoadSegment segment : startCurve.getCurveSegments()) {
                 segment.removeSegment();
             }
         }
+        for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs : connectSegmentsMap.entrySet()) {
+                rs.getValue().removeSegment();
+        }
+        connectSegmentsMap.clear();
         endCurves.clear();
         startCurves.clear();
 

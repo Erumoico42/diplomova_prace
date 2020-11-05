@@ -5,7 +5,7 @@
  */
 package dipl_project.UI;
 
-import TrafficLights.TrafficLight;
+import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.Controll;
@@ -91,7 +91,7 @@ public  class EditationControll {
                 Dipl_project.getRC().setArrows();
                 Dipl_project.getRC().enableNewSegment(true);
                 Dipl_project.getRC().setZooming(false);
-                Dipl_project.getUI().refreshShowRoads();
+                Dipl_project.getUI().getUiTopMenu().refreshShowRoads();
             }
         });
         
