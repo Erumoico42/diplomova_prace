@@ -53,6 +53,7 @@ public class TrafficLight {
     private Timer timer;
     private TimerTask timerTask;
     private boolean orangeSwitching=false;
+    private int lastStatus;
     public TrafficLight(double x, double y, int id) {
         this.id=id;
 
@@ -355,5 +356,12 @@ public class TrafficLight {
     public void setTlImage(ImageView tlImage) {
         this.tlImage = tlImage;
     }
-    
+    public void setLastStatus()
+    {
+        lastStatus=status;
+    }
+    public int getLastStatus()
+    {
+        return lastStatus;
+    }
 }

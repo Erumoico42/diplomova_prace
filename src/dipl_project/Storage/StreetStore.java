@@ -252,6 +252,7 @@ public class StreetStore {
                 Element rsLast=doc.createElement("rsLast");
                 Attr idRsLast=doc.createAttribute("idRsLast");
                 idRsLast.setValue(String.valueOf(rsL.getId()));
+                
                 rsLast.setAttributeNode(idRsLast);
                 roadSegment.appendChild(rsLast);
             }
@@ -352,6 +353,8 @@ public class StreetStore {
             NodeList rsLast=((Element)roadSegment).getElementsByTagName("rsLast");
             for (int j = 0; j < rsLast.getLength(); j++) {
                 int idRsLast=Integer.parseInt(rsLast.item(j).getAttributes().getNamedItem("idRsLast").getNodeValue());
+                if(segments.get(idRsLast)==null)
+                    newRS.setSideRoadSegment();
                 newRS.addLastRs(segments.get(idRsLast));
             }
             

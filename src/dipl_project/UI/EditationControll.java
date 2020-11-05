@@ -91,7 +91,7 @@ public  class EditationControll {
                 Dipl_project.getRC().setArrows();
                 Dipl_project.getRC().enableNewSegment(true);
                 Dipl_project.getRC().setZooming(false);
-                Dipl_project.getUI().refreshShowRoads();
+                Dipl_project.getUI().getUiTopMenu().refreshShowRoads();
             }
         });
         

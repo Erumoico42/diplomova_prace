@@ -335,7 +335,7 @@ public  class DrawControll {
         for (TrafficLight trafficLight : tls) {
             trafficLight.removeTL();
         }
-        
+        Dipl_project.getTlc().cleanTLG();
         BackgroundControll.removeBG();
     }
 

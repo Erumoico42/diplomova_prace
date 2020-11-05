@@ -9,11 +9,9 @@ import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.TrafficLights.TrafficLightsGroup;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Arrow;
-import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
-import dipl_project.Roads.WatchPoint;
 import dipl_project.Simulation.SimulationControll;
 import dipl_project.Vehicles.Car;
 import dipl_project.Vehicles.Tram;
@@ -21,9 +19,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -31,19 +26,10 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.image.ImageView;
@@ -72,16 +58,12 @@ public class UIControll {
     private List<RoadSegment> segments=new ArrayList<>();
     private List<RoadSegment> startCarSegments=new ArrayList<>();
     private List<Connect> connects=new ArrayList<>();
-    private CheckBox editBackground;
-    private Button btnRemoveBackhround;
     private SimulationControll sc;
     private DrawControll dc;
     private TrafficLight actualTL;
     private boolean isTramCreating=false;
-    private CheckBox editConcept;
     private List<RoadSegment> startTramSegments;
     private boolean wantDrive;
-    private CheckBox showRoads;
     private TrafficLightsGroup actualTLGroup;
     private UITopMenu uiTopMenu;
     private UILeftMenu uiLeftMenu;
@@ -90,7 +72,7 @@ public class UIControll {
         this.primaryStage=primaryStage;
         root = new Group(); ;
         initComponents();
-        uiTopMenu=new UITopMenu(root);
+        uiTopMenu=new UITopMenu(root, this);
         uiLeftMenu = new UILeftMenu(root,this);
         uiRightMenu = new UIRightMenu(root, this);
         scene = new Scene(root, initialSizeX, initialSizeY);
@@ -218,23 +200,18 @@ public class UIControll {
     public void addComponentsDown(Node...nodes)
     {
         for (Node node : nodes) {
-            root.getChildren().add(2, node);
+            root.getChildren().add(3, node);
         }  
     }
     public void addBackground(ImageView bg)
     {
         root.getChildren().add(0, bg);
-        setEditBackground(true);
+        uiTopMenu.setEditBackground(true);
     }
-    public void setEditBackground(boolean edit)
-    {
-        editBackground.setSelected(edit);
-        btnRemoveBackhround.setDisable(!edit);
-        moveCanvas.setVisible(edit);
-    }
+    
     public void addComponent(Node node)
     {
-        root.getChildren().add(root.getChildren().size()-8, node);
+        root.getChildren().add(root.getChildren().size()-5, node);
     }
     public void addComponents(Node...nodes)
     {
@@ -306,54 +283,9 @@ public class UIControll {
                 Dipl_project.getDC().getActualConnect().removeConnect();
             }
         });
-        editBackground=new CheckBox("Editovat pozadí");
-        editBackground.setLayoutX(220);
-        editBackground.setLayoutY(10);
-        editBackground.setDisable(true);
-        editBackground.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                moveStatus=1;
-                moveCanvas.setVisible(editBackground.isSelected());
-                editConcept.setSelected(false);
-            }
-        });
-        editConcept=new CheckBox("Editovat návrh");
-        editConcept.setLayoutX(220);
-        editConcept.setLayoutY(95);
-        editConcept.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                moveStatus=2;
-                editBackground.setSelected(false);
-                moveCanvas.setVisible(editConcept.isSelected());
-            }
-        });
+
         
-        Button btnLoadBackground=new Button("Načíst pozadí");
-         btnLoadBackground.setLayoutX(220);
-         btnLoadBackground.setMinWidth(100);
-        btnLoadBackground.setLayoutY(40);
-        btnLoadBackground.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                BackgroundControll.loadImage();
-            }
-        });
-        btnRemoveBackhround=new Button("X");
-        btnRemoveBackhround.setLayoutX(330);
-        btnRemoveBackhround.setLayoutY(40);
-        btnRemoveBackhround.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                editBackground.setSelected(false);
-                moveCanvas.setVisible(false);
-                
-                BackgroundControll.removeBG();
-                btnRemoveBackhround.setDisable(true);
-                editBackground.setDisable(true);
-            }
-        });
+        
 
         wantDrive=false;
         Button addMyCar=new Button("Chci řídit");
@@ -378,33 +310,18 @@ public class UIControll {
                 
             }
         });
-        showRoads=new CheckBox("Zobrazit cesty");
-        showRoads.setLayoutX(840);
-        showRoads.setLayoutY(105);
-        showRoads.setSelected(true);
-        showRoads.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                refreshShowRoads();
-            }
-        });
+        
         
         initTrafficLights();
         
         popupClick.getItems().addAll(popupSplit, popupRemove);
-        root.getChildren().addAll(canvas, btnCheckIntersect,
-                editBackground, editConcept,  btnLoadBackground,
-                 btnRemoveBackhround, addMyCar, showRoads, moveCanvas);
+        root.getChildren().addAll(canvas, btnCheckIntersect, addMyCar,  moveCanvas);
     }
     public void setEditMode(boolean edit)
     {
         moveStatus=2;
-        editBackground.setSelected(!edit);
+        getUiTopMenu().getEditBackground().setSelected(!edit);
         moveCanvas.setVisible(edit);
-    }
-    public void refreshShowRoads()
-    {
-        showRoads(showRoads.isSelected());
     }
     public void showRoads(boolean show)
     {
@@ -511,11 +428,6 @@ public class UIControll {
     public void setMoveStatus(int moveStatus) {
         this.moveStatus = moveStatus;
     }
-
-    public CheckBox getEditConcept() {
-        return editConcept;
-    }
-    
     
     public void hidePopUp()
     {
@@ -591,10 +503,6 @@ public class UIControll {
     }
     public Stage getPrimaryStage() {
         return primaryStage;
-    }
-
-    public CheckBox getEditBackground() {
-        return editBackground;
     }
     public List<RoadSegment> getSegments() {
         return segments;

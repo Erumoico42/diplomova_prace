@@ -173,7 +173,7 @@ public class TrafficLightsControll {
                 
                if(timeSeconds>maxTime)
                    timeSeconds=0;
-               Dipl_project.getUI().getUiRightMenu().setTlGroupTime("Čas: "+String.valueOf(timeSeconds)+"s");
+               Dipl_project.getUI().getUiRightMenu().setTime(timeSeconds);
             }
         };
         timer.schedule(timerTask, 1000, 1000);
@@ -211,6 +211,13 @@ public class TrafficLightsControll {
                 trafficLightSwitch.stopSwitch();
             }
         }
+    }
+    public void cleanTLG()
+    {
+        trafficLightsGroups.getItems().clear();
+        timeSeconds=0;
+        Dipl_project.getUI().getUiRightMenu().setTime(0);
+        initAddNewGroup();
     }
     private void activateTLs()
     {

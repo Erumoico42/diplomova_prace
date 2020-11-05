@@ -521,7 +521,7 @@ public class Vehicle {
                                 //int tlMaxTime=trafficLight.getMaxTime();
                                 
                                 trafficLightFound=true;
-                                if((status==1 && actDist-vehicleLenght-time<2) || status==2 || status==3)
+                                if((status==1 && !trafficLight.isOrangeSwitching() && actDist-vehicleLenght-time<2) || status==2 || status==3)
                                 {
                                     carFound=true;
                                     fuzzySpeed(actDist-vehicleLenght-time, speed);

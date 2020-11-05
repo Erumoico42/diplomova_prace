@@ -43,6 +43,7 @@ import sun.plugin2.os.windows.Windows;
  * @author Honza
  */
 public class UITopMenu {
+    private Image imgTLIcon=new Image(Dipl_project.class.getResource("Resources/menuIcons/trafficLightIcon.png").toString());
     private Image imgSwitchGreen=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchGreen.png").toString());
     private Image imgSwitchRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchRed.png").toString());
     private Image imgSwitchOrange=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchOrange.png").toString());
@@ -53,8 +54,8 @@ public class UITopMenu {
     private MenuItem newFile;
     private MenuItem openFile;
     private MenuItem saveFile;
-    private Rectangle menuBG, simulationBG;
-    private Group simulationGroup, streetGroup, root,tlGroup;
+    private Rectangle backgroundBG, simulationBG;
+    private Group simulationGroup, streetGroup, root,backgroundGroup;
     private RadioButton carCreate;
     private RadioButton tramCreate;
     private HBox menuBox;
@@ -63,14 +64,21 @@ public class UITopMenu {
     private Label lblCurveEdit;
     private ToggleGroup createVehicleGroup;
     private Rectangle downLine;
-    public UITopMenu(Group root)
+    private CheckBox editBackground;
+    private UIControll ui;
+    private Button btnRemoveBackhround;
+    private CheckBox showRoads;
+    private boolean onofTLS=true;
+    public UITopMenu(Group root, UIControll ui)
     {
+        this.ui=ui;
         this.root=root;
         
         initMenu();
         initSimulationMenu();
         initMenuButtons();
         initStreetMenu();
+        initBackgroundMenu();
         //initTrafficLightsMenu();
     }
     private void initMenu()
@@ -99,10 +107,10 @@ public class UITopMenu {
         downLine=new Rectangle(1200, 2);
         downLine.setFill(Color.BLACK);
         
-        menuBG=new Rectangle();
-        menuBG.setFill(Color.LIGHTGRAY);
-        menuBG.setHeight(80);
-        menuBG.setWidth(600);
+        backgroundBG=new Rectangle();
+        backgroundBG.setFill(Color.LIGHTGRAY);
+        backgroundBG.setHeight(80);
+        backgroundBG.setWidth(600);
         
         Rectangle streetBG=new Rectangle();
         streetBG.setFill(Color.LIGHTGRAY);
@@ -119,32 +127,22 @@ public class UITopMenu {
         ap.getChildren().add(pane);
         simulationGroup=new Group();
         streetGroup=new Group();
-        tlGroup=new Group();
-         
+        backgroundGroup=new Group();
+        
         menuBox=new HBox();
         simulationGroup.getChildren().add(simulationBG);
         streetGroup.getChildren().addAll(streetBG,splitRectangle,splitRectangle2);
-        tlGroup.getChildren().addAll(menuBG);
-        menuBox.getChildren().addAll(simulationGroup,streetGroup,tlGroup);
+        backgroundGroup.getChildren().addAll(backgroundBG);
+        menuBox.getChildren().addAll(simulationGroup,streetGroup,backgroundGroup);
         top.getChildren().addAll(menu,ap,menuBox,downLine);
         root.getChildren().add(top);
     }
     public void updateMenuSize(double width)
     {
         
-        menuBG.setWidth(width);
+        backgroundBG.setWidth(width);
         downLine.setWidth(width);
     }
-    /*public void showStreetMenu()
-    {
-        menuGroup.getChildren().clear();
-        menuGroup.getChildren().addAll(menuBG,streetGroup);
-    }
-    public void showTLMenu()
-    {
-        menuGroup.getChildren().clear();
-        menuGroup.getChildren().addAll(menuBG,tlGroup);
-    }*/
     private void initMenuButtons()
     {
         saveFile.setOnAction(new EventHandler<ActionEvent>() {
@@ -190,7 +188,6 @@ public class UITopMenu {
                     Dipl_project.getSc().stopSimulation();
                     Dipl_project.getTlc().stopTrafficLights();
                     runGenerator=false;
-                    //btnRunSimulation.setText("Spustit");
                     ivPlayPause.setImage(imgPlayIcon);
                 }
                 else
@@ -199,7 +196,6 @@ public class UITopMenu {
                     Dipl_project.getSc().startSimulationTram();
                     Dipl_project.getTlc().startTrafficLights();
                     runGenerator=true;
-                    //btnRunSimulation.setText("Zastavit");
                     ivPlayPause.setImage(imgPauseIcon);
                 }
                     
@@ -230,7 +226,55 @@ public class UITopMenu {
             Dipl_project.getSc().changeGenerateTramSize(newValue.intValue());
             lblTramGenerSize.setText(String.valueOf(newValue.intValue()));
         });
-        simulationGroup.getChildren().addAll(btnRunSimulation,carGeneratorSize,lblCarGenerSize,tramGeneratorSize,lblTramGenerSize,lblFrequency);
+        ImageView iconTLRun=new ImageView(imgTLIcon);
+        iconTLRun.setLayoutX(240);
+        iconTLRun.setLayoutY(30);
+        iconTLRun.setFitHeight(45);
+        iconTLRun.setPreserveRatio(true);
+        
+        ImageView ivTLPlay=new ImageView(imgPauseIcon);
+        
+        ivTLPlay.setFitHeight(25);
+        ivTLPlay.setPreserveRatio(true);
+        Button btnTLPlay=new Button();
+        btnTLPlay.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                
+                onofTLS=!onofTLS;
+                if(!onofTLS)
+                    ivTLPlay.setImage(imgPlayIcon);
+                else
+                    ivTLPlay.setImage(imgPauseIcon);
+                turnOnOffTLs(onofTLS);
+            }
+        });
+        btnTLPlay.setMinSize(25, 25);
+        btnTLPlay.setMaxSize(25, 25);
+        btnTLPlay.setGraphic(ivTLPlay);
+        btnTLPlay.setLayoutX(270);
+        btnTLPlay.setLayoutY(40);
+        simulationGroup.getChildren().addAll(iconTLRun,btnTLPlay,btnRunSimulation,carGeneratorSize,lblCarGenerSize,tramGeneratorSize,lblTramGenerSize,lblFrequency);
+    }
+    private void turnOnOffTLs(boolean onof)
+    {
+        if(!onof)
+        {
+            Dipl_project.getTlc().stopTrafficLights();
+            for (TrafficLight tl : Dipl_project.getDC().getTrafficLights()) {
+                tl.setLastStatus();
+                tl.setOrangeSwitching(true);
+                tl.startOrangeSwitching();
+            }
+            
+        }else{
+            for (TrafficLight tl : Dipl_project.getDC().getTrafficLights()) {
+                tl.setStatus(tl.getLastStatus());
+                tl.setOrangeSwitching(false);
+                tl.stopOrangeSwitching();
+            }
+            Dipl_project.getTlc().startTrafficLights();
+        }
     }
     private void initStreetMenu()
     {
@@ -295,9 +339,69 @@ public class UITopMenu {
         curveEdit.setDisable(true);
         saveEditedCurve.setDisable(true);
         
-        streetGroup.getChildren().addAll(lblCreateStreet,carCreate,tramCreate,  lblCurveEdit, saveEditedCurve, curveEdit,lblCurveSmooth);
-        //setActualMenu(streetGroup);
-        //menuGroup.getChildren().addAll(streetGroup);
+        showRoads=new CheckBox("Zobrazit cesty");
+        showRoads.setLayoutX(135);
+        showRoads.setLayoutY(55);
+        showRoads.setSelected(true);
+        showRoads.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                refreshShowRoads();
+            }
+        });
+        streetGroup.getChildren().addAll(lblCreateStreet,carCreate,tramCreate,  lblCurveEdit, saveEditedCurve, curveEdit,lblCurveSmooth,showRoads);
+    }
+    
+    public void refreshShowRoads()
+    {
+        ui.showRoads(showRoads.isSelected());
+    }
+    public void initBackgroundMenu()
+    {
+        editBackground=new CheckBox("Editovat pozadí");
+        editBackground.setLayoutX(10);
+        editBackground.setLayoutY(45);
+        editBackground.setDisable(true);
+        editBackground.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                ui.setMoveStatus(1);
+                ui.getMoveCanvas().setVisible(editBackground.isSelected());
+            }
+        });
+        Button btnLoadBackground=new Button("Načíst pozadí");
+         btnLoadBackground.setLayoutX(10);
+         btnLoadBackground.setMinWidth(100);
+        btnLoadBackground.setLayoutY(10);
+        btnLoadBackground.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                BackgroundControll.loadImage();
+            }
+        });
+        btnRemoveBackhround=new Button("X");
+        btnRemoveBackhround.setLayoutX(120);
+        btnRemoveBackhround.setLayoutY(10);
+        enableRemoveBG(false);
+        btnRemoveBackhround.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                setEditBackground(false);
+                
+                BackgroundControll.removeBG();
+                enableRemoveBG(false);
+            }
+        });
+        backgroundGroup.getChildren().addAll(editBackground,btnLoadBackground,btnRemoveBackhround);
+    }
+    public void enableRemoveBG(boolean enable)
+    {
+        btnRemoveBackhround.setDisable(!enable);
+    }
+    public void setEditBackground(boolean edit)
+    {
+        ui.getMoveCanvas().setVisible(edit);
+        editBackground.setSelected(edit);
     }
     public void enableCurveEdit(boolean enable)
     {
@@ -315,7 +419,13 @@ public class UITopMenu {
         }
         
     }
-   
-    
+
+    public CheckBox getEditBackground() {
+        return editBackground;
+    }
+
+    public Button getBtnRemoveBackhround() {
+        return btnRemoveBackhround;
+    }
  
 }
