@@ -38,8 +38,8 @@ public class Animation {
         
         timerTask.cancel();
         timer.cancel();
-        statStepTimerTask.cancel();
-        statStepTimer.cancel();
+        //statStepTimerTask.cancel();
+       // statStepTimer.cancel();
         for (Vehicle vehicle : vehicles) {
             vehicle.stopBlink();
         }
