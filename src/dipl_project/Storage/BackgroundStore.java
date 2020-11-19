@@ -19,11 +19,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
+import javax.imageio.ImageIO;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -91,7 +93,7 @@ public class BackgroundStore {
             background.setAttributeNode(isnull); 
             root.appendChild(background);
     }
-    private String copyBackground(String bgSource, File destFile)
+    private String copyBackground(String bgSource, File destFile) 
     {
         String savePath=destFile.getPath().split("."+destFile.getName())[0];
         String extension = "";
@@ -101,23 +103,32 @@ public class BackgroundStore {
             extension = bgSource.substring(i+1);
         }
         String newBGPath=savePath+"\\"+destFile.getName().split(".xml")[0]+"-bg."+extension;
-        File newBGloc=new File(newBGPath);
-        try (
-            InputStream in = new BufferedInputStream(
-              new FileInputStream(new File(bgSource.split("file:/")[1])));
-            OutputStream out = new BufferedOutputStream(
-              new FileOutputStream(newBGloc))) {
 
-              byte[] buffer = new byte[1024];
-              int lengthRead;
-              while ((lengthRead = in.read(buffer)) > 0) {
-                  out.write(buffer, 0, lengthRead);
-                  out.flush();
-              }
-          } catch (IOException ex) {
+        InputStream is=null;
+        OutputStream os=null;
+        try{
+            File outBG=new File(bgSource.split("file:/")[1]);
+            is = new FileInputStream(outBG);
+            os = new FileOutputStream(new File(newBGPath));
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(BackgroundStore.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(BackgroundStore.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                is.close();
+                os.close();
+            } catch (IOException ex) {
+                Logger.getLogger(BackgroundStore.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-        return "file:/"+newBGPath;
+        String ret="file:/"+newBGPath;
+        return ret;
     }
     public void loadBackground()
     {

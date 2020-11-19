@@ -22,7 +22,8 @@ import javafx.util.Pair;
  */
 public class RoadCreator {
     private Point pOld, pNew;
-    private  double segLength=30, arrowLengthMin=120, collisDistance=30;
+    private final int DEF_LENGTH=30;
+    private  double segLength=DEF_LENGTH, arrowLengthMin=120, collisDistance=30;
     private RoadSegment lastRS, newRS;
     private MyCurve actualCurve;
     private boolean newCurve, newSegment=true, zooming=false;
@@ -637,6 +638,10 @@ public class RoadCreator {
 
     public void setZooming(boolean zooming) {
         this.zooming = zooming;
+    }
+
+    public void setDefSegLenght() {
+        segLength=DEF_LENGTH;
     }
     
 }

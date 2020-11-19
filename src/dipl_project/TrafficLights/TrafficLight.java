@@ -61,7 +61,7 @@ public class TrafficLight {
         tlBox.getChildren().addAll(tlImage);
         tlImage.setFitWidth(tlWidth);
         tlImage.setFitHeight(tlHeight);
-        location=new Point((int)x-10, (int)y-25);
+        location=new Point((int)x-5, (int)y-10);
         moveTL(location.getX(), location.getY());
         setStatus(0);
         initHandlers();
@@ -148,6 +148,7 @@ public class TrafficLight {
                 startY = event.getY();
                 distX = startX - layoutX;
                 distY = startY - layoutY;
+                System.out.println(location);
             }
         });
         tlBox.setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -166,6 +167,7 @@ public class TrafficLight {
         
         layoutX=x-distX;
         layoutY=y-distY;
+        System.out.println(distX+"x"+distY);
         moveImg(layoutX,layoutY);
         distX = startX-layoutX;
         distY = startY-layoutY;
@@ -198,7 +200,7 @@ public class TrafficLight {
         tlBox.setStyle(STYLE_SELECT_PRIM);
         layoutX-=2;
         layoutY-=2;
-        location.setLocation(layoutX, layoutY);
+        //location.setLocation(layoutX, layoutY);
         moveImg(layoutX,layoutY);
     }
     public void rsSelect()
@@ -253,7 +255,7 @@ public class TrafficLight {
             layoutX+=2;
             layoutY+=2;
         }
-        location.setLocation(layoutX, layoutY);
+        //location.setLocation(layoutX, layoutY);
         tlBox.setStyle(STYLE_DEF);
         moveImg(layoutX,layoutY);
     }

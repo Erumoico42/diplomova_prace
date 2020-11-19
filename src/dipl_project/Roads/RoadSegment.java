@@ -69,7 +69,7 @@ public class RoadSegment {
         roadSegment.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                
+                System.out.println(segmentLenght);
                 if(!selectedRS)
                     selectRS(event);
                 else

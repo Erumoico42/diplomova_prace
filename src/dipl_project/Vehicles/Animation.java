@@ -97,7 +97,7 @@ public class Animation {
         Platform.runLater(() -> {
         for (Vehicle vehicle : vehicles) {
             vehicle.tick();
-            tickSaveData(vehicle);
+            //tickSaveData(vehicle);
         }
         });
     }

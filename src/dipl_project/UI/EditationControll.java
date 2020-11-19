@@ -26,7 +26,7 @@ import javafx.util.Pair;
  * @author Honza
  */
 public  class EditationControll {
-    private static double zoomInRatio=1.2, zoomOutRatio=(double)5/6, zoomRatio=1;
+    private static double zoomInRatio=1.2, zoomOutRatio=(double)5/6, zoomRatio=1, resetRatio=1;
     private static final int MAX_ZOOM=7, MIN_ZOOM=-5;
     private static double canvasWidth, canvasHeight;
     private static int zoomCount=0;
@@ -34,7 +34,14 @@ public  class EditationControll {
     {
         zoomCount=0;
         zoomRatio=1;
+        resetRatio=1;
+        Dipl_project.getRC().setDefSegLenght();
         Dipl_project.getAnim().setZoomRatio(zoomRatio);
+    }
+    public static void resetZoom()
+    {
+        zoomByRatio(resetRatio);
+        setDefRatio();
     }
     public static void setCanvasSize(double width, double height)
     {
@@ -50,17 +57,19 @@ public  class EditationControll {
                     zoomCount--;
                     zoomRatio*=zoomOutRatio;
                     zoomByRatio(zoomOutRatio);
+                    resetRatio*=zoomInRatio;
                 }
                 
 
             }
-            else
+            else if(e>0)
             {
                 if(zoomCount<MAX_ZOOM)
                 {
                     zoomCount++;
                     zoomRatio*=zoomInRatio;
                     zoomByRatio(zoomInRatio);
+                    resetRatio*=zoomOutRatio;
                 }
             }
             
@@ -69,6 +78,18 @@ public  class EditationControll {
 
     public static double getZoomRatio() {
         return zoomRatio;
+    }
+
+    public static double getResetRatio() {
+        return resetRatio;
+    }
+
+    public static double getCanvasWidth() {
+        return canvasWidth;
+    }
+
+    public static double getCanvasHeight() {
+        return canvasHeight;
     }
    
     public static void zoomByRatio(double zr)
@@ -94,7 +115,6 @@ public  class EditationControll {
                 Dipl_project.getUI().getUiTopMenu().refreshShowRoads();
             }
         });
-        
         
     }
     private static void zoomRC(double zoomRatio)
@@ -455,23 +475,24 @@ public  class EditationControll {
             tl.setTLPosition(tlLayoutX, tlLayoutY);
         }
     }
-    
-    public static void zoomBack()
-    {
-        double defZoomRatio=Math.pow(zoomInRatio, -zoomCount);
-        zoomByRatio(defZoomRatio);
-    }
-    public static void zoomRev()
-    {
-        double defZoomRatio=Math.pow(zoomInRatio, zoomCount);
-        zoomByRatio(defZoomRatio);
-    }
     public static double getZoomInRatio() {
         return zoomInRatio;
     }
 
     public static int getZoomCount() {
         return zoomCount;
+    }
+
+    public static void setZoomRatio(double ratio) {
+        zoomRatio=ratio;
+    }
+
+    public static void setResetRatio(double ratio) {
+        resetRatio=ratio;
+    }
+
+    public static void setZoomCount(int count) {
+        zoomCount=count;
     }
     
 }

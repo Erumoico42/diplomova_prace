@@ -53,9 +53,12 @@ public  class StorageControll {
             Element root=doc.createElement("root");
             doc.appendChild(root);
             
+            //EditationControll.zoomBack();
             new BackgroundStore(doc, root).saveBackground(file);
             new StreetStore(doc, root).saveStreet();
             new TrafficLightsStore(doc, root).saveTrafficLights();
+            new EditationStore(doc,root).saveEditation();
+            //EditationControll.zoomRev();
             
             TransformerFactory tfc=TransformerFactory.newInstance();
             Transformer tf=tfc.newTransformer();
@@ -78,9 +81,9 @@ public  class StorageControll {
         fch.getExtensionFilters().add(filter);
         File file = fch.showSaveDialog(null);
         if (file != null) { 
-            EditationControll.zoomBack();
+            
             saver(file);
-            EditationControll.zoomRev();
+            
         }
     }
     
@@ -94,11 +97,11 @@ public  class StorageControll {
             doc.getDocumentElement().normalize();
             
             Dipl_project.getDC().cleanAll();
-            
+            new EditationStore(doc, null).loadEditation();
             Map<Integer, TrafficLight> tls = new TrafficLightsStore(doc, null).loadTrafficLights();
             new StreetStore(doc, null).loadStreet(tls);
             new BackgroundStore(doc, null).loadBackground();
-            
+            EditationControll.resetZoom();
             
         } catch (ParserConfigurationException | SAXException | IOException ex) {
             throw new Error(ex);
