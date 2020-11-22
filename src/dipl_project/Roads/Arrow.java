@@ -23,7 +23,7 @@ public class Arrow {
         
         arrow.setFill(Color.FIREBRICK);
         arrow.setStroke(Color.WHITESMOKE);
-        Dipl_project.getUI().addComponentsDown(arrow);
+        Dipl_project.getUI().addArrow(this);
     }
     public void moveArrow(double x, double y, double angle)
     {

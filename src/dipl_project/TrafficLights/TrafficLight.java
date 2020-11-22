@@ -337,7 +337,7 @@ public class TrafficLight {
     {
         Dipl_project.getDC().setActualTL(null);
         Dipl_project.getDC().getTrafficLights().remove(this);
-        Dipl_project.getUI().removeComponents(tlBox);
+        Dipl_project.getUI().removeTL(getThis());
     }
     public void setLocOrig(Point locOrig) {
         this.locOrig = locOrig;

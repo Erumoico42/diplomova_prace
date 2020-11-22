@@ -128,7 +128,7 @@ public class TrafficLightsStore {
             boolean orangeSwitching=Boolean.parseBoolean(trafficLight.getAttributes().getNamedItem("orangeSwitching").getNodeValue());
             newTL.setOrangeSwitching(orangeSwitching);
        
-            ui.addComponents(newTL.getTlImage());
+            ui.addTL(newTL);
             trafficLights.put(idTL, newTL);
             Dipl_project.getDC().addTrafficLight(newTL);
         }

@@ -46,7 +46,7 @@ public class Vehicle {
     private final ImageView iv, ivMaskBlinker, ivMaskBreaks;
     private Image actualCar, carBlinkerLeft, carBlinkerRight, carBreak, defCar;
     private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
-    private double speed=maxSpeed/2, force=0.0003, time=0, breakRatio=1, vehicleLenght;
+    private double speed=maxSpeed/3, force=0.0003, time=0, breakRatio=1, vehicleLenght;
     private boolean watch=false;
     private int id;
     private int watchCount=0, freeCount=0;

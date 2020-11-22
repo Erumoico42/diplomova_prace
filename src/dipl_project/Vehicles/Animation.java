@@ -68,14 +68,14 @@ public class Animation {
             vehicle.setId(vehID);
             vehID++;
             vehicle.changeValues(zoomRatio);
-            Dipl_project.getUI().addComponents(vehicle.getIV(), vehicle.getIvMaskBlinker(), vehicle.getIvMaskBreaks());
+            Dipl_project.getUI().addVehicle(vehicle);
         });
     }
     public void removeVehicle(Vehicle vehicle)
     {
         Platform.runLater(() -> {
             vehicles.remove(vehicle);
-            Dipl_project.getUI().removeComponents(vehicle.getIV(), vehicle.getIvMaskBlinker(), vehicle.getIvMaskBreaks());
+            Dipl_project.getUI().removeVehicle(vehicle);
         });
     }
     public void startAnimation()
