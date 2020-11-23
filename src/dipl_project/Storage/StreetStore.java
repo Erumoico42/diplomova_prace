@@ -12,6 +12,9 @@ import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadCreator;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Roads.VehicleGenerating.StartCar;
+import dipl_project.Roads.VehicleGenerating.StartSegment;
+import dipl_project.Roads.VehicleGenerating.StartTram;
 import dipl_project.Roads.WatchPoint;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
@@ -150,40 +153,65 @@ public class StreetStore {
     }
     public void saveStartSegments()
     {
-        List<RoadSegment> startCarSegments=dipl_project.Dipl_project.getUI().getStartCarSegments();
-        if(startCarSegments!=null)
-        for (RoadSegment rs : startCarSegments) {
+        List<StartSegment> startCarSegments=Dipl_project.getUI().getStarCarSegments();
+        for (StartSegment ss : startCarSegments) {
             Element startCarSegment=doc.createElement("startCarSegment");  
-            Attr idStartCarSegment=doc.createAttribute("idStartCarSegment");
-            idStartCarSegment.setValue(String.valueOf(rs.getId()));
-            startCarSegment.setAttributeNode(idStartCarSegment);
+            setDataStartSegment(startCarSegment,ss);
             root.appendChild(startCarSegment);
         }
-        List<RoadSegment> startTramSegments=dipl_project.Dipl_project.getUI().getStartTramSegments();
-        if(startTramSegments!=null)
-        for (RoadSegment rs : startTramSegments) {
+        List<StartSegment> startTramSegments=Dipl_project.getUI().getStarTramSegments();
+        for (StartSegment ss : startTramSegments) {
             Element startTramSegment=doc.createElement("startTramSegment");  
-            Attr idStartTramSegment=doc.createAttribute("idStartTramSegment");
-            idStartTramSegment.setValue(String.valueOf(rs.getId()));
-            startTramSegment.setAttributeNode(idStartTramSegment);
+            setDataStartSegment(startTramSegment,ss);
             root.appendChild(startTramSegment);
         }
     }
+    private void setDataStartSegment(Element segment, StartSegment ss)
+    {
+        Attr idSegment=doc.createAttribute("idStartSegment");
+            idSegment.setValue(String.valueOf(ss.getStartRS().getId()));
+            segment.setAttributeNode(idSegment);
+            Attr idCurve=doc.createAttribute("idCurve");
+            idCurve.setValue(String.valueOf(ss.getMc().getId()));
+            segment.setAttributeNode(idCurve);
+            Attr frequencyMinute=doc.createAttribute("frequencyMinute");
+            frequencyMinute.setValue(String.valueOf(ss.getFrequencyMinute()));
+            segment.setAttributeNode(frequencyMinute);  
+            Attr idConnect=doc.createAttribute("idConnect");
+            idConnect.setValue(String.valueOf(ss.getStartConnect().getId()));
+            segment.setAttributeNode(idConnect);
+            Attr actualFreqChanged=doc.createAttribute("actualFreqChanged");
+            actualFreqChanged.setValue(String.valueOf(ss.isFrequencyChangedActual()));
+            segment.setAttributeNode(actualFreqChanged);
+            
+    }
     private void loadStartSegments()
     {
-        List<RoadSegment> startCarSegments=new ArrayList<>();
-        List<RoadSegment> startTramSegments=new ArrayList<>();
+        List<StartSegment> startCarSegments=new ArrayList<>();
         NodeList startCarSegment=doc.getElementsByTagName("startCarSegment");
         for (int i = 0; i < startCarSegment.getLength(); i++) {           
-            int idStartCarSegment=Integer.parseInt(startCarSegment.item(i).getAttributes().getNamedItem("idStartCarSegment").getNodeValue());
-            startCarSegments.add(segments.get(idStartCarSegment));
+            StartSegment start=loadDataStartSegment(startCarSegment.item(i));
+            startCarSegments.add(start);
         }
+        
+        List<StartSegment> startTramSegments=new ArrayList<>();
         NodeList startTramSegment=doc.getElementsByTagName("startTramSegment");
-        for (int i = 0; i < startTramSegment.getLength(); i++) {           
-            int idStartTramSegment=Integer.parseInt(startTramSegment.item(i).getAttributes().getNamedItem("idStartTramSegment").getNodeValue());
-            startTramSegments.add(segments.get(idStartTramSegment));
+        for (int i = 0; i < startTramSegment.getLength(); i++) {
+            StartSegment start=loadDataStartSegment(startTramSegment.item(i));
+            startTramSegments.add(start);
         }
         ui.setStartSegments(startCarSegments,startTramSegments);
+    }
+    private StartSegment loadDataStartSegment(Node startTramSegment)
+    {
+            int idStartSegment=Integer.parseInt(startTramSegment.getAttributes().getNamedItem("idStartSegment").getNodeValue());
+            int idCurve=Integer.parseInt(startTramSegment.getAttributes().getNamedItem("idCurve").getNodeValue());
+            int frequencyMinute=Integer.parseInt(startTramSegment.getAttributes().getNamedItem("frequencyMinute").getNodeValue());
+            int idConnect=Integer.parseInt(startTramSegment.getAttributes().getNamedItem("idConnect").getNodeValue());
+            boolean actualFreqChanged=Boolean.parseBoolean(startTramSegment.getAttributes().getNamedItem("actualFreqChanged").getNodeValue());
+            StartSegment start=new StartCar(segments.get(idStartSegment), frequencyMinute, connects.get(idConnect), curves.get(idCurve));
+            start.setFrequencyChangedActual(actualFreqChanged);
+            return start;
     }
     public void saveSegments()
     {
@@ -568,6 +596,6 @@ public class StreetStore {
             curves.put(idCurve, mc);
         }
         dc.setIdLastCurve(maxId);
-        dipl_project.Dipl_project.getDC().newRoad();
+        Dipl_project.getDC().newRoad();
      }
 }

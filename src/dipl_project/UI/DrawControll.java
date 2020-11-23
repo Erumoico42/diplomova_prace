@@ -80,7 +80,7 @@ public  class DrawControll {
         if(!loadingMap)
         {
             rc.createRoad(connects, curves);
-            ui.setStartSegments(rc.getStartCarSegments(), rc.getStartTramSegments());
+            ui.setStartSegments(rc.getStartCarSegments(),rc.getStartTramSegments());
         }
     }
 
@@ -148,7 +148,7 @@ public  class DrawControll {
                                 TrafficLight tl=new TrafficLight(event.getX(), event.getY(), idLastTL);
                                 idLastTL++;
                                 trafficLights.add(tl);
-                                ui.addComponents(tl.getTlImage());
+                                ui.addTL(tl);
                                 break;
                             }
                         }
@@ -321,7 +321,7 @@ public  class DrawControll {
 
     public void setSelectedCurve(MyCurve selectedCurve) {
         this.selectedCurve = selectedCurve;
-        ui.getUiTopMenu().enableCurveEdit(selectedCurve!=null);
+        ui.getUiTopMenu().enableCurveEdit(selectedCurve!=null, selectedCurve);
     }
 
     public void cleanAll()

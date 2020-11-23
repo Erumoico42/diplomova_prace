@@ -62,6 +62,8 @@ public class RoadSegment {
     private int id;
     private double segmentLenght;
     private boolean run=false, blinkerLeft=false, blinkerRight=false, blinkerStop=false;
+    private boolean sameWay=false;
+    private boolean selectedWP;
     public RoadSegment(Point p0, Point p3) {
         this.p0=p0;
         this.p3=p3;
@@ -69,7 +71,6 @@ public class RoadSegment {
         roadSegment.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println(segmentLenght);
                 if(!selectedRS)
                     selectRS(event);
                 else
@@ -90,8 +91,6 @@ public class RoadSegment {
         });
         shape=new CubicCurve(p0.getX(), p0.getY(),p0.getX(), p0.getY(),p3.getX(), p3.getY(), p3.getX(), p3.getY());
         setDefRoadSegment();
-        shape.setStrokeWidth(7);
-        shape.setFill(null);
         shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -159,6 +158,7 @@ public class RoadSegment {
                     actRS.removeCP(remCP);
                     setDefRoadSegment();
                     uiRight.removeCPFromList(remCP);
+                    selectedWP=false;
 
                 }else
                 {
@@ -166,6 +166,7 @@ public class RoadSegment {
                     actRS.addCP(newCP);
                     setMainRoadSegment();
                     uiRight.addCPToList(newCP);
+                    selectedWP=true;
 
                 }
             }
@@ -177,6 +178,7 @@ public class RoadSegment {
                     actRS.removeWP(remWP);
                     setDefRoadSegment();
                     uiRight.removeWPFromList(remWP);
+                    selectedWP=false;
 
                 }else
                 {
@@ -184,6 +186,7 @@ public class RoadSegment {
                     actRS.addWP(newWP);
                     setWatchRoadSegment();
                     uiRight.addWPToList(newWP);
+                    selectedWP=true;
 
                 }
             }
@@ -275,13 +278,42 @@ public class RoadSegment {
     }
     public void setSideRoadSegment()
     {
+        System.out.println("side");
         shape.setStroke(Color.RED);
         shape.setVisible(true);
     }
+    public void setSameWayRS(boolean sw)
+    {
+        sameWay=sw;
+        if(sameWay)
+        {
+            shape.setStroke(Color.MAGENTA);
+            shape.setStrokeWidth(5);
+            shape.setVisible(true);
+        }
+        else
+        {
+            if(selectedRS)
+                setMainRoadSegment();
+            else if(selectedWP)
+                setWatchRoadSegment();
+            else
+                setDefRoadSegment();
+        }
+        
+    }
     public void setDefRoadSegment()
     {
-        shape.setStroke(Color.TRANSPARENT);
-        shape.setVisible(false);
+        if(!sameWay)
+        {
+            shape.setStroke(Color.TRANSPARENT);
+            shape.setVisible(false);
+        }
+        else
+        {
+            setSameWayRS(true);
+        }
+        
     }
     public MyCurve getMainCurve() {
         return mainCurve;

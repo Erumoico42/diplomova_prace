@@ -8,6 +8,7 @@ package dipl_project.Simulation;
 import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Roads.VehicleGenerating.StartSegment;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import dipl_project.Vehicles.MyCar;
@@ -25,110 +26,50 @@ public class SimulationControll {
 
     private int generateCarSize=6000;
     private boolean deleyChangedCar=false;
-    private TimerTask timerTaskCars;
-    private Timer timerCars;
+    private boolean simulationRun=false;
     private UIControll ui;
     private DrawControll dc;
     private int generateTramSize=6000;
-    private boolean deleyChangedTram;
-    private Timer timerTrams;
-    private TimerTask timerTaskTrams;
     private MyCar mycar;
     private int mycarCount=0;
     private Timer changeSpeedTimer;
     private TimerTask changeSpeedTimerTask;
     private boolean changeSpeedLoop, autoGenerMyCar=false;
     private double myCarSpeedChange;
+    private int frequencyCarGeneration=20, frequencyTramGeneration=5;
     public SimulationControll()
     {
         ui=Dipl_project.getUI();
         dc=Dipl_project.getDC();
     }
-    public void stopSimulation()
-    {
-        stopSimulationCar();
-        stopSimulationTram();
-        
-    }
-    private void stopSimulationCar()
-    {
-        if(timerTaskCars!=null)
-            timerTaskCars.cancel();
-        if(timerCars!=null)
-            timerCars.cancel();
-    }
-    private void stopSimulationTram()
-    {
-        if(timerTaskTrams!=null)
-            timerTaskTrams.cancel();
-        if(timerTrams!=null)
-            timerTrams.cancel();
-    }
-    public void startSimulationCar()
+    public void stopVehicleGenerator()
     {
         
-        timerCars=new Timer();
-        timerTaskCars = new TimerTask() {
-            @Override
-            public void run(){
-                Platform.runLater(() -> {
-                    tickCar();
-                    if(deleyChangedCar)
-                    {
-                        deleyChangedCar=false;
-                        timerCars.cancel();
-                        timerTaskCars.cancel();
-                        startSimulationCar(); 
-                    }
-                });
-            }
-        };
-        timerCars.schedule(timerTaskCars, generateCarSize, generateCarSize);
+        for (StartSegment starCarSegment : ui.getStarCarSegments()) {
+            starCarSegment.setRunGenerator(false);
+            starCarSegment.stopGenerator();
+            
+        }
+        for (StartSegment starTramSegment : ui.getStarTramSegments()) {
+            starTramSegment.setRunGenerator(false);
+            starTramSegment.stopGenerator();
+        }      
+        simulationRun=false;
+    }
+    public void startVehicleGenerator()
+    {
+        for (StartSegment starCarSegment : ui.getStarCarSegments()) {
+            
+            starCarSegment.setRunGenerator(true);
+            starCarSegment.startGenerator();
+        }
+        for (StartSegment starTramSegment : ui.getStarTramSegments()) {
+            
+            starTramSegment.setRunGenerator(true);
+            starTramSegment.startGenerator();
+        }
+        simulationRun=true;
 
-    }
-    public void startSimulationTram()
-    {
-        timerTrams=new Timer();
-        timerTaskTrams = new TimerTask() {
-            @Override
-            public void run(){
-                Platform.runLater(() -> {
-                    tickTram();
-                    if(deleyChangedTram)
-                    {
-                        deleyChangedTram=false;
-                        timerTrams.cancel();
-                        timerTaskTrams.cancel();
-                        startSimulationTram(); 
-                    }
-                });
-            }
-        };
-        timerTrams.schedule(timerTaskTrams, generateTramSize, generateTramSize);
-    }
-    private void tickCar()
-    {
-        ui.newCar();
-    }
-    private void tickTram()
-    {
-        ui.newTram();
-    }
-    public void changeGenerateCarSize(int size)
-    {
-        if(size!=0)
-            generateCarSize=60000/size;
-        else
-            stopSimulationCar();
-        deleyChangedCar=true;
-    }
-    public void changeGenerateTramSize(int size)
-    {
-        if(size!=0)
-            generateTramSize=60000/size;
-        else
-            stopSimulationTram();
-        deleyChangedTram=true;
     }
 
     public MyCar getMycar() {
@@ -205,5 +146,38 @@ public class SimulationControll {
         if(changeSpeedTimerTask!=null)
             changeSpeedTimerTask.cancel();
     }
+
+    public void changeGenerateCarSize(int intValue) {
+        frequencyCarGeneration=intValue;
+        for (StartSegment starCarSegment : ui.getStarCarSegments()) {
+            if(!starCarSegment.isFrequencyChangedActual())
+            {
+                starCarSegment.setFrequencyMinute(intValue);
+            }
+        }
+    }
+
+    public void changeGenerateTramSize(int intValue) {
+        frequencyTramGeneration=intValue;
+        for (StartSegment starTramSegment : ui.getStarTramSegments()) {
+            if(!starTramSegment.isFrequencyChangedActual())
+            {
+                starTramSegment.setFrequencyMinute(intValue);
+            }
+        }
+    }
+
+    public int getFrequencyCarGeneration() {
+        return frequencyCarGeneration;
+    }
+
+    public int getFrequencyTramGeneration() {
+        return frequencyTramGeneration;
+    }
+
+    public boolean simulationRun() {
+        return simulationRun;
+    }
+    
 }
 

@@ -6,6 +6,8 @@
 package dipl_project.Roads;
 
 import dipl_project.Dipl_project;
+import dipl_project.Roads.VehicleGenerating.StartCar;
+import dipl_project.Roads.VehicleGenerating.StartSegment;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import java.awt.Point;
@@ -25,6 +27,7 @@ import javafx.scene.shape.StrokeType;
  * @author Honza
  */
 public class MyCurve {
+    private StartSegment startSegment;
     private Connect startConnect, endConnect;
     private Controll startControll,endControll;
     private List<RoadSegment> curveSegments=new ArrayList<>();
@@ -64,8 +67,10 @@ public class MyCurve {
         curve.setFill(null);
         curve.setStrokeWidth(3);
         curve.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            
             @Override
             public void handle(MouseEvent event) {
+                System.out.println("asdasd");
                     selectCurve();
             }
         });
@@ -146,10 +151,10 @@ public class MyCurve {
     }
     public void removeArrow(Arrow arrow) {
         arrows.remove(arrow);
-        Dipl_project.getUI().removeComponents(arrow.getArrow());
+        Dipl_project.getUI().removeArrow(arrow);
     }
     public void removeArrowAt(int i) {
-        Dipl_project.getUI().removeComponents(arrows.get(i).getArrow());
+        Dipl_project.getUI().removeArrow(arrows.get(i));
         arrows.remove(i);
         
     }
@@ -222,7 +227,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveStartControll(event.getX(),event.getY());
                 adaptControlls(startConnect, p1, true);
-                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false);
+                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false, null);
             }
         });
         endControll.getControll().setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -230,7 +235,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveEndControll(event.getX(),event.getY());
                 adaptControlls(endConnect, p2, false);
-                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false);
+                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false, null);
             }
         });
     }
@@ -448,6 +453,14 @@ public class MyCurve {
     }
     public boolean isTramCurve() {
         return tramCurve;
+    }
+
+    public void setStartStreet(StartSegment startSegment) {
+        this.startSegment=startSegment;
+    }
+
+    public StartSegment getStartSegment() {
+        return startSegment;
     }
     
     

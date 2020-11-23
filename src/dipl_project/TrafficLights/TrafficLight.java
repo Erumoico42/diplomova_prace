@@ -148,7 +148,6 @@ public class TrafficLight {
                 startY = event.getY();
                 distX = startX - layoutX;
                 distY = startY - layoutY;
-                System.out.println(location);
             }
         });
         tlBox.setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -167,7 +166,6 @@ public class TrafficLight {
         
         layoutX=x-distX;
         layoutY=y-distY;
-        System.out.println(distX+"x"+distY);
         moveImg(layoutX,layoutY);
         distX = startX-layoutX;
         distY = startY-layoutY;
@@ -337,7 +335,7 @@ public class TrafficLight {
     {
         Dipl_project.getDC().setActualTL(null);
         Dipl_project.getDC().getTrafficLights().remove(this);
-        Dipl_project.getUI().removeComponents(tlBox);
+        Dipl_project.getUI().removeTL(getThis());
     }
     public void setLocOrig(Point locOrig) {
         this.locOrig = locOrig;

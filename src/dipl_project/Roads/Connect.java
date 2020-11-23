@@ -77,7 +77,7 @@ public class Connect {
         connect.setOnMouseDragged((MouseEvent event) -> {
             move(event.getX(), event.getY());
             dragged=true;
-            Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false);
+            Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false, null);
         });
         connect.setOnMouseReleased((MouseEvent event) -> {
             if(tryConnect)
@@ -95,7 +95,7 @@ public class Connect {
                 connect.setRadius(6);
         });
         connect.setOnMousePressed((MouseEvent event) -> {
-            ui.moveComponentUp(connect);
+            ui.moveConnectUp(getThis());
         });
         connect.setOnMouseClicked((MouseEvent event) -> {
             if(event.getButton()==MouseButton.PRIMARY)
@@ -109,9 +109,15 @@ public class Connect {
             else if(event.getButton()==MouseButton.SECONDARY)
             {
                 select();
-                ui.showPopUp(location);
+                int splitSize=startCurves.size()+endCurves.size();
+                boolean enableSplit=splitSize>1;
+                ui.showPopUp(location,enableSplit);
             }
         });
+    }
+    private Connect getThis()
+    {
+        return this;
     }
     public boolean canSplit()
     {

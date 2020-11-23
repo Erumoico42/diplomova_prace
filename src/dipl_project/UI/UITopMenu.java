@@ -7,6 +7,7 @@ package dipl_project.UI;
 
 import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
+import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadCreator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -70,6 +71,12 @@ public class UITopMenu {
     private Button btnRemoveBackhround;
     private CheckBox showRoads;
     private boolean onofTLS=true;
+    private Slider carGeneratorSize;
+    private Slider tramGeneratorSize;
+    private boolean enableChangeGenerate;
+    private MyCurve selectedCurve;
+    private Label lblCarGenerSize;
+    private Label lblTramGenerSize;
     public UITopMenu(Group root, UIControll ui)
     {
         this.ui=ui;
@@ -186,15 +193,14 @@ public class UITopMenu {
                 
                 if(runGenerator)
                 {
-                    Dipl_project.getSc().stopSimulation();
+                    Dipl_project.getSc().stopVehicleGenerator();
                     Dipl_project.getTlc().stopTrafficLights();
                     runGenerator=false;
                     ivPlayPause.setImage(imgPlayIcon);
                 }
                 else
                 {
-                    Dipl_project.getSc().startSimulationCar();
-                    Dipl_project.getSc().startSimulationTram();
+                    Dipl_project.getSc().startVehicleGenerator();
                     Dipl_project.getTlc().startTrafficLights();
                     runGenerator=true;
                     ivPlayPause.setImage(imgPauseIcon);
@@ -206,25 +212,38 @@ public class UITopMenu {
         Label lblFrequency=new Label("Frekvence generování");
         lblFrequency.setLayoutX(90);
         lblFrequency.setLayoutY(10);
-        Slider carGeneratorSize=new Slider(0, 150, 40);
+        carGeneratorSize=new Slider(0, 150, 40);
         carGeneratorSize.setLayoutX(110);
         carGeneratorSize.setLayoutY(35);
-        Label lblCarGenerSize=new Label("20");
+        lblCarGenerSize=new Label("20");
         lblCarGenerSize.setLayoutX(85);
         lblCarGenerSize.setLayoutY(35);
         carGeneratorSize.valueProperty().addListener((observable, oldValue, newValue)->{
-            Dipl_project.getSc().changeGenerateCarSize(newValue.intValue());
+            if(!enableChangeGenerate)
+                Dipl_project.getSc().changeGenerateCarSize(newValue.intValue());
+            else
+            {
+                selectedCurve.getStartSegment().setFrequencyChangedActual(true);
+                selectedCurve.getStartSegment().setFrequencyMinute(newValue.intValue()); 
+            }
+                
             lblCarGenerSize.setText(String.valueOf(newValue.intValue()));
         });
         
-        Slider tramGeneratorSize=new Slider(0, 50, 10);
+        tramGeneratorSize=new Slider(0, 50, 10);
         tramGeneratorSize.setLayoutX(110);
         tramGeneratorSize.setLayoutY(55);
-        Label lblTramGenerSize=new Label("5");
+        lblTramGenerSize=new Label("5");
         lblTramGenerSize.setLayoutX(85);
         lblTramGenerSize.setLayoutY(55);
         tramGeneratorSize.valueProperty().addListener((observable, oldValue, newValue)->{
-            Dipl_project.getSc().changeGenerateTramSize(newValue.intValue());
+            if(!enableChangeGenerate)
+                Dipl_project.getSc().changeGenerateTramSize(newValue.intValue());
+            else
+            {
+                selectedCurve.getStartSegment().setFrequencyChangedActual(true);
+                selectedCurve.getStartSegment().setFrequencyMinute(newValue.intValue()); 
+            }
             lblTramGenerSize.setText(String.valueOf(newValue.intValue()));
         });
         ImageView iconTLRun=new ImageView(imgTLIcon);
@@ -256,6 +275,10 @@ public class UITopMenu {
         btnTLPlay.setLayoutX(270);
         btnTLPlay.setLayoutY(40);
         simulationGroup.getChildren().addAll(iconTLRun,btnTLPlay,btnRunSimulation,carGeneratorSize,lblCarGenerSize,tramGeneratorSize,lblTramGenerSize,lblFrequency);
+    }
+    public void enableChangeGenerate(boolean enable, MyCurve curve)
+    {
+        
     }
     private void turnOnOffTLs(boolean onof)
     {
@@ -316,7 +339,6 @@ public class UITopMenu {
         lblCurveEdit.setLayoutX(140);
         lblCurveEdit.setLayoutY(35);
         curveEdit.valueProperty().addListener((observable, oldValue, newValue)->{
-            //Dipl_project.getSc().changeGenerateSize(newValue.intValue());
             Dipl_project.getDC().getSelectedCurve().editCurve(newValue.intValue());
             lblCurveEdit.setText(String.valueOf(newValue.intValue()));
         });
@@ -404,21 +426,60 @@ public class UITopMenu {
         ui.getMoveCanvas().setVisible(edit);
         editBackground.setSelected(edit);
     }
-    public void enableCurveEdit(boolean enable)
+    public void enableCurveEdit(boolean enable, MyCurve selectedCurve)
     {
+        this.selectedCurve=selectedCurve;
         curveEdit.setDisable(!enable);
         lblCurveEdit.setDisable(!enable);
         saveEditedCurve.setDisable(!enable);
+
         if(enable){
+            
             curveEdit.setValue(0);
             lblCurveEdit.setText("0");
+            
+            if(selectedCurve.getStartSegment()!=null)
+            {
+                enableChangeGenerate= true;
+                
+                boolean tram=selectedCurve.isTramCurve();
+                if(tram)
+                {
+                    tramGeneratorSize.setValue(selectedCurve.getStartSegment().getFrequencyMinute());
+                    lblTramGenerSize.setText(String.valueOf(selectedCurve.getStartSegment().getFrequencyMinute()));
+                }
+                else
+                {
+                    carGeneratorSize.setValue(selectedCurve.getStartSegment().getFrequencyMinute());
+                    lblCarGenerSize.setText(String.valueOf(selectedCurve.getStartSegment().getFrequencyMinute()));
+                }
+            
+                tramGeneratorSize.setDisable(!tram);
+                carGeneratorSize.setDisable(tram);
+            }
+            else
+            {
+                tramGeneratorSize.setDisable(true);
+                carGeneratorSize.setDisable(true);
+            }
         }
-        else if(Dipl_project.getDC().getSelectedCurve()!=null)
+        else 
         {
-            Dipl_project.getDC().getSelectedCurve().deselectCurve();
-            Dipl_project.getDC().setSelectedCurve(null);
+            enableChangeGenerate= false;
+            tramGeneratorSize.setDisable(false);
+            carGeneratorSize.setDisable(false);
+            if(Dipl_project.getDC().getSelectedCurve()!=null){
+                Dipl_project.getDC().getSelectedCurve().deselectCurve();
+                Dipl_project.getDC().setSelectedCurve(null);
+            }
+            int carFrequency=Dipl_project.getSc().getFrequencyCarGeneration();
+            int tramFrequency=Dipl_project.getSc().getFrequencyTramGeneration();
+            carGeneratorSize.setValue(carFrequency);
+            lblCarGenerSize.setText(String.valueOf(carFrequency));
+            
+            tramGeneratorSize.setValue(tramFrequency);
+            lblTramGenerSize.setText(String.valueOf(tramFrequency));
         }
-        
     }
 
     public CheckBox getEditBackground() {

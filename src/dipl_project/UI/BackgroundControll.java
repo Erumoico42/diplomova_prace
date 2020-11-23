@@ -63,7 +63,7 @@ public class BackgroundControll {
     }
     public static void removeBG()
     {
-        Dipl_project.getUI().removeComponents(background);
+        Dipl_project.getUI().removeBackground(background);
                 BackgroundControll.setBackground(null);
     }
     public static void backgroundClick(double x, double y)

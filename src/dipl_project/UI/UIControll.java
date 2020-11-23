@@ -12,9 +12,11 @@ import dipl_project.Roads.Arrow;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
+import dipl_project.Roads.VehicleGenerating.StartSegment;
 import dipl_project.Simulation.SimulationControll;
 import dipl_project.Vehicles.Car;
 import dipl_project.Vehicles.Tram;
+import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +47,7 @@ public class UIControll {
     private Image imgSwitchRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchRed.png").toString());
     private Image imgSwitchOrange=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchOrange.png").toString());
     private Stage primaryStage;
-    private Group root;
+    private Group root, curvesGroup, connectsGroup, controlsGroup, segmentsGroup, arrowsGroup, tlsGroup, backgroundGroup, vehiclesGroup;
     private Scene scene;
     private boolean popupShown=false, runGenerator=false, addTLToList=false;
     private int initialSizeX=1200, initialSizeY=800, moveStatus=0;
@@ -56,13 +58,13 @@ public class UIControll {
     
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
-    private List<RoadSegment> startCarSegments=new ArrayList<>();
+    private List<StartSegment> startTramSegments=new ArrayList<>();
+    private List<StartSegment> startCarSegments=new ArrayList<>();
     private List<Connect> connects=new ArrayList<>();
     private SimulationControll sc;
     private DrawControll dc;
     private TrafficLight actualTL;
     private boolean isTramCreating=false;
-    private List<RoadSegment> startTramSegments;
     private boolean wantDrive;
     private TrafficLightsGroup actualTLGroup;
     private UITopMenu uiTopMenu;
@@ -89,7 +91,7 @@ public class UIControll {
             @Override
             public void handle(WindowEvent event) {
                 Dipl_project.getAnim().stopAnimation();
-                Dipl_project.getSc().stopSimulation();
+                Dipl_project.getSc().stopVehicleGenerator();
                 Dipl_project.getTlc().stopTrafficLights();
             }
         });
@@ -117,10 +119,10 @@ public class UIControll {
         this.addTLToList = addTLToList;
     }
     
-    public void setStartSegments(List<RoadSegment> carSegments, List<RoadSegment> tramSegments)
+    public void setStartSegments(List<StartSegment> startCarSegments,List<StartSegment> startTramSegments)
     {
-        startCarSegments=carSegments;
-        startTramSegments=tramSegments;
+        this.startCarSegments=startCarSegments;
+        this.startTramSegments=startTramSegments;
     }
 
     public TrafficLightsGroup getActualTLGroup() {
@@ -139,63 +141,82 @@ public class UIControll {
         this.sc = sc;
     }
     
-    public List<RoadSegment> getStartCarSegments() {
+    public List<StartSegment> getStarCarSegments() {
         return startCarSegments;
     }
-    public List<RoadSegment> getStartTramSegments() {
+    public List<StartSegment> getStarTramSegments() {
         return startTramSegments;
     }
-    
+    public void addTL(TrafficLight tl)
+    {
+        addComponent(tlsGroup, tl.getTlImage());
+    }
+    public void removeTL(TrafficLight tl)
+    {
+        tlsGroup.getChildren().remove(tl.getTlImage());
+    }
     public void addCurve(MyCurve curve)
     {
-        addComponentsDown(curve.getCurve(), curve.getEndControll().getLine(), curve.getStartControll().getLine());
-        addComponents(curve.getStartControll().getControll(),curve.getEndControll().getControll());
+        addComponent(curvesGroup,curve.getCurve(),curve.getEndControll().getLine(), curve.getStartControll().getLine());
+        addComponent(controlsGroup
+                ,curve.getStartControll().getControll(),curve.getEndControll().getControll());
         curves.add(curve);
+        
+    }
+    public void addArrow(Arrow arrow)
+    {
+        addComponent(arrowsGroup,arrow.getArrow());
+    }
+    public void removeArrow(Arrow arrow)
+    {
+        arrowsGroup.getChildren().remove(arrow.getArrow());
     }
     public void addRoadSegment(RoadSegment rs)
     {
         segments.add(rs);
-        
-        addComponentsDown(rs.getShape());
-        addComponent(rs.getRoadSegment());
+        segmentsGroup.getChildren().add(0,rs.getShape());
+        segmentsGroup.getChildren().add(rs.getRoadSegment());
     }
 
     public List<MyCurve> getCurves() {
         return curves;
     }
-    
+    public void addComponent(Group group, Node...nodes)
+    {
+        group.getChildren().addAll(nodes);
+    }
     public void addConnect(Connect connect)
     {
         connects.add(connect);
-        addComponent(connect.getConnect());
+        addComponent(connectsGroup,connect.getConnect());
+    }
+    public void moveConnectUp(Connect connect)
+    {
+        connectsGroup.getChildren().remove(connect.getConnect());
+        addComponent(connectsGroup, connect.getConnect());
     }
     public void removeCurve(MyCurve curve)
     {
         
-        removeComponents(curve.getStartControll().getControll(),
-                curve.getEndControll().getControll(),
-                curve.getCurve(), 
-                curve.getEndControll().getLine(), 
-                curve.getStartControll().getLine(), curve.getStartArrow().getArrow(), curve.getEndArrow().getArrow());
+        curvesGroup.getChildren().removeAll(curve.getCurve(),curve.getEndControll().getLine(), 
+                curve.getStartControll().getLine());
         for (Arrow arrow : curve.getArows()) {
-            removeComponents(arrow.getArrow());
+            arrowsGroup.getChildren().remove(arrow.getArrow());
         }
+        controlsGroup.getChildren().removeAll(curve.getStartControll().getControll(),
+                curve.getEndControll().getControll());
+        arrowsGroup.getChildren().removeAll(curve.getStartArrow().getArrow(), curve.getEndArrow().getArrow());
         curves.remove(curve);
     }
     public void removeRoadSegment(RoadSegment rs)
     {
         segments.remove(rs);
-        removeComponents(rs.getShape(), rs.getRoadSegment());
+        segmentsGroup.getChildren().removeAll(rs.getShape(), rs.getRoadSegment());
     }
     public void removeConnect(Connect connect)
     {
         connects.remove(connect);
-        removeComponents(connect.getConnect());
-    }
-    public void moveComponentUp(Node node)
-    {
-        root.getChildren().remove(node);
-        addComponent(node);
+        connectsGroup.getChildren().remove(connect.getConnect());
     }
     public void addComponentsDown(Node...nodes)
     {
@@ -205,29 +226,25 @@ public class UIControll {
     }
     public void addBackground(ImageView bg)
     {
-        root.getChildren().add(0, bg);
+        backgroundGroup.getChildren().add(bg);
         uiTopMenu.setEditBackground(true);
     }
-    
-    public void addComponent(Node node)
+    public void removeBackground(ImageView bg)
     {
-        root.getChildren().add(root.getChildren().size()-5, node);
-    }
-    public void addComponents(Node...nodes)
-    {
-        for (Node node : nodes) {
-            addComponent(node);
-        }
-    }
-    public void removeComponents(Node...nodes)
-    {
-        root.getChildren().removeAll(nodes);
+        backgroundGroup.getChildren().remove(bg);
     }
     public List<Connect> getConnects()
     {
         return connects;
     }
-    
+    public void addVehicle(Vehicle vehicle)
+    {
+        addComponent(vehiclesGroup, vehicle.getIV(), vehicle.getIvMaskBlinker(), vehicle.getIvMaskBreaks());
+    }
+    public void removeVehicle(Vehicle vehicle)
+    {
+        vehiclesGroup.getChildren().removeAll(vehicle.getIV(), vehicle.getIvMaskBlinker(), vehicle.getIvMaskBreaks());
+    }
     private void initComponents()
     {
         
@@ -315,8 +332,19 @@ public class UIControll {
         initTrafficLights();
         
         popupClick.getItems().addAll(popupSplit, popupRemove);
-        root.getChildren().addAll(canvas, btnCheckIntersect, addMyCar,  moveCanvas);
+        
+        curvesGroup=new Group(); 
+        connectsGroup=new Group();
+        controlsGroup=new Group();
+        segmentsGroup=new Group();
+        arrowsGroup=new Group();
+        tlsGroup=new Group();
+        backgroundGroup=new Group();
+        vehiclesGroup=new Group();
+        
+        root.getChildren().addAll(backgroundGroup,canvas,  curvesGroup,arrowsGroup,segmentsGroup,connectsGroup,controlsGroup,tlsGroup,vehiclesGroup,moveCanvas);
     }
+    
     public void setEditMode(boolean edit)
     {
         moveStatus=2;
@@ -340,6 +368,7 @@ public class UIControll {
         
         for (RoadSegment segment : segments) {
             segment.getRoadSegment().setVisible(show);
+            segment.getShape().setVisible(show);
         }
         for (Connect connect : connects) {
             connect.getConnect().setVisible(show);
@@ -409,8 +438,9 @@ public class UIControll {
     {
         actualTL=tl;
     }
-    public void showPopUp(Point loc)
+    public void showPopUp(Point loc, boolean enableSplit)
     {
+        popupSplit.setDisable(!enableSplit);
         popupShown=true;
         popupClick.show(root, primaryStage.getX()+loc.getX()+9, primaryStage.getY()+loc.getY()+30);
     }
@@ -440,21 +470,11 @@ public class UIControll {
     {
         return popupShown;
     }
-    public void newCar()
+    public RoadSegment getRandomStart(List<StartSegment> startSegm)
     {
-        RoadSegment rs=getRandomStart(startCarSegments);
-        if(rs!=null)
-            new Car(rs);
-    }
-     public void newTram()
-    {
-        RoadSegment rs=getRandomStart(startTramSegments);
-        if(rs!=null)
-            new Tram(rs);
-    }
-    public RoadSegment getRandomStart(List<RoadSegment> startSegm)
-    {
-        List<RoadSegment> sstoGen=new ArrayList<>();
+        
+        
+        List<StartSegment> sstoGen=new ArrayList<>();
         if(startSegm!=null) 
             sstoGen.addAll(startSegm);
         
@@ -462,17 +482,17 @@ public class UIControll {
         {
             
             boolean next=false;
-            RoadSegment ret=sstoGen.get((int)(Math.random()*sstoGen.size()));
+            StartSegment ret=sstoGen.get((int)(Math.random()*sstoGen.size()));
             sstoGen.remove(ret);
             if(ret!=null)
             {
-                if(ret.getVehicle()!=null)
+                if(ret.getStartRS().getVehicle()!=null)
                 {
                     next=true;
                 }
                 else
                 {
-                    for (RoadSegment rs : ret.getRsNext()) {
+                    for (RoadSegment rs : ret.getStartRS().getRsNext()) {
                         if(rs.getVehicle()!=null)
                             next=true;
                         for (RoadSegment rss : rs.getRsNext()) {
@@ -486,7 +506,7 @@ public class UIControll {
             else
                 next=true;
             if(!next){
-                return ret;
+                return ret.getStartRS();
             }
         }
         return null;

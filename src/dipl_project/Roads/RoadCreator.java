@@ -6,6 +6,9 @@
 package dipl_project.Roads;
 
 import dipl_project.Dipl_project;
+import dipl_project.Roads.VehicleGenerating.StartCar;
+import dipl_project.Roads.VehicleGenerating.StartSegment;
+import dipl_project.Roads.VehicleGenerating.StartTram;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -29,8 +32,8 @@ public class RoadCreator {
     private boolean newCurve, newSegment=true, zooming=false;
     private double curveLength=0, startAngle=0, startControllLenght=0;
     private int curveSegmentsSize=0, newCurveSegmentsSize=0;
-    private List<RoadSegment> startTramSegments=new ArrayList<>();
-    private List<RoadSegment> startCarSegments=new ArrayList<>();
+    private List<StartSegment> startCarSegments=new ArrayList<>();
+    private List<StartSegment> startTramSegments=new ArrayList<>();
     private List<MyCurve> curves;
     private int idMax=0;
     public RoadCreator() {
@@ -130,23 +133,64 @@ public class RoadCreator {
             }
             
         }    
-        startCarSegments.clear();
-        startTramSegments.clear();
+        List<StartSegment>newStartsCar=new ArrayList<>();
+        List<StartSegment>newStartsTram=new ArrayList<>();
         for (Connect connect : connects) {
                 checkSameWay(connect);
-            
-            
             if(connect.getEndCurves().isEmpty())
             {
                 for (MyCurve startCurve : connect.getStartCurves()) {
-                    if(!startCurve.isTramCurve())
-                        startCarSegments.add(startCurve.getFirstCurveSegment());
-                    else
-                        startTramSegments.add(startCurve.getFirstCurveSegment());
+                    RoadSegment startSegment=startCurve.getFirstCurveSegment();
+                    StartSegment startCurveSegment=startCurve.getStartSegment();
+                    
+                    if(!startCurve.isTramCurve()){
+                        
+                        for (StartSegment startCarSegment : startCarSegments) {
+                            if(startCarSegment.getStartRS().equals(startSegment))
+                            {
+                                newStartsCar.add(startCarSegment);
+                            }
+                        }
+                        if(!newStartsCar.contains(startCurveSegment))
+                        {
+                            StartCar start=new StartCar(startSegment, Dipl_project.getSc().getFrequencyCarGeneration(), connect,startCurve);
+                            newStartsCar.add(start);
+                            startCurve.setStartStreet(start);
+                        }
+                        
+                    }
+                    else{
+                        
+                        for (StartSegment startTramSegment : startTramSegments) {
+                            if(startTramSegment.getStartRS().equals(startSegment))
+                            {
+                                newStartsTram.add(startTramSegment);
+                            }
+                        }
+                        if(!newStartsTram.contains(startCurveSegment))
+                        {
+                            StartTram start=new StartTram(startSegment, Dipl_project.getSc().getFrequencyTramGeneration(), connect,startCurve);
+                            newStartsTram.add(start);
+                            startCurve.setStartStreet(start);
+                        }
+                        
+                    }
                 }
             }
-            //checkEndBlinkers(connect);
         }
+        for (StartSegment startCarSegment : startCarSegments) {
+            if(!startCarSegment.getStartConnect().getEndCurves().isEmpty())
+                startCarSegment.getMc().setStartStreet(null);
+        }
+        startCarSegments.clear();
+        startCarSegments.addAll(newStartsCar);
+        
+        for (StartSegment startTramSegment : startTramSegments) {
+            if(!startTramSegment.getStartConnect().getEndCurves().isEmpty())
+                startTramSegment.getMc().setStartStreet(null);
+        }
+        startTramSegments.clear();
+        startTramSegments.addAll(newStartsTram);
     }
     private void newShortCurveSegment(MyCurve mc)
     {
@@ -315,6 +359,7 @@ public class RoadCreator {
                 
                 if(intersect)
                 {
+                    
                     boolean add=true;
                     for (RoadSegment roadSegment : curveSegment1.getRsLast()) {
                         if(!roadSegment.getIntersectedRoadSegments().isEmpty())
@@ -324,7 +369,7 @@ public class RoadCreator {
                     }
                     if(add && newIntersect)
                     {
-                        curveSegment1.addIntersectedRS(curveSegment2);
+                        curveSegment2.addIntersectedRS(curveSegment2);
                         newIntersect=false;
                     }  
                 } 
@@ -336,22 +381,25 @@ public class RoadCreator {
             }
         }
     }
-    
-    public List<RoadSegment> getStartCarSegments() {
+
+    public List<StartSegment> getStartCarSegments() {
         return startCarSegments;
     }
 
-    public void setStartCarSegments(List<RoadSegment> startCarSegments) {
+    public void setStartCarSegments(List<StartSegment> startCarSegments) {
         this.startCarSegments = startCarSegments;
     }
 
-    public List<RoadSegment> getStartTramSegments() {
+    public List<StartSegment> getStartTramSegments() {
         return startTramSegments;
     }
 
-    public void setStartTramSegments(List<RoadSegment> startTramSegments) {
+    public void setStartTramSegments(List<StartSegment> startTramSegments) {
         this.startTramSegments = startTramSegments;
     }
+
+    
+    
     
 
     private void connectSegments(RoadSegment oldRS, RoadSegment newRS)
@@ -369,6 +417,7 @@ public class RoadCreator {
     
     private void checkSameWay(Connect connect)
     { 
+
         for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs1 : connect.getConnectSegmentsMap().entrySet()) {
             for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs2 : connect.getConnectSegmentsMap().entrySet()) {
                 if(!rs1.equals(rs2))
@@ -431,6 +480,8 @@ public class RoadCreator {
             {
                 rs1.addRsSameWay(rs2);
                 rs2.addRsSameWay(rs1);
+                rs1.setSameWayRS(true);
+                rs2.setSameWayRS(true);
             }
                 
         }
@@ -440,7 +491,9 @@ public class RoadCreator {
                 rs1.removeRsSameWay(rs2);
             if(rs2.getRsSameWay().contains(rs1))
                 rs2.removeRsSameWay(rs1);
-                
+            
+            rs1.setSameWayRS(false);
+            rs2.setSameWayRS(false);
         } 
     }
     private void newSegment(int x, int y)
@@ -469,6 +522,8 @@ public class RoadCreator {
             {
                 newRS=actualCurve.getCurveSegments().get(newCurveSegmentsSize);
                 newRS.getRsSameWay().clear();
+                newRS.setSameWayRS(false);
+                newRS.setDefRoadSegment();
                 newRS.setP0(new Point(pOld));
                 newRS.setP3(pNew);
                 newRS.moveSegment(pNew);
