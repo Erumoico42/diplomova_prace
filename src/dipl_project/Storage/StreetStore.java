@@ -596,6 +596,6 @@ public class StreetStore {
             curves.put(idCurve, mc);
         }
         dc.setIdLastCurve(maxId);
-        dipl_project.Dipl_project.getDC().newRoad();
+        Dipl_project.getDC().newRoad();
      }
 }

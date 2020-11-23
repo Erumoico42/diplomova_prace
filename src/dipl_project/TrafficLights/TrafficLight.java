@@ -148,7 +148,6 @@ public class TrafficLight {
                 startY = event.getY();
                 distX = startX - layoutX;
                 distY = startY - layoutY;
-                System.out.println(location);
             }
         });
         tlBox.setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -167,7 +166,6 @@ public class TrafficLight {
         
         layoutX=x-distX;
         layoutY=y-distY;
-        System.out.println(distX+"x"+distY);
         moveImg(layoutX,layoutY);
         distX = startX-layoutX;
         distY = startY-layoutY;

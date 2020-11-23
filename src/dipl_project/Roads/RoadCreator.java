@@ -359,6 +359,7 @@ public class RoadCreator {
                 
                 if(intersect)
                 {
+                    
                     boolean add=true;
                     for (RoadSegment roadSegment : curveSegment1.getRsLast()) {
                         if(!roadSegment.getIntersectedRoadSegments().isEmpty())
@@ -368,7 +369,7 @@ public class RoadCreator {
                     }
                     if(add && newIntersect)
                     {
-                        curveSegment1.addIntersectedRS(curveSegment2);
+                        curveSegment2.addIntersectedRS(curveSegment2);
                         newIntersect=false;
                     }  
                 } 
@@ -416,6 +417,7 @@ public class RoadCreator {
     
     private void checkSameWay(Connect connect)
     { 
+
         for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs1 : connect.getConnectSegmentsMap().entrySet()) {
             for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs2 : connect.getConnectSegmentsMap().entrySet()) {
                 if(!rs1.equals(rs2))
@@ -478,6 +480,8 @@ public class RoadCreator {
             {
                 rs1.addRsSameWay(rs2);
                 rs2.addRsSameWay(rs1);
+                rs1.setSameWayRS(true);
+                rs2.setSameWayRS(true);
             }
                 
         }
@@ -487,7 +491,9 @@ public class RoadCreator {
                 rs1.removeRsSameWay(rs2);
             if(rs2.getRsSameWay().contains(rs1))
                 rs2.removeRsSameWay(rs1);
-                
+            
+            rs1.setSameWayRS(false);
+            rs2.setSameWayRS(false);
         } 
     }
     private void newSegment(int x, int y)
@@ -516,6 +522,8 @@ public class RoadCreator {
             {
                 newRS=actualCurve.getCurveSegments().get(newCurveSegmentsSize);
                 newRS.getRsSameWay().clear();
+                newRS.setSameWayRS(false);
+                newRS.setDefRoadSegment();
                 newRS.setP0(new Point(pOld));
                 newRS.setP3(pNew);
                 newRS.moveSegment(pNew);

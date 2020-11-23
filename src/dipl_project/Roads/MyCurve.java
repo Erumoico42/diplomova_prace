@@ -67,8 +67,10 @@ public class MyCurve {
         curve.setFill(null);
         curve.setStrokeWidth(3);
         curve.setOnMouseEntered(new EventHandler<MouseEvent>() {
+            
             @Override
             public void handle(MouseEvent event) {
+                System.out.println("asdasd");
                     selectCurve();
             }
         });

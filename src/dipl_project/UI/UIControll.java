@@ -217,7 +217,6 @@ public class UIControll {
     {
         connects.remove(connect);
         connectsGroup.getChildren().remove(connect.getConnect());
-        System.out.println("removing connect");
     }
     public void addComponentsDown(Node...nodes)
     {
@@ -369,6 +368,7 @@ public class UIControll {
         
         for (RoadSegment segment : segments) {
             segment.getRoadSegment().setVisible(show);
+            segment.getShape().setVisible(show);
         }
         for (Connect connect : connects) {
             connect.getConnect().setVisible(show);
