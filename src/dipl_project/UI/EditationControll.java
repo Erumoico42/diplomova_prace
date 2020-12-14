@@ -296,7 +296,7 @@ public  class EditationControll {
         double p0layoutX = x-p0.getX();
         double p0layoutY = y-p0.getY();
         segment.setP0orig(new Point((int)p0layoutX, (int)p0layoutY));
-        Point p1=segment.getP0();
+        Point p1=segment.getP1();
         double p1layoutX = x-p1.getX();
         double p1layoutY = y-p1.getY();
         segment.setP1orig(new Point((int)p1layoutX, (int)p1layoutY));

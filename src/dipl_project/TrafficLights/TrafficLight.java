@@ -195,6 +195,9 @@ public class TrafficLight {
     
     public void selectTL()
     {
+        Dipl_project.getDC().deselectCurve();
+        Dipl_project.getDC().deselectConnect();
+        Dipl_project.getDC().deselectSegment();
         tlBox.setStyle(STYLE_SELECT_PRIM);
         layoutX-=2;
         layoutY-=2;

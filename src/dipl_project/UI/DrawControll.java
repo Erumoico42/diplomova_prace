@@ -321,9 +321,42 @@ public  class DrawControll {
 
     public void setSelectedCurve(MyCurve selectedCurve) {
         this.selectedCurve = selectedCurve;
-        ui.getUiTopMenu().enableCurveEdit(selectedCurve!=null, selectedCurve);
+        ui.getUiLeftMenu().enableCurveEdit(selectedCurve!=null, selectedCurve);
     }
-
+    public void deselectConnect()
+    {
+        if(actualConnect!=null)
+        {
+            actualConnect.deselect();
+            actualConnect=null;
+        }
+    }
+    public void deselectSegment()
+    {
+        if(actualRS!=null)
+        {
+            actualRS.deselectRS();;
+            actualRS=null;
+        }
+    }
+    public void deselectCurve()
+    {
+        if(selectedCurve!=null)
+        {
+            selectedCurve.deselectCurve();;
+            selectedCurve=null;
+        }
+        
+    }
+    public void deselectTL()
+    {
+        if(actualTL!=null)
+        {
+            actualTL.deselectTL();;
+            actualTL=null;
+        }
+        
+    }
     public void cleanAll()
     {
         Dipl_project.getAnim().cleanVehicles();

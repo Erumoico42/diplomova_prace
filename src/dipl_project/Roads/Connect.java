@@ -57,6 +57,7 @@ public class Connect {
     public void addConnectSegment(RoadSegment rs, MyCurve mc1, MyCurve mc2)
     {
         connectSegmentsMap.put(new Pair(mc1, mc2), rs);
+        
     }
     public void removeConnectSegment(MyCurve mc1, MyCurve mc2)
     {
@@ -77,7 +78,7 @@ public class Connect {
         connect.setOnMouseDragged((MouseEvent event) -> {
             move(event.getX(), event.getY());
             dragged=true;
-            Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false, null);
+            Dipl_project.getUI().getUiLeftMenu().enableCurveEdit(false, null);
         });
         connect.setOnMouseReleased((MouseEvent event) -> {
             if(tryConnect)
@@ -246,6 +247,9 @@ public class Connect {
         Connect actual=dc.getActualConnect();
         if(actual!=null)
             actual.deselect();
+        Dipl_project.getDC().deselectCurve();
+        Dipl_project.getDC().deselectSegment();
+        Dipl_project.getDC().deselectTL();
         dc.setActualConnect(this);
         selected=true;
         connect.setStroke(Color.AQUA);

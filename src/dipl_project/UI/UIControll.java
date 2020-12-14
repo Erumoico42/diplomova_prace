@@ -245,13 +245,21 @@ public class UIControll {
     {
         vehiclesGroup.getChildren().removeAll(vehicle.getIV(), vehicle.getIvMaskBlinker(), vehicle.getIvMaskBreaks());
     }
+    public void enableStreet(boolean enable)
+    {
+        connectsGroup.setDisable(!enable);
+        controlsGroup.setDisable(!enable);
+        curvesGroup.setDisable(!enable);
+        segmentsGroup.setDisable(!enable);
+    }
+    
     private void initComponents()
     {
         
         
         canvas=new Canvas(initialSizeX, initialSizeY);
         EditationControll.setCanvasSize(initialSizeX, initialSizeY);
-        moveCanvas=new Canvas(initialSizeX, initialSizeY-130);
+        moveCanvas=new Canvas(initialSizeX, initialSizeY);
         moveCanvas.setVisible(false);
         
         Button btnCheckIntersect=new Button("Zkontrolovat");
@@ -348,7 +356,7 @@ public class UIControll {
     public void setEditMode(boolean edit)
     {
         moveStatus=2;
-        getUiTopMenu().getEditBackground().setSelected(!edit);
+        getUiTopMenu().setEditBackground(edit);
         moveCanvas.setVisible(edit);
     }
     public void showRoads(boolean show)

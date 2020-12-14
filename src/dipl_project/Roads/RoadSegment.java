@@ -90,6 +90,7 @@ public class RoadSegment {
             }
         });
         shape=new CubicCurve(p0.getX(), p0.getY(),p0.getX(), p0.getY(),p3.getX(), p3.getY(), p3.getX(), p3.getY());
+        shape.setStrokeWidth(5);
         setDefRoadSegment();
         shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -146,6 +147,11 @@ public class RoadSegment {
     }
     public void selectRS(MouseEvent event)
     {
+        Dipl_project.getDC().deselectCurve();
+        Dipl_project.getDC().deselectConnect();
+        Dipl_project.getDC().deselectTL();
+        ui.getUiLeftMenu().hideStreetMenu();
+        
         if(event.getButton()==MouseButton.SECONDARY)
         {
             
@@ -278,7 +284,6 @@ public class RoadSegment {
     }
     public void setSideRoadSegment()
     {
-        System.out.println("side");
         shape.setStroke(Color.RED);
         shape.setVisible(true);
     }
@@ -288,7 +293,7 @@ public class RoadSegment {
         if(sameWay)
         {
             shape.setStroke(Color.MAGENTA);
-            shape.setStrokeWidth(5);
+            
             shape.setVisible(true);
         }
         else

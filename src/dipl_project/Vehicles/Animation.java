@@ -8,8 +8,11 @@ package dipl_project.Vehicles;
 import dipl_project.Dipl_project;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.logging.Level;
@@ -21,17 +24,19 @@ import javafx.application.Platform;
  * @author Honza
  */
 public class Animation {
+    private DecimalFormat df=new DecimalFormat("##.######");
     private List<Vehicle> vehicles=new ArrayList<>();
-    private TimerTask timerTask, statStepTimerTask;
-    private Timer timer, statStepTimer;
+    private TimerTask timerTask;
+    private Timer timer;
     private double zoomRatio=1;
-    private FileWriter fileStatInsta, fileStatStep;
+    private FileWriter speedStatistic, angleStatistic;
     private int vehID=0;
+    private Map<Vehicle, List<String>> statisticsSpeedMap =new HashMap<>();
+    private Map<Vehicle, List<String>> statisticsAngleMap =new HashMap<>();
     public Animation()
     {
         startAnimation();
-        //startSaveData();
-        //statStepStart();
+        saveStatisticData();
     }
     public void stopAnimation()
     {
@@ -39,27 +44,11 @@ public class Animation {
         timerTask.cancel();
         timer.cancel();
         //statStepTimerTask.cancel();
-       // statStepTimer.cancel();
+       //statStepTimer.cancel();
         for (Vehicle vehicle : vehicles) {
             vehicle.stopBlink();
         }
-        //stopSaveData();
-    }
-    private void statStepStart()
-    {
-        statStepTimer=new Timer();
-        statStepTimerTask = new TimerTask() {
-            @Override
-            public void run(){
-                Platform.runLater(() -> {
-                for (Vehicle vehicle : vehicles) {
-                    tickStepSaveData(vehicle);
-                }
-                });
-                
-            }
-        };
-        statStepTimer.schedule(statStepTimerTask, 100, 100);
+        saveStatisticData();
     }
     public void addVehicle(Vehicle vehicle)
     {
@@ -69,6 +58,8 @@ public class Animation {
             vehID++;
             vehicle.changeValues(zoomRatio);
             Dipl_project.getUI().addVehicle(vehicle);
+            statisticsSpeedMap.put(vehicle, new ArrayList<>());
+            statisticsAngleMap.put(vehicle, new ArrayList<>());
         });
     }
     public void removeVehicle(Vehicle vehicle)
@@ -98,6 +89,8 @@ public class Animation {
         for (Vehicle vehicle : vehicles) {
             vehicle.tick();
             //tickSaveData(vehicle);
+            addSpeedStat(vehicle,df.format(vehicle.getSpeed()));
+            addAngleStat(vehicle,df.format(vehicle.getDAngle()));
         }
         });
     }
@@ -135,41 +128,44 @@ public class Animation {
     {
         return vehicles;
     }
-    private void tickStepSaveData(Vehicle veh)
-    {
-        try {
-            fileStatStep.write(veh.getStatisticsStep()+"\n");
-        } catch (IOException ex) {
 
-        }
-    }
-    private void tickSaveData(Vehicle veh)
+    private void saveStatisticData()
     {
-        try {
-            fileStatInsta.write(veh.getStatisticsInsta()+"\n");
-        } catch (IOException ex) {
-
-        }
-    }
-    private void startSaveData()
-    {
-        try {
-            fileStatInsta = new FileWriter("stat_data_insta.txt");
-            fileStatStep = new FileWriter("stat_data_step.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    private void stopSaveData()
-    {
+        
         try{
-            fileStatInsta.close();
-            fileStatStep.close();
+            speedStatistic = new FileWriter("stat_data_speed.txt");
+            for(Map.Entry<Vehicle, List<String>> entry : statisticsSpeedMap.entrySet()) {
+            List<String> values = entry.getValue();
+                for (String value : values) {
+                    speedStatistic.write(value+";");
+                }
+                speedStatistic.write("\n");
+            }
+            speedStatistic.close();
+            
+            angleStatistic = new FileWriter("stat_data_angle.txt");
+            for(Map.Entry<Vehicle, List<String>> entry : statisticsAngleMap.entrySet()) {
+            List<String> values = entry.getValue();
+                for (String value : values) {
+                    angleStatistic.write(value+";");
+                }
+                angleStatistic.write("\n");
+            }
+            
+            angleStatistic.close();
         }
         catch(IOException e)
         {
             e.printStackTrace();
         }
        
+    }
+    private  void addSpeedStat(Vehicle veh, String value)
+    {
+        statisticsSpeedMap.get(veh).add(value);
+    }
+    private  void addAngleStat(Vehicle veh, String value)
+    {
+        statisticsAngleMap.get(veh).add(value);
     }
 }

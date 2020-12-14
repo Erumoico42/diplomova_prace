@@ -197,7 +197,6 @@ public class RoadCreator {
         Point p0=new Point(mc.getP0());
         Point p3=new Point(mc.getP3());
         newRS=new RoadSegment(p0,p3);
-        
         double segmentLenght=MyMath.length(p0, p3);
         newRS.setSegmentLenght(segmentLenght);
         newRS.setId(idMax);
@@ -291,7 +290,7 @@ public class RoadCreator {
              baLeft.getMc().getLastCurveSegment().setStopBlinker(true);
              baRight.getMc().getLastCurveSegment().setStopBlinker(true);
         }
-        else if(connect.getStartCurves().size()>1 && connect.getEndCurves().size()>0)
+        else if(connect.getStartCurves().size()>0 && connect.getEndCurves().size()>0)
         {
             MyCurve mcBlinker=connect.getStartCurves().get(0);
             double angle1=MyMath.angle(mcBlinker.getP0(), mcBlinker.getP1());

@@ -46,7 +46,7 @@ public class UIRightMenu {
     private void initMenu()
     {
         right=new Group();
-        right.setLayoutY(115);
+        right.setLayoutY(40);
         
         
     }
@@ -63,8 +63,8 @@ public class UIRightMenu {
     {
         Canvas canvas=ui.getCanvas();
         
-        trafficLightsGroups.setMinSize(230, canvas.getHeight()-155);
-        trafficLightsGroups.setMaxSize(230, canvas.getHeight()-155);
+        trafficLightsGroups.setMinSize(230, canvas.getHeight()-90);
+        trafficLightsGroups.setMaxSize(230, canvas.getHeight()-90);
         right.setLayoutX(canvas.getWidth()-235);
         //trafficLightsGroups.setLayoutX(canvas.getWidth()-235);
         //tlGroupsTime.setLayoutX(canvas.getWidth()-235);

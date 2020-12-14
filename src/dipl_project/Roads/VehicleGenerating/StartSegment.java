@@ -33,9 +33,12 @@ public class StartSegment {
         this.startConnect=startConnect;
         this.frequencyMinute = frequencyMinute;
         generateDelay=60000/frequencyMinute;
+        if(frequencyMinute!=0){
+            generateDelay=60000/frequencyMinute;
+        }
         this.mc=mc;
         mc.setStartStreet(this);
-        if(Dipl_project.getSc().simulationRun())
+        if(Dipl_project.getSc().simulationRun() && frequencyMinute!=0)
         {
             runGenerator=true;
             startGenerator();

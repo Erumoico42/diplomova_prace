@@ -70,7 +70,6 @@ public class MyCurve {
             
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("asdasd");
                     selectCurve();
             }
         });
@@ -92,6 +91,7 @@ public class MyCurve {
                     {
                         deselectCurve();
                         dc.setSelectedCurve(null);
+                        Dipl_project.getUI().getUiLeftMenu().hideStreetMenu();
                     }
                     else
                     {
@@ -101,6 +101,11 @@ public class MyCurve {
                     
                 }
                 else{
+                    Dipl_project.getUI().getUiLeftMenu().showStreetMenu();
+                    Dipl_project.getUI().getUiLeftMenu().showCPs(false);
+                    Dipl_project.getDC().deselectSegment();
+                    Dipl_project.getDC().deselectConnect();
+                    Dipl_project.getDC().deselectTL();
                     selectCurve();
                     dc.setSelectedCurve(getThisCurve());
                 }
@@ -122,6 +127,8 @@ public class MyCurve {
     }
     public void selectCurve()
     {
+        
+        
         curve.setStrokeWidth(selectStroke);
         curve.setStroke(selectColor);
         startEditCurve();
@@ -227,7 +234,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveStartControll(event.getX(),event.getY());
                 adaptControlls(startConnect, p1, true);
-                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false, null);
+                Dipl_project.getUI().getUiLeftMenu().enableCurveEdit(false, null);
             }
         });
         endControll.getControll().setOnMouseDragged(new EventHandler<MouseEvent>() {
@@ -235,7 +242,7 @@ public class MyCurve {
             public void handle(MouseEvent event) {
                 moveEndControll(event.getX(),event.getY());
                 adaptControlls(endConnect, p2, false);
-                Dipl_project.getUI().getUiTopMenu().enableCurveEdit(false, null);
+                Dipl_project.getUI().getUiLeftMenu().enableCurveEdit(false, null);
             }
         });
     }

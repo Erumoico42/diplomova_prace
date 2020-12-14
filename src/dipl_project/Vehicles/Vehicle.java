@@ -32,7 +32,7 @@ import javafx.scene.shape.Shape;
  * @author Honza
  */
 public class Vehicle {
-    private DecimalFormat df=new DecimalFormat("##.######");
+    
     private MyPoint lastPosition, newPosition, lastPositionStep;
     private double lastForce, lastDistance;
     private List<RoadSegment> road=new ArrayList<>();
@@ -54,6 +54,8 @@ public class Vehicle {
     private TimerTask blinkerTimerTask;
     private int breakCountDown=0;
     private boolean blink=false, blinkerOn=false, changedForce=false;
+    private double lastAngle=0;
+    private double newAngle;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
@@ -91,27 +93,6 @@ public class Vehicle {
         this.id = id;
     }
 
-    public String getStatisticsStep()
-    {
-        double distance=MyMath.length(lastPositionStep.getX(),lastPositionStep.getY(), lastPosition.getX(),lastPosition.getY());
-        
-        lastPositionStep=lastPosition;
-        
-        String out=id+";"+df.format(distance)+";"+df.format(lastDistance);
-        lastDistance=0;
-        return out;
-    }
-    
-    public String getStatisticsInsta()
-    {
-        double distance=MyMath.length(lastPosition.getX(),lastPosition.getY(), newPosition.getX(),newPosition.getY());
-        
-        lastPosition=newPosition;
-        lastDistance+=distance;
-        String out=id+";"+df.format(distance);
-        return out;
-    }
-
     public double getLastForce() {
         return lastForce;
     }
@@ -119,7 +100,10 @@ public class Vehicle {
     public void setLastForce(double lastForce) {
         this.lastForce = lastForce;
     }
-    
+    public double getDAngle()
+    {
+        return Math.abs(lastAngle-newAngle);
+    }
     public void initVehicleImage(Image carDef, Image carBlinkerLeft,Image carBlinkerRight, Image carBreak, double width, double height, double controlWidth, double controlHeight)
     {
         iv.setImage(carDef);
@@ -282,6 +266,8 @@ public class Vehicle {
         double y = (y0+(t*y1)+(t2*y2)+(t3*y3)); 
         angle=Math.toDegrees(MyMath.angle(x, y,xLast, yLast));
         if(angle!=0){
+            lastAngle=newAngle;
+            newAngle=angle;
             iv.setRotate(angle);
             ivMaskBlinker.setRotate(angle);
             ivMaskBreaks.setRotate(angle);
@@ -714,4 +700,9 @@ public class Vehicle {
         }
         
     }
+
+    public RoadSegment getActualSegment() {
+        return actualSegment;
+    }
+    
 }

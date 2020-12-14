@@ -13,12 +13,7 @@ import dipl_project.TrafficLights.TrafficLightsControll;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
 import dipl_project.Vehicles.Animation;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javafx.application.Application;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /**
