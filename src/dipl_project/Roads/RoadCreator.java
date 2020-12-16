@@ -24,13 +24,13 @@ import javafx.util.Pair;
  * @author Honza
  */
 public class RoadCreator {
-    private Point pOld, pNew;
+    private Point pOld, pNew, p2New;
     private final int DEF_LENGTH=30;
     private  double segLength=DEF_LENGTH, arrowLengthMin=120, collisDistance=30;
     private RoadSegment lastRS, newRS;
     private MyCurve actualCurve;
-    private boolean newCurve, newSegment=true, zooming=false;
-    private double curveLength=0, startAngle=0, startControllLenght=0;
+    private boolean newSegment=true, zooming=false, p2Ready=false;
+    private double curveLength=0, startAngle=0;
     private int curveSegmentsSize=0, newCurveSegmentsSize=0;
     private List<StartSegment> startCarSegments=new ArrayList<>();
     private List<StartSegment> startTramSegments=new ArrayList<>();
@@ -49,7 +49,6 @@ public class RoadCreator {
             
             for (MyCurve startCurve : connect.getStartCurves()) { 
                 startAngle=MyMath.angle(startCurve.getP0(), startCurve.getP1());
-                startControllLenght=MyMath.length(connect.getLocation(), startCurve.getStartControll().getLocation());
                 curveSegmentsSize=0;
                 newCurveSegmentsSize=0;
                 lastRS=null;
@@ -59,6 +58,8 @@ public class RoadCreator {
                 RoadSegment firtstRSShort=actualCurve.getFirstCurveSegment();
                 
                 callBez(startCurve.getCurve());
+                p2Ready=false;
+                p2New=null;
                 if(newCurveSegmentsSize<1)
                 {
                     if(firtstRSShort!=null){
@@ -103,6 +104,7 @@ public class RoadCreator {
                     RoadSegment rsEnd=endCurve.getLastCurveSegment();
                     RoadSegment rsStart=startCurve.getFirstCurveSegment(); 
                     RoadSegment rsNew=connect.getConnectSegment(startCurve, endCurve);
+                    
                     if(rsNew==null)
                     {
                         rsNew=new RoadSegment(new Point(rsEnd.getP3()), new Point(rsStart.getP0()));
@@ -121,14 +123,13 @@ public class RoadCreator {
                     }
                     double lenght=MyMath.length(rsNew.getP0(), rsNew.getP3());
                     rsNew.setSegmentLenght(lenght);
-                    Point p1=MyMath.rotate(rsEnd.getP3(), lenght/3,  MyMath.angle(rsNew.getP0(), rsEnd.getP2()));
+                    Point p1=MyMath.rotate(rsNew.getP0(), lenght/3,  MyMath.angle(rsNew.getP0(),rsEnd.getP2()));
                     rsNew.setP1(p1);
                     
-                    Point p2=MyMath.rotate(rsStart.getP0(), lenght/3, MyMath.angle(p1,rsStart.getP0()));
+                    Point p2=MyMath.rotate(rsNew.getP3(), lenght/3, MyMath.angle(rsStart.getP0(),rsStart.getP1()));
                     rsNew.setP2(p2);
                     connectSegments(rsEnd, rsNew);
                     connectSegments(rsNew, rsStart);
-                
                 }
             }
             
@@ -194,27 +195,21 @@ public class RoadCreator {
     }
     private void newShortCurveSegment(MyCurve mc)
     {
-        Point p0=new Point(mc.getP0());
-        Point p3=new Point(mc.getP3());
-        newRS=new RoadSegment(p0,p3);
-        double segmentLenght=MyMath.length(p0, p3);
-        newRS.setSegmentLenght(segmentLenght);
-        newRS.setId(idMax);
-        if(!mc.getStartConnect().getEndCurves().isEmpty())
-        {
-            Point p1=MyMath.rotate(p0, segmentLenght/3,  MyMath.angle(p0, mc.getStartConnect().getEndCurves().get(0).getLastCurveSegment().getP2()));
-            newRS.setP1(p1);
-            Point p2=MyMath.rotate(p0, segmentLenght/3, MyMath.angle(p1,p0));
-            newRS.setP2(p2);
-        }
-        else
-        {
-            Point p1=MyMath.rotate(p0, segmentLenght/3,  MyMath.angle(p0, p3));
-            newRS.setP1(p1);
-            Point p2=MyMath.rotate(p0, segmentLenght*2/3, MyMath.angle(p0,p3));
-            newRS.setP2(p2);
-        }
-        mc.addCurveSegments(newRS);
+        Point p0mc=new Point(mc.getP0());
+        Point p1mc=new Point(mc.getP1());
+        Point p2mc=new Point(mc.getP2());
+        Point p3mc=new Point(mc.getP3());
+        RoadSegment newShortRS=new RoadSegment(p0mc,p3mc);
+        double segmentLenght=MyMath.length(p0mc, p3mc);
+        newShortRS.setSegmentLenght(segmentLenght);
+        newShortRS.setId(idMax);
+
+        Point p1=MyMath.rotate(p0mc, segmentLenght/3,  MyMath.angle(p0mc, p1mc));
+        newShortRS.setP1(p1);
+        Point p2=MyMath.rotate(p3mc, segmentLenght/3, MyMath.angle(p2mc,p3mc));
+        newShortRS.setP2(p2);
+
+        mc.addCurveSegments(newShortRS);
         curveSegmentsSize=1;
         newCurveSegmentsSize=1;
         idMax++;
@@ -498,6 +493,16 @@ public class RoadCreator {
     private void newSegment(int x, int y)
     {
         double length=MyMath.length(pOld.getX(), pOld.getY(), x, y);
+
+        if(length>=segLength*2/3)
+        {
+            if(!p2Ready)
+            {
+                p2New=new Point(x,y);
+                p2Ready=true;
+            }
+                
+        }
         if(length>=segLength)
         {
             pNew=new Point(x,y);
@@ -535,25 +540,31 @@ public class RoadCreator {
                 Point p1=MyMath.rotate(pOld, length/2, startAngle+Math.PI);
                 newRS.setP1(p1);
                 //Point p2=MyMath.rotate(pNew, length/3, startAngle);
-                newRS.setP2(new Point(p1));
+                //newRS.setP2(new Point(p1));
             }
             else
             {
                 //double angle=MyMath.angle(lastRS.getP1(),pOld);
                 double angle=MyMath.angle(pOld, pNew);
-                Point p2Old=MyMath.rotate(pOld, segLength/3, angle);
-                lastRS.setP2(p2Old);
+                //Point p2Old=MyMath.rotate(pOld, segLength/3, angle);
+                //lastRS.setP2(p2Old);
                 Point p1=MyMath.rotate(pOld, segLength/3,  MyMath.angle(pOld, lastRS.getP2()));
                 newRS.setP1(p1);
-                Point p2=MyMath.rotate(pNew, segLength/3, MyMath.angle(p1,pNew));
-                newRS.setP2(p2);
+                
+                //Point p2=MyMath.rotate(pNew, segLength/3, MyMath.angle(p1,pNew));
+                //newRS.setP2(p2);
             }
+            if(p2Ready)
+            {
+                newRS.setP2(p2New);
+            }
+            p2Ready=false;
+            //p2New=null;
             lastRS=newRS;
             pOld=pNew;
             
             
         }
-        
     }
 
     public void setId(int idMax) {

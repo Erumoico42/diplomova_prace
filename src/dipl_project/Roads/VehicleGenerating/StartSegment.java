@@ -105,13 +105,13 @@ public class StartSegment {
     
     private boolean isStreetEmpty()
     {
-        boolean empty=startRS.getVehicle()==null;
+        boolean empty=(startRS.getVehicle()==null);
         for (MyCurve startCurve : startConnect.getStartCurves()) {
             RoadSegment rsFirst= startCurve.getFirstCurveSegment();
             if(rsFirst!=null)
             {
                 if(rsFirst.getVehicle()!=null)
-                empty=false;
+                    empty=false;
                 for (RoadSegment roadSegment : rsFirst.getRsSameWay()) {
                     if(roadSegment.getVehicle()!=null)
                     {

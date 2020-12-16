@@ -313,6 +313,7 @@ public class Vehicle {
         double newSpeed=speed*segmentLenghtKoef;
         double newMaxSpeed=maxSpeed*segmentLenghtKoef;
         double newForce=force*segmentLenghtKoef;
+        
         force=newForce;
         time+=newSpeed;     
         if(time>1)
@@ -347,6 +348,8 @@ public class Vehicle {
                 changedForce=!defCar.equals(carBreak);
                 defCar=carBreak;
                 setBreaks(carBreak);
+                    
+                
             }
             else
             {
@@ -365,10 +368,15 @@ public class Vehicle {
             }
         
         
+        
         if(newSpeed<0)
             newSpeed=0;
         if(newSpeed>maxSpeed)
             newSpeed=maxSpeed;
+        
+        
+        
+        
         speed=newSpeed;
     }
     private void pause()
