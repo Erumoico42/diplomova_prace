@@ -29,10 +29,11 @@ public class Animation {
     private TimerTask timerTask;
     private Timer timer;
     private double zoomRatio=1;
-    private FileWriter speedStatistic, angleStatistic;
+    private FileWriter speedStatistic, angleStatistic,distanceStatistic;
     private int vehID=0;
     private Map<Vehicle, List<String>> statisticsSpeedMap =new HashMap<>();
     private Map<Vehicle, List<String>> statisticsAngleMap =new HashMap<>();
+    private Map<Vehicle, List<String>> statisticsDistanceMap =new HashMap<>();
     public Animation()
     {
         startAnimation();
@@ -60,6 +61,7 @@ public class Animation {
             Dipl_project.getUI().addVehicle(vehicle);
             statisticsSpeedMap.put(vehicle, new ArrayList<>());
             statisticsAngleMap.put(vehicle, new ArrayList<>());
+            statisticsDistanceMap.put(vehicle, new ArrayList<>());
         });
     }
     public void removeVehicle(Vehicle vehicle)
@@ -91,6 +93,7 @@ public class Animation {
             //tickSaveData(vehicle);
             addSpeedStat(vehicle,df.format(vehicle.getStatSpeed()));
             addAngleStat(vehicle,df.format(vehicle.getDAngle()));
+            addDistanceStat(vehicle,df.format(vehicle.getStatDistance()));
         }
         });
     }
@@ -153,6 +156,17 @@ public class Animation {
             }
             
             angleStatistic.close();
+            
+            distanceStatistic = new FileWriter("stat_data_distance.txt");
+            for(Map.Entry<Vehicle, List<String>> entry : statisticsDistanceMap.entrySet()) {
+            List<String> values = entry.getValue();
+                for (String value : values) {
+                    distanceStatistic.write(value+";");
+                }
+                distanceStatistic.write("\n");
+            }
+            
+            distanceStatistic.close();
         }
         catch(IOException e)
         {
@@ -167,5 +181,9 @@ public class Animation {
     private  void addAngleStat(Vehicle veh, String value)
     {
         statisticsAngleMap.get(veh).add(value);
+    }
+    private  void addDistanceStat(Vehicle veh, String value)
+    {
+        statisticsDistanceMap.get(veh).add(value);
     }
 }

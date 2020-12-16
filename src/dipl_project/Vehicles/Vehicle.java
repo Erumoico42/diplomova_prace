@@ -34,7 +34,7 @@ import javafx.scene.shape.Shape;
 public class Vehicle {
     
     private MyPoint lastPosition, newPosition, lastPositionStep;
-    private double lastForce, lastDistance;
+    private double lastForce;
     private List<RoadSegment> road=new ArrayList<>();
     private RoadSegment actualSegment;
     private Point p0, p1, p2, p3;
@@ -47,6 +47,7 @@ public class Vehicle {
     private Image actualCar, carBlinkerLeft, carBlinkerRight, carBreak, defCar;
     private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
     private double speed=maxSpeed/3, force=0.0003, time=0, breakRatio=1, vehicleLenght;
+    private double nonRatioSpeed=speed;
     private boolean watch=false;
     private int id;
     private int watchCount=0, freeCount=0;
@@ -56,6 +57,7 @@ public class Vehicle {
     private boolean blink=false, blinkerOn=false, changedForce=false;
     private double lastAngle=0;
     private double newAngle;
+    private double segmentLenghtKoef;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
@@ -74,7 +76,8 @@ public class Vehicle {
         /*iv.setFitWidth(40);
         iv.setFitHeight(40);*/
         actualSegment=startSegment;
-        
+        actSegmentLenght=actualSegment.getSegmentLenght();
+        segmentLenghtKoef=Dipl_project.getRC().getSegLenght()/actSegmentLenght;
         generateStreet(startSegment);
         setPoints();
         /*
@@ -108,6 +111,10 @@ public class Vehicle {
         ret%=360;
         return ret;
     }
+    public double getStatDistance()
+    {
+        return MyMath.length(lastPosition.getX(), lastPosition.getY(), newPosition.getX(), newPosition.getY());
+    }
     public void initVehicleImage(Image carDef, Image carBlinkerLeft,Image carBlinkerRight, Image carBreak, double width, double height, double controlWidth, double controlHeight)
     {
         iv.setImage(carDef);
@@ -131,12 +138,12 @@ public class Vehicle {
         
         //controlRectangle.setX(lastPosition.getX());
         //controlRectangle.setY(lastPosition.getY());
+        newPosition=new MyPoint((xLast-vehWidth/2), (yLast-vehHeight/2));
          move(0);
          time=0.01;
-         
+          
         move(time);
-        lastPosition=new MyPoint((xLast-vehWidth/2), (yLast-vehHeight/2));
-        lastPositionStep=new MyPoint(lastPosition.getX(), lastPosition.getY());
+       
         animation.addVehicle(this);
         actSegmentLenght=actualSegment.getSegmentLenght();
     }
@@ -200,6 +207,7 @@ public class Vehicle {
         {
             actualSegment=road.get(0);
             actSegmentLenght=actualSegment.getSegmentLenght();
+            segmentLenghtKoef=Dipl_project.getRC().getSegLenght()/actSegmentLenght;
             stopBlinker();
             
             
@@ -279,7 +287,9 @@ public class Vehicle {
         }
         xLast=x;
         yLast=y;
+        lastPosition=new MyPoint(newPosition.getX(),newPosition.getY());
         newPosition=new MyPoint((x-vehWidth/2), (y-vehHeight/2));
+        
         iv.setX(newPosition.getX());
         iv.setY(newPosition.getY()); 
         ivMaskBlinker.setX(breaksLayout+newPosition.getX());
@@ -288,7 +298,6 @@ public class Vehicle {
         ivMaskBreaks.setY(newPosition.getY()); 
         //controlRectangle.setX(x-controlWidth/2);
         //controlRectangle.setY(y-controlHeight/2);
-
         
     }
 
@@ -300,9 +309,11 @@ public class Vehicle {
     }
     public void tick()
     {
-        double segmentLenghtKoef=Dipl_project.getRC().getSegLenght()/actSegmentLenght;
+        
         double newSpeed=speed*segmentLenghtKoef;
         double newMaxSpeed=maxSpeed*segmentLenghtKoef;
+        double newForce=force*segmentLenghtKoef;
+        force=newForce;
         time+=newSpeed;     
         if(time>1)
             time=1;
@@ -328,7 +339,8 @@ public class Vehicle {
     
     public void updateSpeed(double force) {
         
-        double newSpeed=this.speed+force;
+        double newSpeed=speed+force;
+        
             if(newSpeed < speed)
             {
                 breakCountDown=10;
@@ -352,9 +364,12 @@ public class Vehicle {
                 changedForce=false;
             }
         
-        this.speed=newSpeed;
+        
         if(newSpeed<0)
-            this.speed=0;
+            newSpeed=0;
+        if(newSpeed>maxSpeed)
+            newSpeed=maxSpeed;
+        speed=newSpeed;
     }
     private void pause()
     {
@@ -384,7 +399,7 @@ public class Vehicle {
     }
     public double getStatSpeed()
     {
-        return speed/actSegmentLenght;
+        return speed/segmentLenghtKoef;
     }
 
     public void setSpeed(double speed) {
