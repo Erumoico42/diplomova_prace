@@ -102,7 +102,11 @@ public class Vehicle {
     }
     public double getDAngle()
     {
-        return Math.abs(lastAngle-newAngle);
+        double ret=Math.abs(lastAngle-newAngle);
+        if(ret>180)
+            ret=Math.abs(ret-360);
+        ret%=360;
+        return ret;
     }
     public void initVehicleImage(Image carDef, Image carBlinkerLeft,Image carBlinkerRight, Image carBreak, double width, double height, double controlWidth, double controlHeight)
     {
@@ -377,6 +381,10 @@ public class Vehicle {
     public double getSpeed()
     {
         return speed;
+    }
+    public double getStatSpeed()
+    {
+        return speed/actSegmentLenght;
     }
 
     public void setSpeed(double speed) {

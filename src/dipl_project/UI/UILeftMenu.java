@@ -32,6 +32,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 
 /**
  *
@@ -102,8 +105,10 @@ public class UILeftMenu {
         simulationBG.setLayoutX(5);
         simulationBG.setLayoutY(5);
         simulationBG.setFill(Color.rgb(255, 255, 255, 0.7));
-        simulationBG.setHeight(65);
-        simulationBG.setWidth(270);
+        simulationBG.setHeight(60);
+        simulationBG.setWidth(260);
+        simulationBG.setArcWidth(10); 
+        simulationBG.setArcHeight(10); 
         simulationGroup.getChildren().add(simulationBG);
         
         leftCPS=new VBox();
@@ -372,9 +377,10 @@ public class UILeftMenu {
     {
         priorityGroup=new ToggleGroup();
         priority=new RadioButton("Přednost");
+        priority.setFont(Font.font("Family", FontWeight.BOLD, FontPosture.REGULAR, 15));
         priority.setLayoutY(10);
-        priority.setMinSize(100, 50);
-        priority.setMaxSize(100, 50);
+        priority.setMinSize(120, 50);
+        priority.setMaxSize(120, 50);
         priority.setSelected(true);
         priority.setDisable(true);
         priority.setOnAction(new EventHandler<ActionEvent>() {
@@ -388,9 +394,10 @@ public class UILeftMenu {
         });
         
         watch=new RadioButton("Volno");
+        watch.setFont(Font.font("Family", FontWeight.BOLD, FontPosture.REGULAR, 15));
         watch.setLayoutY(40);
-        watch.setMinSize(100, 50);
-        watch.setMaxSize(100, 50);
+        watch.setMinSize(120, 50);
+        watch.setMaxSize(120, 50);
         watch.setDisable(true);
         watch.setOnAction(new EventHandler<ActionEvent>() {
             @Override

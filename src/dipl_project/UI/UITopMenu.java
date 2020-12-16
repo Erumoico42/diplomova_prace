@@ -190,9 +190,6 @@ public class UITopMenu {
     }
     public void initBackgroundMenu()
     {
-        addBackground=new MenuItem("Vložit pozadí");
-        editBackground=new CheckMenuItem("Upravit pozadí");
-        removeBackground=new MenuItem("Odebrat pozadí");
         
         editBackground.setDisable(true);
         editBackground.setOnAction(new EventHandler<ActionEvent>() {
@@ -206,6 +203,7 @@ public class UITopMenu {
             @Override
             public void handle(ActionEvent event) {
                 BackgroundControll.loadImage();
+                System.out.println("load");
             }
         });
         enableRemoveBG(false);

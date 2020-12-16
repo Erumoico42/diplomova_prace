@@ -89,7 +89,7 @@ public class Animation {
         for (Vehicle vehicle : vehicles) {
             vehicle.tick();
             //tickSaveData(vehicle);
-            addSpeedStat(vehicle,df.format(vehicle.getSpeed()));
+            addSpeedStat(vehicle,df.format(vehicle.getStatSpeed()));
             addAngleStat(vehicle,df.format(vehicle.getDAngle()));
         }
         });
