@@ -545,7 +545,6 @@ public class RoadCreator {
             else
             {
                 //double angle=MyMath.angle(lastRS.getP1(),pOld);
-                double angle=MyMath.angle(pOld, pNew);
                 //Point p2Old=MyMath.rotate(pOld, segLength/3, angle);
                 //lastRS.setP2(p2Old);
                 Point p1=MyMath.rotate(pOld, segLength/3,  MyMath.angle(pOld, lastRS.getP2()));

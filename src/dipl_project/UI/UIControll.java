@@ -5,6 +5,9 @@
  */
 package dipl_project.UI;
 
+import dipl_project.UI.EditMenu.UITopMenu;
+import dipl_project.UI.EditMenu.UILeftMenu;
+import dipl_project.UI.EditMenu.UIRightMenu;
 import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.TrafficLights.TrafficLightsGroup;
 import dipl_project.Dipl_project;
@@ -252,7 +255,10 @@ public class UIControll {
         curvesGroup.setDisable(!enable);
         segmentsGroup.setDisable(!enable);
     }
-    
+    public void enableSegments(boolean enable)
+    {
+        segmentsGroup.setDisable(!enable);
+    }
     private void initComponents()
     {
         

@@ -91,7 +91,7 @@ public class MyCurve {
                     {
                         deselectCurve();
                         dc.setSelectedCurve(null);
-                        Dipl_project.getUI().getUiLeftMenu().hideStreetMenu();
+                        Dipl_project.getUI().getUiLeftMenu().hideSmoothtMenu();
                     }
                     else
                     {
@@ -101,7 +101,7 @@ public class MyCurve {
                     
                 }
                 else{
-                    Dipl_project.getUI().getUiLeftMenu().showStreetMenu();
+                    Dipl_project.getUI().getUiLeftMenu().showSmoothMenu();
                     Dipl_project.getUI().getUiLeftMenu().showCPs(false);
                     Dipl_project.getDC().deselectSegment();
                     Dipl_project.getDC().deselectConnect();

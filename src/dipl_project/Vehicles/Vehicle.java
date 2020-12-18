@@ -13,7 +13,6 @@ import dipl_project.Roads.MyPoint;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
 import java.awt.Point;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -23,7 +22,6 @@ import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
@@ -47,7 +45,7 @@ public class Vehicle {
     private Image actualCar, carBlinkerLeft, carBlinkerRight, carBreak, defCar;
     private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
     private double speed=maxSpeed/3, force=0.0003, time=0, breakRatio=1, vehicleLenght;
-    private double nonRatioSpeed=speed;
+    private double nonRatioSpeed=speed, lastSpeed=0.001;
     private boolean watch=false;
     private int id;
     private int watchCount=0, freeCount=0;
@@ -313,7 +311,6 @@ public class Vehicle {
         double newSpeed=speed*segmentLenghtKoef;
         double newMaxSpeed=maxSpeed*segmentLenghtKoef;
         double newForce=force*segmentLenghtKoef;
-        
         force=newForce;
         time+=newSpeed;     
         if(time>1)
@@ -348,8 +345,11 @@ public class Vehicle {
                 changedForce=!defCar.equals(carBreak);
                 defCar=carBreak;
                 setBreaks(carBreak);
+                if((100/(speed/segmentLenghtKoef))*(newSpeed/segmentLenghtKoef)<20)
+                {
+                    newSpeed=speed;
+                }
                     
-                
             }
             else
             {
@@ -407,7 +407,7 @@ public class Vehicle {
     }
     public double getStatSpeed()
     {
-        return speed/segmentLenghtKoef;
+        return speed;
     }
 
     public void setSpeed(double speed) {
@@ -447,10 +447,15 @@ public class Vehicle {
                     }
                     else if(nextDist>minDist)
                     {
+                        
                         double dNextVeh=nextDist-nextVeh.getTime()-1;
-                        boolean stop=fuzzyCrossStop(dNextVeh, nextVeh.getSpeed(), dActVeh, getSpeed());
-                        if(stop)
+                        double distanceToCheck=dNextVeh/Dipl_project.getRC().getSegLenght()-vehicleLenght-time;
+                        boolean stop=fuzzyCrossStop(distanceToCheck, nextVeh.getSpeed(), dActVeh, getSpeed());
+                        if(actDist>0.5 && stop)
+                        {
                             fuzzySpeed(dActVeh-1, getSpeed());
+                        }
+                        
                     }
                     carFound=true;
                 }
@@ -499,11 +504,12 @@ public class Vehicle {
     private boolean findNextCar()
     {
         boolean carFound=false;
+        double distanceReal=0;
         for (int actDist = 0; actDist < 10; actDist++) {
             if(road.size()>actDist){
                 
                 RoadSegment rsNext=road.get(actDist);
-                
+                distanceReal+=rsNext.getSegmentLenght();
                 List<RoadSegment> rssToCheck=new ArrayList<>();
                 double distMinus=0;
                 double speedMinus=1;
@@ -515,16 +521,19 @@ public class Vehicle {
                     
                     if(!carFound)
                     {
+                        double distanceToCheck=distanceReal/Dipl_project.getRC().getSegLenght()-vehicleLenght-time;
                         if(rsCheck.getVehicle()!=null && rsCheck.getVehicle()!=this)
                         {   
                             double speedNextCar=rsCheck.getVehicle().getSpeed()*speedMinus;
                             double tNextCar=rsCheck.getVehicle().getTime();
-                            double dist=actDist+tNextCar-getTime()+distMinus;
+                            
+                            double dist=distanceToCheck+tNextCar-getTime()+distMinus;
+                            
                             dist-=rsCheck.getVehicle().getVehicleLenght();
                             
-                            if(dist<0.5 || distMinus==-1)
+                            if(dist<1 || distMinus==-1)
                                 setForce(-maxForce);
-                            fuzzySpeed(dist, getSpeed()-speedNextCar);
+                            fuzzySpeed(dist-1, getSpeed()-speedNextCar);
                                 carFound=true;
                             
                             
@@ -538,20 +547,24 @@ public class Vehicle {
                                 //int tlMaxTime=trafficLight.getMaxTime();
                                 
                                 trafficLightFound=true;
-                                if((status==1 && !trafficLight.isOrangeSwitching() && actDist-vehicleLenght-time<2) || status==2 || status==3)
+                                
+                                
+                                if((status==1 && !trafficLight.isOrangeSwitching() && distanceToCheck<2) || status==2 || status==3)
                                 {
-                                    carFound=true;
-                                    fuzzySpeed(actDist-vehicleLenght-time, speed);
+                                    fuzzySpeed(distanceToCheck, speed);
+                                    carFound=true; 
+                                    
                                 }
-                                if(status==0)
+                                if(status==0 || (status==1 && distanceToCheck<1))
                                 {
+                                    carFound=false;
                                     setForce(maxForce);
                                 }
                                     
                                   
                             }
                             if(trafficLightFound)
-                                actDist=11; 
+                                distanceReal=11; 
                             if(!trafficLightFound)
                             {
                                 boolean watchPointFound=false;
@@ -571,7 +584,7 @@ public class Vehicle {
                                         if(freeCount<=watchCount)
                                         {
                                             watchPointFound=true;
-                                            fuzzySpeed(actDist-time, speed);
+                                            fuzzySpeed(distanceToCheck, speed);
                                         }
                                             
                                     }
@@ -586,9 +599,9 @@ public class Vehicle {
                                     if(!cps.isEmpty())
                                     {
 
-                                        if(actDist>2 && actDist<6)
+                                        if(distanceToCheck>2 && distanceToCheck<6)
                                         {
-                                            fuzzySpeed(actDist-getTime()+1, getSpeed());
+                                            fuzzySpeed(distanceToCheck+1, getSpeed());
                                         }  
                                         else
                                         {
@@ -596,7 +609,7 @@ public class Vehicle {
                                             for (CheckPoint cp : cps) {
                                                 if(cp.isEnabled())
                                                 for (RoadSegment uN : cp.getRs().getRsNext()) {
-                                                    carFound=findCarCross(uN, 1, actDist+1, cp.getDistance());                        
+                                                    carFound=findCarCross(uN, 1, distanceToCheck-1, cp.getDistance());                        
                                                 }
                                             }
                                         }
@@ -618,7 +631,7 @@ public class Vehicle {
         }
         return carFound;
     }
-    private void findWatchCar(RoadSegment rs, int actDist, int maxDist)
+    private void findWatchCar(RoadSegment rs, double actDist, int maxDist)
     {
             for (RoadSegment rsLast : rs.getRsLast()) {
                 if(road.contains(rsLast))
@@ -628,8 +641,8 @@ public class Vehicle {
                         Vehicle veh=rsLast.getVehicle();
                         if(veh!=null )
                             watchCount++;
-                        if(actDist<maxDist)
-                        findWatchCar(rsLast, actDist+1, maxDist);
+                        if(actDist/Dipl_project.getRC().getSegLenght()<maxDist)
+                        findWatchCar(rsLast, actDist+rsLast.getSegmentLenght(), maxDist);
                     }
                     else
                         break;
@@ -638,7 +651,7 @@ public class Vehicle {
                 
             }
     }
-    private void findWatchFree(RoadSegment rs, int actDist, int maxDist)
+    private void findWatchFree(RoadSegment rs, double actDist, int maxDist)
     {
             for (RoadSegment rsNext : rs.getRsNext()) {
                 if(road.contains(rsNext))
@@ -648,14 +661,15 @@ public class Vehicle {
                         freeCount++;
                     else if(veh.getSpeed()/veh.getMaxSpeed()<0.6)
                         break;
-                    if(actDist<=maxDist)
-                    findWatchFree(rsNext, actDist+1, maxDist);
+                    if(actDist/Dipl_project.getRC().getSegLenght()<=maxDist)
+                    findWatchFree(rsNext, actDist+rsNext.getSegmentLenght(), maxDist);
                 }
             }
     }
     public void setForce(double newForce) {
         lastForce=force;
         newForce*=breakRatio;
+        
         if(newForce>maxForce)
             newForce=maxForce;
         this.force = newForce;

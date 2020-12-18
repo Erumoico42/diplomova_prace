@@ -9,8 +9,8 @@ import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.UI.DrawControll;
 import dipl_project.UI.UIControll;
-import dipl_project.UI.UILeftMenu;
-import dipl_project.UI.UIRightMenu;
+import dipl_project.UI.EditMenu.UILeftMenu;
+import dipl_project.UI.EditMenu.UIRightMenu;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class RoadSegment {
             }
         });
         shape=new CubicCurve(p0.getX(), p0.getY(),p0.getX(), p0.getY(),p3.getX(), p3.getY(), p3.getX(), p3.getY());
-        shape.setStrokeWidth(5);
+        shape.setStrokeWidth(7);
         setDefRoadSegment();
         shape.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -150,7 +150,7 @@ public class RoadSegment {
         Dipl_project.getDC().deselectCurve();
         Dipl_project.getDC().deselectConnect();
         Dipl_project.getDC().deselectTL();
-        ui.getUiLeftMenu().hideStreetMenu();
+        ui.getUiLeftMenu().hideSmoothtMenu();
         
         if(event.getButton()==MouseButton.SECONDARY)
         {
@@ -311,7 +311,7 @@ public class RoadSegment {
     {
         if(!sameWay)
         {
-            shape.setStroke(Color.TRANSPARENT);
+            //shape.setStroke(Color.TRANSPARENT);
             shape.setVisible(false);
         }
         else

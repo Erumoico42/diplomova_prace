@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dipl_project.UI;
+package dipl_project.UI.EditMenu;
 
 import dipl_project.Dipl_project;
 import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
+import dipl_project.UI.UIControll;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -77,6 +78,8 @@ public class UIRightMenu {
         tlGroupsTime.setLayoutX(10);
         tlGroupsTime.setLayoutY(10);
         timeBackground=new Rectangle(230,35);
+        timeBackground.setArcWidth(10); 
+        timeBackground.setArcHeight(10); 
         timeBackground.setFill(Color.rgb(255, 255, 255, 0.7));
         trafficLightsGroups=Dipl_project.getTlc().getTrafficLightsGroups();
         //trafficLightsGroups.setLayoutY(10);

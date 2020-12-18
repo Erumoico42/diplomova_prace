@@ -112,6 +112,30 @@ public  class DrawControll {
     }
     private void initHandlers()
     {
+        
+        ui.getPrimaryStage().widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            double oldWidth=canvas.getWidth();
+            double newWidth=newValue.doubleValue()-oldValue.doubleValue();
+            canvas.setWidth(oldWidth+newWidth);
+            moveCanvas.setWidth(oldWidth+newWidth);
+            ui.getUiLeftMenu().updateCPsPosition();
+            ui.getUiTopMenu().updateMenuSize((double)newValue);
+            ui.getUiRightMenu().updateTLGsPosition();
+            EditationControll.setCanvasSize(oldWidth+newWidth, canvas.getHeight());
+        });
+        ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            double oldHeight=canvas.getHeight();
+            double newHeight=newValue.doubleValue()-oldValue.doubleValue();
+            canvas.setHeight(oldHeight+newHeight);
+            moveCanvas.setHeight(oldHeight+newHeight);
+            ui.getUiLeftMenu().updateCPsPosition();
+            ui.getUiRightMenu().updateTLGsPosition();
+            EditationControll.setCanvasSize(canvas.getWidth(), oldHeight+newHeight);
+        });
+        canvasHandlers();
+    }
+    private void canvasHandlers()
+    {
         canvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -186,25 +210,6 @@ public  class DrawControll {
                     
             }
         });
-        ui.getPrimaryStage().widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            double oldWidth=canvas.getWidth();
-            double newWidth=newValue.doubleValue()-oldValue.doubleValue();
-            canvas.setWidth(oldWidth+newWidth);
-            moveCanvas.setWidth(oldWidth+newWidth);
-            ui.getUiLeftMenu().updateCPsPosition();
-            ui.getUiTopMenu().updateMenuSize((double)newValue);
-            ui.getUiRightMenu().updateTLGsPosition();
-            EditationControll.setCanvasSize(oldWidth+newWidth, canvas.getHeight());
-        });
-        ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
-            double oldHeight=canvas.getHeight();
-            double newHeight=newValue.doubleValue()-oldValue.doubleValue();
-            canvas.setHeight(oldHeight+newHeight);
-            moveCanvas.setHeight(oldHeight+newHeight);
-            ui.getUiLeftMenu().updateCPsPosition();
-            ui.getUiRightMenu().updateTLGsPosition();
-            EditationControll.setCanvasSize(canvas.getWidth(), oldHeight+newHeight);
-        });
         moveCanvas.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
@@ -255,6 +260,7 @@ public  class DrawControll {
                 }
             }
         });
+    
     }
     private Connect newConnect(double x, double y)
     {

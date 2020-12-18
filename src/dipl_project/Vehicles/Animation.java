@@ -44,8 +44,6 @@ public class Animation {
         
         timerTask.cancel();
         timer.cancel();
-        //statStepTimerTask.cancel();
-       //statStepTimer.cancel();
         for (Vehicle vehicle : vehicles) {
             vehicle.stopBlink();
         }
@@ -83,6 +81,7 @@ public class Animation {
             }
         };
         timer.schedule(timerTask, 20, 20);
+
         
     }
     private void tick()

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dipl_project.UI;
+package dipl_project.UI.EditMenu;
 
 import dipl_project.Dipl_project;
 import dipl_project.Roads.CheckPoint;
@@ -11,6 +11,7 @@ import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
 import dipl_project.TrafficLights.TrafficLight;
+import dipl_project.UI.UIControll;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -52,7 +53,7 @@ public class UILeftMenu {
     private Group root;
     private Button streetEdit;
     private Button trafficLightsEdit;
-    private Button backgroundEdit;
+    private Button designEdit;
      private ListView<HBox> selectedCPs;
     private RadioButton priority;
     private ToggleGroup priorityGroup;
@@ -61,7 +62,7 @@ public class UILeftMenu {
     private boolean watchCP=false;
     private VBox leftCPS;
     
-    private Group cpsGroup, modesGroup,leftGroup, streetGroup,simulationGroup;
+    private Group cpsGroup, modesGroup,leftGroup, curveSmoothGroup,simulationGroup;
     private final UIControll ui;
     private HBox editModes;
     private Slider curveEdit;
@@ -77,8 +78,9 @@ public class UILeftMenu {
     private Button btnTLPlay;
     private Button btnRunSimulation;
     private MyCurve selectedCurve;
-    private Rectangle simulationBG;
+    private Rectangle simulationBG, cpBG;
     private ImageView ivStreetIcon;
+    private Rectangle curveSmoothBG;
     public UILeftMenu(Group root, UIControll ui)
     {
         this.ui=ui;
@@ -94,7 +96,7 @@ public class UILeftMenu {
     {
         streetEdit.setDisable(false);
         trafficLightsEdit.setDisable(false);
-        backgroundEdit.setDisable(false);
+        designEdit.setDisable(false);
         menu.setDisable(true);
     }
     private void initMenu()
@@ -104,17 +106,18 @@ public class UILeftMenu {
         simulationBG=new Rectangle();
         simulationBG.setLayoutX(5);
         simulationBG.setLayoutY(5);
-        simulationBG.setFill(Color.rgb(255, 255, 255, 0.7));
+        simulationBG.setFill(Color.rgb(250, 250, 250, 0.7));
         simulationBG.setHeight(60);
         simulationBG.setWidth(260);
         simulationBG.setArcWidth(10); 
         simulationBG.setArcHeight(10); 
+        simulationBG.setStroke(Color.rgb(0, 0, 0, 0.2));
         simulationGroup.getChildren().add(simulationBG);
         
         leftCPS=new VBox();
-        
+        leftCPS.setVisible(false);
         leftCPS.setAlignment(Pos.TOP_LEFT);
-        leftCPS.setLayoutY(60);
+        leftCPS.setLayoutY(70);
         leftCPS.setLayoutX(5);
         
         streetEdit=new Button();
@@ -124,6 +127,7 @@ public class UILeftMenu {
                 switchMenuButtons(streetEdit);
                 Dipl_project.getDC().setDrawStatus(0);
                 ui.getUiRightMenu().hideRightMenu();
+                hideSmoothtMenu();
                 ui.setEditMode(false);
                 ui.enableStreet(true);
                 ui.getUiTopMenu().setEditDesign(false);
@@ -144,8 +148,11 @@ public class UILeftMenu {
                 switchMenuButtons(trafficLightsEdit);
                 Dipl_project.getDC().setDrawStatus(1);
                 ui.getUiRightMenu().showRightMenu();
+                hideSmoothtMenu();
+                showCPs(false);
                 ui.setEditMode(false);
                 ui.enableStreet(false);
+                ui.enableSegments(true);
                 ui.getUiTopMenu().setEditDesign(true);
                 //Dipl_project.getUI().getUiTopMenu().showTLMenu();
             }
@@ -157,50 +164,50 @@ public class UILeftMenu {
         ivTLIcon.setPreserveRatio(true);
         trafficLightsEdit.setGraphic(ivTLIcon);
         
-        backgroundEdit=new Button();
-        backgroundEdit.setOnAction(new EventHandler<ActionEvent>() {
+        designEdit=new Button();
+        designEdit.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                switchMenuButtons(backgroundEdit);
+                switchMenuButtons(designEdit);
                 ui.getUiRightMenu().hideRightMenu();
-                hideStreetMenu();
+                hideSmoothtMenu();
                 showCPs(false);
                 ui.getUiTopMenu().setEditDesign(true);
                 ui.setEditMode(true);
             }
         });
-        backgroundEdit.setPrefSize(30, 30);
+        designEdit.setPrefSize(30, 30);
         
         ImageView ivBackgroundIcon=new ImageView(imgBackgroundIcon);
         ivBackgroundIcon.setFitHeight(25);
         ivBackgroundIcon.setPreserveRatio(true);
-        backgroundEdit.setGraphic(ivBackgroundIcon);
+        designEdit.setGraphic(ivBackgroundIcon);
         editModes=new HBox();
-        editModes.setSpacing(5);
-        editModes.getChildren().addAll(streetEdit,trafficLightsEdit,backgroundEdit);
-        editModes.setLayoutX(10);
+        editModes.setSpacing(2);
+        editModes.getChildren().addAll(streetEdit,trafficLightsEdit,designEdit);
+        editModes.setLayoutX(5);
         modesGroup=new Group();
         modesGroup.getChildren().add(editModes);
         leftCPS.getChildren().addAll(cpsGroup);
         leftGroup=new Group();
         leftGroup.setLayoutY(30);
         
-        leftGroup.getChildren().addAll(simulationGroup,streetGroup,leftCPS,modesGroup);
+        leftGroup.getChildren().addAll(simulationGroup,curveSmoothGroup,leftCPS,modesGroup);
         root.getChildren().addAll(leftGroup);
     }
-    public void hideStreetMenu()
+    public void hideSmoothtMenu()
     {
-        streetGroup.setVisible(false);
+        curveSmoothGroup.setVisible(false);
     }
-    public void showStreetMenu()
+    public void showSmoothMenu()
     {
-        streetGroup.setVisible(true);
+        curveSmoothGroup.setVisible(true);
     }
     private void initSimulationMenu()
     {
         btnRunSimulation=new Button();
         btnRunSimulation.setLayoutX(10);
-        btnRunSimulation.setLayoutY(10);
+        btnRunSimulation.setLayoutY(15);
         btnRunSimulation.setMinSize(40, 40);
         btnRunSimulation.setMaxSize(40, 40);
         ImageView ivPlayPause=new ImageView(imgPlayIcon);
@@ -231,7 +238,7 @@ public class UILeftMenu {
         });
         ImageView iconTLRun=new ImageView(imgTLIcon);
         iconTLRun.setLayoutX(45);
-        iconTLRun.setLayoutY(10);
+        iconTLRun.setLayoutY(15);
         iconTLRun.setFitHeight(40);
         iconTLRun.setPreserveRatio(true);
         
@@ -256,7 +263,7 @@ public class UILeftMenu {
         btnTLPlay.setMaxSize(25, 25);
         btnTLPlay.setGraphic(ivTLPlay);
         btnTLPlay.setLayoutX(75);
-        btnTLPlay.setLayoutY(17);
+        btnTLPlay.setLayoutY(22);
         
         Label lblFrequency=new Label("Hustota provozu");
         lblFrequency.setLayoutX(120);
@@ -334,10 +341,21 @@ public class UILeftMenu {
     }
     private void initStreetMenu()
     {
-        streetGroup=new Group();
-        streetGroup.setLayoutY(60);
+        curveSmoothGroup=new Group();
+        curveSmoothBG=new Rectangle();
+        curveSmoothBG.setLayoutX(5);
+        curveSmoothBG.setLayoutY(10);
+        curveSmoothBG.setFill(Color.rgb(250, 250, 250, 0.7));
+        curveSmoothBG.setHeight(55);
+        curveSmoothBG.setWidth(215);
+        curveSmoothBG.setArcWidth(10); 
+        curveSmoothBG.setArcHeight(10); 
+        curveSmoothBG.setStroke(Color.rgb(0, 0, 0, 0.2));
+        
+        
+        curveSmoothGroup.setLayoutY(60);
         Label lblCurveSmooth=new Label("Vyhlazení cesty");
-        lblCurveSmooth.setLayoutX(40);
+        lblCurveSmooth.setLayoutX(50);
         lblCurveSmooth.setLayoutY(10);
         
         curveEdit= new Slider(0, 100, 0);
@@ -362,6 +380,7 @@ public class UILeftMenu {
             public void handle(ActionEvent event) {
                 Dipl_project.getDC().deselectCurve();
                 lblCurveEdit.setText("0");
+                hideSmoothtMenu();
             }
         });
         
@@ -369,16 +388,23 @@ public class UILeftMenu {
         curveEdit.setDisable(true);
         saveEditedCurve.setDisable(true);
         
-        streetGroup.getChildren().addAll(lblCurveEdit, saveEditedCurve, curveEdit,lblCurveSmooth);
-        hideStreetMenu();
+        curveSmoothGroup.getChildren().addAll(curveSmoothBG,lblCurveEdit, saveEditedCurve, curveEdit,lblCurveSmooth);
+        hideSmoothtMenu();
     }
 
     private void initCPList()
     {
+        cpBG=new Rectangle();
+        cpBG.setFill(Color.rgb(250, 250, 250, 0.7));
+        cpBG.setHeight(70);
+        cpBG.setWidth(140);
+        cpBG.setArcWidth(10); 
+        cpBG.setArcHeight(10); 
+        cpBG.setStroke(Color.rgb(0, 0, 0, 0.2));
         priorityGroup=new ToggleGroup();
         priority=new RadioButton("Přednost");
         priority.setFont(Font.font("Family", FontWeight.BOLD, FontPosture.REGULAR, 15));
-        priority.setLayoutY(10);
+        priority.setLayoutY(0);
         priority.setMinSize(120, 50);
         priority.setMaxSize(120, 50);
         priority.setSelected(true);
@@ -395,7 +421,7 @@ public class UILeftMenu {
         
         watch=new RadioButton("Volno");
         watch.setFont(Font.font("Family", FontWeight.BOLD, FontPosture.REGULAR, 15));
-        watch.setLayoutY(40);
+        watch.setLayoutY(25);
         watch.setMinSize(120, 50);
         watch.setMaxSize(120, 50);
         watch.setDisable(true);
@@ -409,24 +435,21 @@ public class UILeftMenu {
         });
         priorityGroup.getToggles().addAll(priority, watch);
         selectedCPs=new ListView<HBox>();
-        selectedCPs.setMaxWidth(150);
-        selectedCPs.setMinWidth(150);
-        selectedCPs.setLayoutY(85);
+        selectedCPs.setMaxWidth(140);
+        selectedCPs.setMinWidth(140);
+        selectedCPs.setLayoutY(75);
         
-        selectedCPs.setLayoutX(80);
-        watch.setLayoutX(80);
-        priority.setLayoutX(80);
-        selectedCPs.setVisible(false);
-        watch.setVisible(false);
-        priority.setVisible(false);
+        watch.setLayoutX(10);
+        priority.setLayoutX(10);
         cpsGroup=new Group();
-        cpsGroup.getChildren().addAll(watch, priority,selectedCPs);
+        
+        cpsGroup.getChildren().addAll(cpBG, watch, priority,selectedCPs);
                
     }
      public void updateCPsPosition()
     {
         Canvas canvas=ui.getCanvas();
-        double newHeight=canvas.getHeight()-selectedCPs.getLayoutY()-130;
+        double newHeight=canvas.getHeight()-selectedCPs.getLayoutY()-150;
         selectedCPs.setMinHeight(newHeight);
         selectedCPs.setMaxHeight(newHeight);
         modesGroup.setLayoutY(canvas.getHeight()-75);
@@ -455,10 +478,7 @@ public class UILeftMenu {
     }
     public void showCPs(boolean show)
     {
-        selectedCPs.setVisible(show);
-        watch.setVisible(show);
-        priority.setVisible(show);
-        
+        leftCPS.setVisible(show);
     }
     public void setVisibleCPs(boolean show, RoadSegment rs)
     {
