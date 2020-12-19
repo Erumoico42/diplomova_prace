@@ -314,10 +314,6 @@ public class UIControll {
                 Dipl_project.getDC().getActualConnect().removeConnect();
             }
         });
-
-        
-        
-
         wantDrive=false;
         Button addMyCar=new Button("Chci řídit");
         addMyCar.setLayoutX(840);
