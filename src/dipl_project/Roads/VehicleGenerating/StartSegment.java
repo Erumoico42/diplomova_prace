@@ -90,7 +90,7 @@ public class StartSegment {
                         newVehicle();
                 }
             };
-            timer.schedule(timerTask, generateDelay, generateDelay);
+            timer.schedule(timerTask, 0, generateDelay);
         }
         
     }

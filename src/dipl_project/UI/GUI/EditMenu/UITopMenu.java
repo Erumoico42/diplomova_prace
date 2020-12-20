@@ -3,15 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dipl_project.UI.EditMenu;
+package dipl_project.UI.GUI.EditMenu;
 
 import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadCreator;
-import dipl_project.UI.BackgroundControll;
-import dipl_project.UI.EditationControll;
-import dipl_project.UI.UIControll;
+import dipl_project.UI.UIControlls.BackgroundControll;
+import dipl_project.UI.UIControlls.EditationControll;
+import dipl_project.UI.UIControlls.UIControll;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

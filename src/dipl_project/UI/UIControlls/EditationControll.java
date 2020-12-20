@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dipl_project.UI;
+package dipl_project.UI.UIControlls;
 
 import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;

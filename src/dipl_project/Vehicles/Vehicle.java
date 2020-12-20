@@ -44,7 +44,7 @@ public class Vehicle {
     private final ImageView iv, ivMaskBlinker, ivMaskBreaks;
     private Image actualCar, carBlinkerLeft, carBlinkerRight, carBreak, defCar;
     private double maxSpeed=(0.07+(Math.random()*0.03)-0.025), maxForce=0.0006;
-    private double speed=maxSpeed/3, force=0.0003, time=0, breakRatio=1, vehicleLenght;
+    private double speed=maxSpeed/3, force=0.0003, time=0, vehicleLenght;
     private double nonRatioSpeed=speed, lastSpeed=0.001;
     private boolean watch=false;
     private int id;
@@ -56,6 +56,10 @@ public class Vehicle {
     private double lastAngle=0;
     private double newAngle;
     private double segmentLenghtKoef;
+    private double speedCoef;
+    private double maxSpeedCoef;
+    private double forceCoef;
+    private double maxForceCoef;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
@@ -76,6 +80,7 @@ public class Vehicle {
         actualSegment=startSegment;
         actSegmentLenght=actualSegment.getSegmentLenght();
         segmentLenghtKoef=Dipl_project.getRC().getSegLenght()/actSegmentLenght;
+        setMoveValuesBySegmentCoef();
         generateStreet(startSegment);
         setPoints();
         /*
@@ -206,6 +211,7 @@ public class Vehicle {
             actualSegment=road.get(0);
             actSegmentLenght=actualSegment.getSegmentLenght();
             segmentLenghtKoef=Dipl_project.getRC().getSegLenght()/actSegmentLenght;
+            setMoveValuesBySegmentCoef();
             stopBlinker();
             
             
@@ -298,7 +304,13 @@ public class Vehicle {
         //controlRectangle.setY(y-controlHeight/2);
         
     }
-
+    private void setMoveValuesBySegmentCoef()
+    {
+        speedCoef=speed*segmentLenghtKoef;
+        maxSpeedCoef=maxSpeed*segmentLenghtKoef;
+        forceCoef=force*segmentLenghtKoef;
+        maxForceCoef=maxForce*segmentLenghtKoef;
+    }
     
     public void move()
     {
@@ -307,22 +319,18 @@ public class Vehicle {
     }
     public void tick()
     {
-        
-        double newSpeed=speed*segmentLenghtKoef;
-        double newMaxSpeed=maxSpeed*segmentLenghtKoef;
-        double newForce=force*segmentLenghtKoef;
-        force=newForce;
-        time+=newSpeed;     
+        time+=speedCoef;     
         if(time>1)
             time=1;
         
         move(time);
-        updateSpeed(force);
         
-        if(newSpeed>newMaxSpeed){
+        updateSpeed();
+        /*
+        if(speed>newMaxSpeed){
            force=0;
            speed=newMaxSpeed;
-        }
+        }*/
             
         if(time>=1){
             time-=1;
@@ -334,20 +342,29 @@ public class Vehicle {
     public double getMaxForce() {
         return maxForce;
     }
-    
-    public void updateSpeed(double force) {
+    public void updateSpeed(double speed)
+    {
+        this.speed=speed;
+        updateSpeed();
+    }
+    public void updateSpeed() {
+        
+        forceCoef =force*segmentLenghtKoef;
+        speedCoef=speed*segmentLenghtKoef;
+        
+        double newSpeedCoef=speedCoef+forceCoef;
         
         double newSpeed=speed+force;
         
-            if(newSpeed < speed)
+            if(newSpeedCoef < speedCoef)
             {
                 breakCountDown=10;
                 changedForce=!defCar.equals(carBreak);
                 defCar=carBreak;
                 setBreaks(carBreak);
-                if((100/(speed/segmentLenghtKoef))*(newSpeed/segmentLenghtKoef)<20)
+                if((100/speedCoef)*newSpeedCoef<20)
                 {
-                    newSpeed=speed;
+                    newSpeedCoef=speedCoef;
                 }
                     
             }
@@ -368,15 +385,16 @@ public class Vehicle {
             }
         
         
+        if(newSpeedCoef<0)
+            newSpeedCoef=0;
+        if(newSpeedCoef>maxSpeedCoef)
+            newSpeedCoef=maxSpeedCoef; 
+        speedCoef=newSpeedCoef;
         
         if(newSpeed<0)
             newSpeed=0;
         if(newSpeed>maxSpeed)
-            newSpeed=maxSpeed;
-        
-        
-        
-        
+            newSpeed=maxSpeed; 
         speed=newSpeed;
     }
     private void pause()
@@ -533,7 +551,7 @@ public class Vehicle {
                             
                             if(dist<1 || distMinus==-1)
                                 setForce(-maxForce);
-                            fuzzySpeed(dist-1, getSpeed()-speedNextCar);
+                            fuzzySpeed(dist, getSpeed()-speedNextCar);
                                 carFound=true;
                             
                             
@@ -551,7 +569,7 @@ public class Vehicle {
                                 
                                 if((status==1 && !trafficLight.isOrangeSwitching() && distanceToCheck<2) || status==2 || status==3)
                                 {
-                                    fuzzySpeed(distanceToCheck, speed);
+                                    fuzzySpeed(distanceToCheck, getSpeed());
                                     carFound=true; 
                                     
                                 }
@@ -584,7 +602,7 @@ public class Vehicle {
                                         if(freeCount<=watchCount)
                                         {
                                             watchPointFound=true;
-                                            fuzzySpeed(distanceToCheck, speed);
+                                            fuzzySpeed(distanceToCheck, getSpeed());
                                         }
                                             
                                     }
@@ -668,11 +686,9 @@ public class Vehicle {
     }
     public void setForce(double newForce) {
         lastForce=force;
-        newForce*=breakRatio;
-        
         if(newForce>maxForce)
             newForce=maxForce;
-        this.force = newForce;
+        force = newForce;
     }
     private void setBreaks(Image img)
     {

@@ -37,7 +37,6 @@ public class Animation {
     public Animation()
     {
         startAnimation();
-        saveStatisticData();
     }
     public void stopAnimation()
     {

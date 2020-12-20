@@ -7,10 +7,10 @@ package dipl_project.Roads;
 
 import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
-import dipl_project.UI.DrawControll;
-import dipl_project.UI.UIControll;
-import dipl_project.UI.EditMenu.UILeftMenu;
-import dipl_project.UI.EditMenu.UIRightMenu;
+import dipl_project.UI.UIControlls.DrawControll;
+import dipl_project.UI.UIControlls.UIControll;
+import dipl_project.UI.GUI.EditMenu.UILeftMenu;
+import dipl_project.UI.GUI.EditMenu.UIRightMenu;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;

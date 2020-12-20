@@ -411,12 +411,11 @@ public class RoadCreator {
     
     private void checkSameWay(Connect connect)
     { 
-
+        
         for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs1 : connect.getConnectSegmentsMap().entrySet()) {
             for(Map.Entry<Pair<MyCurve, MyCurve>, RoadSegment> rs2 : connect.getConnectSegmentsMap().entrySet()) {
                 if(!rs1.equals(rs2))
                 {
-
                     isSameWayLast(rs1.getValue(), rs2.getValue());
                     for (RoadSegment rsNext1 : rs1.getValue().getRsNext()) {
                         for (RoadSegment rsNext2 : rs2.getValue().getRsNext()) {
@@ -428,6 +427,11 @@ public class RoadCreator {
                     }
                 }
             }
+        }
+        Map<Pair<MyCurve, MyCurve>, RoadSegment> connectSegmentsMap= connect.getConnectSegmentsMap();
+        if(connectSegmentsMap.size()==1)
+        {
+            connectSegmentsMap.values().stream().findFirst().get().setSameWayRS(false);
         }
         
        

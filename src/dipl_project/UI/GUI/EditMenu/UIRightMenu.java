@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dipl_project.UI.EditMenu;
+package dipl_project.UI.GUI.EditMenu;
 
 import dipl_project.Dipl_project;
 import dipl_project.Roads.CheckPoint;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.WatchPoint;
-import dipl_project.UI.UIControll;
+import dipl_project.UI.UIControlls.UIControll;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

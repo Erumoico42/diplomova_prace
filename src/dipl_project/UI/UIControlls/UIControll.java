@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package dipl_project.UI;
+package dipl_project.UI.UIControlls;
 
-import dipl_project.UI.EditMenu.UITopMenu;
-import dipl_project.UI.EditMenu.UILeftMenu;
-import dipl_project.UI.EditMenu.UIRightMenu;
+import dipl_project.UI.GUI.EditMenu.UITopMenu;
+import dipl_project.UI.GUI.EditMenu.UILeftMenu;
+import dipl_project.UI.GUI.EditMenu.UIRightMenu;
 import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.TrafficLights.TrafficLightsGroup;
 import dipl_project.Dipl_project;

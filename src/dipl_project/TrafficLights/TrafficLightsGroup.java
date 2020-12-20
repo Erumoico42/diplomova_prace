@@ -6,7 +6,7 @@
 package dipl_project.TrafficLights;
 
 import dipl_project.Dipl_project;
-import dipl_project.UI.UIControll;
+import dipl_project.UI.UIControlls.UIControll;
 import javafx.scene.control.Label;
 import java.util.ArrayList;
 import java.util.List;

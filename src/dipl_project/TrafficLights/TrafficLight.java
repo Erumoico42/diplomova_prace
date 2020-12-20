@@ -7,9 +7,9 @@ package dipl_project.TrafficLights;
 
 import dipl_project.Dipl_project;
 import dipl_project.Roads.RoadSegment;
-import dipl_project.UI.DrawControll;
-import dipl_project.UI.EditationControll;
-import dipl_project.UI.UIControll;
+import dipl_project.UI.UIControlls.DrawControll;
+import dipl_project.UI.UIControlls.EditationControll;
+import dipl_project.UI.UIControlls.UIControll;
 import java.awt.Point;
 import java.util.Timer;
 import java.util.TimerTask;

@@ -9,7 +9,7 @@ import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
-import dipl_project.UI.EditationControll;
+import dipl_project.UI.UIControlls.EditationControll;
 import java.util.List;
 import java.util.Map;
 import javafx.util.Pair;

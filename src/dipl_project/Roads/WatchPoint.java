@@ -5,8 +5,8 @@
  */
 package dipl_project.Roads;
 
-import dipl_project.UI.DrawControll;
-import dipl_project.UI.UIControll;
+import dipl_project.UI.UIControlls.DrawControll;
+import dipl_project.UI.UIControlls.UIControll;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;

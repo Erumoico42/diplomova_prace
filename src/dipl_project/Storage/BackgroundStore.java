@@ -6,7 +6,7 @@
 package dipl_project.Storage;
 
 import dipl_project.Dipl_project;
-import dipl_project.UI.BackgroundControll;
+import dipl_project.UI.UIControlls.BackgroundControll;
 import java.awt.Point;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
