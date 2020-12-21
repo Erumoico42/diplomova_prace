@@ -9,12 +9,15 @@ import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadCreator;
+import dipl_project.Simulation.SimulationControll;
 import dipl_project.UI.UIControlls.BackgroundControll;
 import dipl_project.UI.UIControlls.EditationControll;
 import dipl_project.UI.UIControlls.UIControll;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
@@ -27,6 +30,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.RadioMenuItem;
@@ -44,6 +48,8 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.WindowEvent;
+import static javax.management.Query.gt;
+import static javax.management.Query.lt;
 import sun.plugin2.os.windows.Windows;
 
 /**
@@ -76,6 +82,7 @@ public class UITopMenu {
     private CheckMenuItem editBackground;
     private Menu background;
     private Menu streetType;
+    private CheckMenuItem addMyCar;
     public UITopMenu(Group root, UIControll ui)
     {
         this.ui=ui;
@@ -115,8 +122,10 @@ public class UITopMenu {
         removeBackground=new MenuItem("Odebrat pozadí");
         background.getItems().addAll(addBackground,editBackground,removeBackground);
         
-        
-        menu.getMenus().addAll(file,edit,background);
+        Menu driving=new Menu("Řízení");
+        addMyCar=new CheckMenuItem("Chci řídit");
+        driving.getItems().add(addMyCar);
+        menu.getMenus().addAll(file,edit,background, driving);
         
         ap=new AnchorPane();
         ap.setPrefSize(1200, 0);
@@ -177,6 +186,29 @@ public class UITopMenu {
                 Dipl_project.getUI().setIsTramCreating(true);
             }
         });
+        
+        
+
+        addMyCar.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(!ui.wantDrive())
+                {
+                    ui.setWantDrive(true);
+                    ui.newMyCar();
+                    
+                }
+                else
+                {
+                    SimulationControll sc=Dipl_project.getSc();
+                    ui.setWantDrive(false);
+                    sc.removeMyCar();
+                }
+                
+            }
+        });
+        
+        
         initBackgroundMenu();
     }
     

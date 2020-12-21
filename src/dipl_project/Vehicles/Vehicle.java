@@ -109,9 +109,11 @@ public class Vehicle {
     public double getDAngle()
     {
         double ret=Math.abs(lastAngle-newAngle);
-        if(ret>180)
+        if(ret>350)
+            ret=360-ret;
+        /*if(ret>180)
             ret=Math.abs(ret-360);
-        ret%=360;
+        ret%=360;*/
         return ret;
     }
     public double getStatDistance()
@@ -280,10 +282,15 @@ public class Vehicle {
         double t3=t2*t;
         double x = (x0+(t*x1)+(t2*x2)+(t3*x3));
         double y = (y0+(t*y1)+(t2*y2)+(t3*y3)); 
-        angle=Math.toDegrees(MyMath.angle(x, y,xLast, yLast));
-        if(angle!=0){
+        double updatedAngle=Math.toDegrees(MyMath.angle(x, y,xLast, yLast));
+        
+        if(updatedAngle!=0){
+            double lastUpdatedAngle=angle;
+            angle=updatedAngle;
             lastAngle=newAngle;
             newAngle=angle;
+            if(getDAngle()>20)
+                angle=lastUpdatedAngle;
             iv.setRotate(angle);
             ivMaskBlinker.setRotate(angle);
             ivMaskBreaks.setRotate(angle);
@@ -344,7 +351,7 @@ public class Vehicle {
     }
     public void updateSpeed(double speed)
     {
-        this.speed=speed;
+        this.speed+=speed;
         updateSpeed();
     }
     public void updateSpeed() {
@@ -396,6 +403,7 @@ public class Vehicle {
         if(newSpeed>maxSpeed)
             newSpeed=maxSpeed; 
         speed=newSpeed;
+        
     }
     private void pause()
     {

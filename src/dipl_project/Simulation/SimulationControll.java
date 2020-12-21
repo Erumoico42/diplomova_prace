@@ -106,7 +106,6 @@ public class SimulationControll {
             public void run() {
                 Platform.runLater(() -> {
                     mycar.updateSpeed(myCarSpeedChange);
-                    
                 });
             }
         };
@@ -178,6 +177,5 @@ public class SimulationControll {
     public boolean simulationRun() {
         return simulationRun;
     }
-    
 }
 

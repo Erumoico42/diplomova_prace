@@ -155,7 +155,7 @@ public class Animation {
             
             angleStatistic.close();
             
-            distanceStatistic = new FileWriter("stat_data_distance.txt");
+            /*distanceStatistic = new FileWriter("stat_data_distance.txt");
             for(Map.Entry<Vehicle, List<String>> entry : statisticsDistanceMap.entrySet()) {
             List<String> values = entry.getValue();
                 for (String value : values) {
@@ -164,7 +164,7 @@ public class Animation {
                 distanceStatistic.write("\n");
             }
             
-            distanceStatistic.close();
+            distanceStatistic.close();*/
         }
         catch(IOException e)
         {

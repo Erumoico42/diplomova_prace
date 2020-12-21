@@ -315,28 +315,7 @@ public class UIControll {
             }
         });
         wantDrive=false;
-        Button addMyCar=new Button("Chci řídit");
-        addMyCar.setLayoutX(840);
-        addMyCar.setLayoutY(70);
-        addMyCar.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                if(!wantDrive)
-                {
-                    wantDrive=true;
-                    addMyCar.setText("Nechci řídit");
-                    newMyCar();
-                    
-                }
-                else
-                {
-                    addMyCar.setText("Chci řídit");
-                    sc.removeMyCar();
-                    wantDrive=false;
-                }
-                
-            }
-        });
+        
         
         
         initTrafficLights();
@@ -354,7 +333,10 @@ public class UIControll {
         
         root.getChildren().addAll(backgroundGroup,canvas,  curvesGroup,arrowsGroup,segmentsGroup,connectsGroup,controlsGroup,tlsGroup,vehiclesGroup,moveCanvas);
     }
-    
+    public void setWantDrive(boolean wantDrive)
+    {
+        this.wantDrive=wantDrive;
+    }
     public void setEditMode(boolean edit)
     {
         moveStatus=2;
@@ -391,7 +373,12 @@ public class UIControll {
     public void newMyCar()
     {
         if(wantDrive)
-            Dipl_project.getSc().newMyCar(getRandomStart(startCarSegments));
+        {
+            RoadSegment rs=getRandomStart(startCarSegments);
+            if(rs!=null)
+                Dipl_project.getSc().newMyCar(rs);
+        }
+            
     }
     private void initTrafficLights()
     {
@@ -556,6 +543,10 @@ public class UIControll {
 
     public UIRightMenu getUiRightMenu() {
         return uiRightMenu;
+    }
+
+    public boolean wantDrive() {
+        return wantDrive;
     }
     
 }

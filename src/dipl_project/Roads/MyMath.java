@@ -22,6 +22,7 @@ public class MyMath {
             angle+=(2*Math.PI);
         if(angle>2*Math.PI)
             angle-=(2*Math.PI);
+        angle%=360;
         return angle;
     }
     public static double angle(Point p1, Point p2) {
