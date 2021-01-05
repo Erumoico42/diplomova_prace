@@ -10,6 +10,7 @@ import dipl_project.Dipl_project;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.VehicleGenerating.StartSegment;
 import dipl_project.UI.UIControlls.DrawControll;
+import dipl_project.UI.UIControlls.EditationControll;
 import dipl_project.UI.UIControlls.UIControll;
 import dipl_project.Vehicles.MyCar;
 import java.util.Timer;
@@ -71,7 +72,7 @@ public class SimulationControll {
         simulationRun=true;
 
     }
-
+    
     public MyCar getMycar() {
         return mycar;
     }
@@ -83,14 +84,18 @@ public class SimulationControll {
     }
     public void removeMyCar()
     {
+        
         autoGenerMyCar=false;
         if(mycar!=null)
-        Dipl_project.getAnim().removeVehicle(mycar);
+        {
+            mycar.cancelDrive();
+            mycar=null;
+        }
     }
     public void newMyCar(RoadSegment startRS)
     {
         autoGenerMyCar=true;
-        if(getMycar()==null){
+        if(mycar==null){
             if(autoGenerMyCar)
             {
                 setMycar(new MyCar(startRS));

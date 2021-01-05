@@ -22,6 +22,7 @@ import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 
@@ -32,6 +33,7 @@ import javafx.scene.shape.Shape;
 public class Vehicle {
     
     private MyPoint lastPosition, newPosition, lastPositionStep;
+    private Image boomIcon= new Image(Dipl_project.class.getResource("Resources/vehicles/boom_icon.png").toString());
     private double lastForce;
     private List<RoadSegment> road=new ArrayList<>();
     private RoadSegment actualSegment;
@@ -59,7 +61,9 @@ public class Vehicle {
     private double speedCoef;
     private double maxSpeedCoef;
     private double forceCoef;
-    private double maxForceCoef;
+    private double distanceToCheck;
+    private boolean carFoundStreet;
+    private boolean removing=false;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
@@ -75,18 +79,14 @@ public class Vehicle {
         });
         ivMaskBlinker=new ImageView();
         ivMaskBreaks=new ImageView();
-        /*iv.setFitWidth(40);
-        iv.setFitHeight(40);*/
         actualSegment=startSegment;
         actSegmentLenght=actualSegment.getSegmentLenght();
         segmentLenghtKoef=Dipl_project.getRC().getSegLenght()/actSegmentLenght;
         setMoveValuesBySegmentCoef();
         generateStreet(startSegment);
         setPoints();
-        /*
-        controlRectangle=new Rectangle(width,height, Color.TRANSPARENT);
-        controlRectangle.setX(x0-width/2);
-        controlRectangle.setY(y0-height/2);*/
+        
+        
         
        
     }
@@ -111,14 +111,25 @@ public class Vehicle {
         double ret=Math.abs(lastAngle-newAngle);
         if(ret>350)
             ret=360-ret;
-        /*if(ret>180)
-            ret=Math.abs(ret-360);
-        ret%=360;*/
+        if(ret>20)
+        {
+            
+            lastAngle=newAngle;
+            ret=lastAngle;
+        }
         return ret;
     }
     public double getStatDistance()
     {
         return MyMath.length(lastPosition.getX(), lastPosition.getY(), newPosition.getX(), newPosition.getY());
+    }
+    public void showCrash(boolean crash)
+    {
+        
+        if(crash)
+           setBoom();
+        else
+            setBreaks(null);
     }
     public void initVehicleImage(Image carDef, Image carBlinkerLeft,Image carBlinkerRight, Image carBreak, double width, double height, double controlWidth, double controlHeight)
     {
@@ -138,26 +149,30 @@ public class Vehicle {
         this.controlHeight=controlHeight;
         vehWidth=width;
         vehHeight=height;
-        //controlRectangle=new Rectangle(controlWidth,controlHeight, Color.TRANSPARENT);
+        
+        controlRectangle=new Rectangle(controlWidth,controlHeight, Color.TRANSPARENT);
+
         
         
-        //controlRectangle.setX(lastPosition.getX());
-        //controlRectangle.setY(lastPosition.getY());
         newPosition=new MyPoint((xLast-vehWidth/2), (yLast-vehHeight/2));
-         move(0);
-         time=0.01;
-          
+        move(0);
+        time=0.01;
         move(time);
        
         animation.addVehicle(this);
         actSegmentLenght=actualSegment.getSegmentLenght();
     }
+    public void setTime(double time)
+    {
+        this.time=time;
+    }
     public void setBreaksLayout(double breaksLayout)
     {
         this.breaksLayout=breaksLayout;
     }
-    private void generateStreet(RoadSegment start)
+    protected void generateStreet(RoadSegment start)
     {
+        road.clear();
         RoadSegment newSegment=start;
         RoadSegment lastSplit=newSegment;
         int count=0;
@@ -186,6 +201,7 @@ public class Vehicle {
                 stop=true;
             
         }
+        showVehicle(true);
         road.addAll(toAdd);
     }
     private RoadSegment newRandomSegment(RoadSegment rs)
@@ -204,7 +220,10 @@ public class Vehicle {
     public ImageView getIvMaskBreaks() {
         return ivMaskBreaks;
     }
-    
+    public void showVehicle(boolean show)
+    {
+        iv.setVisible(show);
+    }
     public void nextSegment()
     {
         actualSegment.setVehicle(null);
@@ -223,10 +242,9 @@ public class Vehicle {
         }
         else
         {
-            removeCar();  
+            removeVehicle(); 
         }
     }
-
     public double getVehicleLenght() {
         return vehicleLenght;
     }
@@ -247,10 +265,10 @@ public class Vehicle {
         ivMaskBreaks.setFitHeight(vehHeight);
         controlWidth*=zoomRatio;
         controlHeight*=zoomRatio;
-        //controlRectangle.setArcWidth(controlWidth);
-        //controlRectangle.setArcHeight(controlHeight);
+        controlRectangle.setArcWidth(controlWidth);
+        controlRectangle.setArcHeight(controlHeight);
     }
-    public void removeCar()
+    public void removeVehicle()
     {
         animation.removeVehicle(this);
     }
@@ -258,7 +276,7 @@ public class Vehicle {
         return controlRectangle;
     }
     
-    private void setPoints()
+    protected void setPoints()
     {
         p0=actualSegment.getP0();
         p3=actualSegment.getP3();
@@ -276,7 +294,7 @@ public class Vehicle {
         xLast=x0;
         yLast=y0;
     }
-    private void move(double t)
+    protected void move(double t)
     {
         double t2=t*t;
         double t3=t2*t;
@@ -289,7 +307,7 @@ public class Vehicle {
             angle=updatedAngle;
             lastAngle=newAngle;
             newAngle=angle;
-            if(getDAngle()>20)
+            if(getDAngle()>15)
                 angle=lastUpdatedAngle;
             iv.setRotate(angle);
             ivMaskBlinker.setRotate(angle);
@@ -303,12 +321,13 @@ public class Vehicle {
         
         iv.setX(newPosition.getX());
         iv.setY(newPosition.getY()); 
+        
         ivMaskBlinker.setX(breaksLayout+newPosition.getX());
         ivMaskBlinker.setY(newPosition.getY()); 
         ivMaskBreaks.setX(breaksLayout+newPosition.getX());
         ivMaskBreaks.setY(newPosition.getY()); 
-        //controlRectangle.setX(x-controlWidth/2);
-        //controlRectangle.setY(y-controlHeight/2);
+        controlRectangle.setX(x-controlWidth/2);
+        controlRectangle.setY(y-controlHeight/2);
         
     }
     private void setMoveValuesBySegmentCoef()
@@ -316,7 +335,6 @@ public class Vehicle {
         speedCoef=speed*segmentLenghtKoef;
         maxSpeedCoef=maxSpeed*segmentLenghtKoef;
         forceCoef=force*segmentLenghtKoef;
-        maxForceCoef=maxForce*segmentLenghtKoef;
     }
     
     public void move()
@@ -344,8 +362,18 @@ public class Vehicle {
             nextSegment();
         }
         findBlinker();
+        
+        
+    }
+    public void setRemoving(boolean remove)
+    {
+        removing=remove;
     }
 
+    public boolean isRemoving() {
+        return removing;
+    }
+    
     public double getMaxForce() {
         return maxForce;
     }
@@ -354,6 +382,15 @@ public class Vehicle {
         this.speed+=speed;
         updateSpeed();
     }
+
+    public MyPoint getNewPosition() {
+        return newPosition;
+    }
+
+    public MyPoint getLastPosition() {
+        return lastPosition;
+    }
+    
     public void updateSpeed() {
         
         forceCoef =force*segmentLenghtKoef;
@@ -368,7 +405,8 @@ public class Vehicle {
                 breakCountDown=10;
                 changedForce=!defCar.equals(carBreak);
                 defCar=carBreak;
-                setBreaks(carBreak);
+                if(!removing)
+                    setBreaks(carBreak);
                 if((100/speedCoef)*newSpeedCoef<20)
                 {
                     newSpeedCoef=speedCoef;
@@ -381,7 +419,8 @@ public class Vehicle {
                 if(breakCountDown<0)
                 {
                     changedForce=!defCar.equals(actualCar);
-                    setBreaks(null);
+                    if(!removing)
+                        setBreaks(null);
                     
                 }
             }
@@ -444,17 +483,19 @@ public class Vehicle {
     {
         
         if(!paused){
-           boolean carFoundStreet=findNextCar();
-            if(!carFoundStreet)
+           carFoundStreet=findNextCar();
+            if(!carFoundStreet && !removing)
             {
                 setForce(maxForce);
             } 
         }
         
-        
     }
-
-    private boolean findCarCross(RoadSegment us, int nextDist, double actDist, int minDist)
+    protected boolean carDetected()
+    {
+        return carFoundStreet;
+    }
+    protected boolean findCarCross(RoadSegment us, int nextDist, double actDist, int minDist)
     {
         
         boolean carFound=false;
@@ -527,6 +568,10 @@ public class Vehicle {
             }
         }
     }
+    protected double getDistanceCheck()
+    {
+        return distanceToCheck;
+    }
     private boolean findNextCar()
     {
         boolean carFound=false;
@@ -547,7 +592,7 @@ public class Vehicle {
                     
                     if(!carFound)
                     {
-                        double distanceToCheck=distanceReal/Dipl_project.getRC().getSegLenght()-vehicleLenght-time;
+                        distanceToCheck=distanceReal/Dipl_project.getRC().getSegLenght()-vehicleLenght-time;
                         if(rsCheck.getVehicle()!=null && rsCheck.getVehicle()!=this)
                         {   
                             double speedNextCar=rsCheck.getVehicle().getSpeed()*speedMinus;
@@ -657,6 +702,7 @@ public class Vehicle {
         }
         return carFound;
     }
+    
     private void findWatchCar(RoadSegment rs, double actDist, int maxDist)
     {
             for (RoadSegment rsLast : rs.getRsLast()) {
@@ -700,6 +746,7 @@ public class Vehicle {
     }
     private void setBreaks(Image img)
     {
+        
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
@@ -726,13 +773,7 @@ public class Vehicle {
     {
         return maxSpeed;
     }
-    public boolean checkColl(Rectangle r1, Rectangle r2)
-    {
-         if(Shape.intersect(r1, r2).getBoundsInLocal().getWidth()>10)
-             return true;
-         else
-             return false;
-    }
+    
     private void runBlinker(Image blinkerImg)
     {
         blinkerTimer=new Timer();
@@ -772,6 +813,17 @@ public class Vehicle {
 
     public RoadSegment getActualSegment() {
         return actualSegment;
+    }
+
+    protected void setBoom() {
+        setBreaks(boomIcon);
+    }
+
+    protected void crash() {
+        setRemoving(true);
+        new VehicleToRemove(this);
+        setSpeed(0);
+        setForce(0);
     }
     
 }

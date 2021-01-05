@@ -7,174 +7,127 @@ InfMethod=Fuzzy_Approximation-functional
 DefuzzMethod=SimpleCenterOfGravity
 UseFuzzyFilter=false
 
-NumberOfAntecedentVariables=4
+NumberOfAntecedentVariables=2
 NumberOfSuccedentVariables=1
-NumberOfRules=60
+NumberOfRules=20
 
 AntVariable1
- name=distanceB
+ name=dSpeed
  settings=new
- context=<0,5,10>
+ context=<-7,-5,0,5,7>
  discretization=301
+ discretization_left=301
  UserTerm
-  name=too close
+  name=very slow
   type=trapezoid
-  parameters= 0 0 1 4.5
- End_UserTerm
- UserTerm
-  name=close
-  type=trapezoid
-  parameters= 1 4.5 5.5 8.5
- End_UserTerm
- UserTerm
-  name=far
-  type=trapezoid
-  parameters= 5.5 8.5 10 10
- End_UserTerm
-End_AntVariable1
-
-AntVariable2
- name=speedB
- settings=new
- context=<0,5,7>
- discretization=301
- UserTerm
-  name=too slow
-  type=trapezoid
-  parameters= 0.3 1 1.5 2.2
+  parameters= -7 -7 -6.3 -3.5
  End_UserTerm
  UserTerm
   name=slow
   type=trapezoid
-  parameters= 1.5 2.2 4 6
+  parameters= -6.3 -3.5 -2.8 0
+ End_UserTerm
+ UserTerm
+  name=equal
+  type=triang
+  parameters= -2.8 0 2.8
  End_UserTerm
  UserTerm
   name=fast
   type=trapezoid
-  parameters= 4 6 7 7
+  parameters= 0 2.8 3.5 6.3
  End_UserTerm
  UserTerm
-  name=stop
+  name=very fast
   type=trapezoid
-  parameters= 0 0 0.3 1
+  parameters= 3.5 6.3 7 7
  End_UserTerm
-End_AntVariable2
+End_AntVariable1
 
-AntVariable3
- name=distanceA
+AntVariable2
+ name=distance
  settings=new
  context=<0,5,10>
  discretization=301
  UserTerm
   name=too close
   type=trapezoid
-  parameters= 0 0 1 3
+  parameters= 0 0 0.2 2
  End_UserTerm
  UserTerm
   name=close
   type=trapezoid
-  parameters= 1 3 6 8
+  parameters= 0.5 2 3 4.5
+ End_UserTerm
+ UserTerm
+  name=medi
+  type=trapezoid
+  parameters= 3 4.5 6 8
  End_UserTerm
  UserTerm
   name=far
   type=trapezoid
   parameters= 6 8 10 10
  End_UserTerm
-End_AntVariable3
-
-AntVariable4
- name=speedA
- settings=new
- context=<0,5,7>
- discretization=301
- UserTerm
-  name=slow
-  type=trapezoid
-  parameters= 0 0 2 5
- End_UserTerm
- UserTerm
-  name=fast
-  type=trapezoid
-  parameters= 2 5 7 7
- End_UserTerm
-End_AntVariable4
+End_AntVariable2
 
 SucVariable1
- name=run
+ name=acceleration
  settings=new
- context=<0,1,2>
- discretization=51
+ context=<-6,-2,0,2,6>
+ discretization=301
+ discretization_left=301
  UserTerm
-  name=stop
-  type=triang
-  parameters= 0 0 2
+  name=rapid down
+  type=trapezoid
+  parameters= -6 -6 -5.4 -4.71
  End_UserTerm
  UserTerm
-  name=run
+  name=zero acc
+  type=trapezoid
+  parameters= -2.4 -0.6 0.7 2.8
+ End_UserTerm
+ UserTerm
+  name=down
+  type=trapezoid
+  parameters= -6 -4.71 -3.6 -2.4
+ End_UserTerm
+ UserTerm
+  name=up
+  type=trapezoid
+  parameters= 0.7 2.8 4.2 5.6
+ End_UserTerm
+ UserTerm
+  name=max up
+  type=trapezoid
+  parameters= 4.2 5.6 6 6
+ End_UserTerm
+ UserTerm
+  name=light down
   type=triang
-  parameters= 0 2 2
+  parameters= -3.43 -2.4 -0.6
  End_UserTerm
 End_SucVariable1
 
 RULES
- "too close" "fast" "close" "fast" | "stop"
- "close" "fast" "close" "fast" | "stop"
- "far" "fast" "close" "fast" | "stop"
- "too close" "fast" "close" "slow" | "stop"
- "close" "fast" "close" "slow" | "stop"
- "far" "fast" "close" "slow" | "stop"
- "too close" "fast" "far" "fast" | "stop"
- "close" "fast" "far" "fast" | "stop"
- "far" "fast" "far" "fast" | "stop"
- "too close" "fast" "far" "slow" | "stop"
- "close" "fast" "far" "slow" | "stop"
- "far" "fast" "far" "slow" | "run"
- "too close" "fast" "too close" "fast" | "stop"
- "close" "fast" "too close" "fast" | "stop"
- "far" "fast" "too close" "fast" | "run"
- "too close" "fast" "too close" "slow" | "stop"
- "close" "fast" "too close" "slow" | "stop"
- "far" "fast" "too close" "slow" | "run"
- "too close" "slow" "close" "fast" | "stop"
- "close" "slow" "close" "fast" | "stop"
- "far" "slow" "close" "fast" | "run"
- "too close" "slow" "close" "slow" | "stop"
- "close" "slow" "close" "slow" | "stop"
- "far" "slow" "close" "slow" | "run"
- "too close" "slow" "far" "fast" | "stop"
- "close" "slow" "far" "fast" | "stop"
- "far" "slow" "far" "fast" | "stop"
- "too close" "slow" "far" "slow" | "stop"
- "close" "slow" "far" "slow" | "stop"
- "far" "slow" "far" "slow" | "stop"
- "too close" "slow" "too close" "fast" | "stop"
- "close" "slow" "too close" "fast" | "run"
- "far" "slow" "too close" "fast" | "run"
- "too close" "slow" "too close" "slow" | "stop"
- "close" "slow" "too close" "slow" | "stop"
- "far" "slow" "too close" "slow" | "run"
- "too close" "too slow" "close" "fast" | "stop"
- "close" "too slow" "close" "fast" | "stop"
- "far" "too slow" "close" "fast" | "run"
- "too close" "too slow" "close" "slow" | "stop"
- "close" "too slow" "close" "slow" | "stop"
- "far" "too slow" "close" "slow" | "run"
- "too close" "too slow" "far" "fast" | "stop"
- "close" "too slow" "far" "fast" | "stop"
- "far" "too slow" "far" "fast" | "run"
- "too close" "too slow" "far" "slow" | "stop"
- "close" "too slow" "far" "slow" | "stop"
- "far" "too slow" "far" "slow" | "stop"
- "too close" "too slow" "too close" "fast" | "run"
- "close" "too slow" "too close" "fast" | "stop"
- "far" "too slow" "too close" "fast" | "run"
- "too close" "too slow" "too close" "slow" | "stop"
- "close" "too slow" "too close" "slow" | "run"
- "far" "too slow" "too close" "slow" | "run"
- "too close" "stop" "too close" "slow" | "run"
- "close" "stop" "too close" "slow" | "run"
- "far" "stop" "too close" "slow" | "run"
- "too close" "stop" "close" "slow" | "run"
- "close" "stop" "close" "slow" | "run"
- "far" "stop" "close" "slow" | "run"
+ "very fast" "close" | "down"
+ "fast" "close" | "light down"
+ "equal" "close" | "zero acc"
+ "slow" "close" | "up"
+ "very slow" "close" | "up"
+ "very fast" "far" | "zero acc"
+ "fast" "far" | "zero acc"
+ "equal" "far" | "up"
+ "slow" "far" | "max up"
+ "very slow" "far" | "max up"
+ "very fast" "medi" | "light down"
+ "fast" "medi" | "zero acc"
+ "equal" "medi" | "zero acc"
+ "slow" "medi" | "up"
+ "very slow" "medi" | "max up"
+ "very fast" "too close" | "rapid down"
+ "fast" "too close" | "down"
+ "equal" "too close" | "down"
+ "slow" "too close" | "zero acc"
+ "very slow" "too close" | "up"
 END_RULES

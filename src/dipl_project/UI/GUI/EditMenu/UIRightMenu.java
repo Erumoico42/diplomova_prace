@@ -92,12 +92,14 @@ public class UIRightMenu {
     }
     public void setTime(int time)
     {
-        Platform.runLater(new Runnable() {
+        
+            Platform.runLater(new Runnable() {
             @Override
             public void run() {
                 tlGroupsTime.setText("Čas: "+time);
             }
         });
+        
         
     }
 }

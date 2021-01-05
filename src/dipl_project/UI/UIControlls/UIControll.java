@@ -17,8 +17,7 @@ import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.VehicleGenerating.StartSegment;
 import dipl_project.Simulation.SimulationControll;
-import dipl_project.Vehicles.Car;
-import dipl_project.Vehicles.Tram;
+import dipl_project.UI.GUI.TestMenu.UITestMenu;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -46,6 +45,7 @@ import javafx.util.Pair;
  * @author Honza
  */
 public class UIControll {
+    private int guiStatus=0;
     private Image imgSwitchGreen=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchGreen.png").toString());
     private Image imgSwitchRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchRed.png").toString());
     private Image imgSwitchOrange=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchOrange.png").toString());
@@ -73,13 +73,14 @@ public class UIControll {
     private UITopMenu uiTopMenu;
     private UILeftMenu uiLeftMenu;
     private UIRightMenu uiRightMenu;
+    private UITestMenu uiTestMenu;
     public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); ;
         initComponents();
-        uiTopMenu=new UITopMenu(root, this);
-        uiLeftMenu = new UILeftMenu(root,this);
-        uiRightMenu = new UIRightMenu(root, this);
+        
+       initMenu();
+        
         scene = new Scene(root, initialSizeX, initialSizeY);
         primaryStage.setTitle("Diplomová práce");
         primaryStage.setScene(scene);
@@ -87,6 +88,36 @@ public class UIControll {
         initStageHandler();
         initSceneHandler();
         
+    }
+
+    public int getGuiStatus() {
+        return guiStatus;
+    }
+    
+    private void initMenu()
+    {
+        guiStatus=0;
+        
+        switch(guiStatus)
+        {
+            case 0:
+            {
+                uiTopMenu=new UITopMenu(root, this);
+                uiLeftMenu = new UILeftMenu(root,this);
+                uiRightMenu = new UIRightMenu(root, this);
+                break;
+            }
+            case 1:
+            {
+                uiTestMenu=new UITestMenu(root, this);
+                break;
+            }
+            case 2:
+            {
+                break;
+            }
+        }
+         
     }
     private void initStageHandler()
     {
@@ -98,6 +129,50 @@ public class UIControll {
                 Dipl_project.getTlc().stopTrafficLights();
             }
         });
+    }
+    public void updateWidth(double width)
+    {
+        switch(guiStatus)
+        {
+            case 0:
+            {
+                getUiLeftMenu().updateCPsPosition();
+                getUiTopMenu().updateMenuSize(width);
+                getUiRightMenu().updateTLGsPosition();
+                break;
+            }
+            case 1:
+            {
+                uiTestMenu.updateMenuSize(width);
+                break;
+            }
+            case 2:
+            {
+                break;
+            }
+        }
+        
+    }
+    public void updateheight(double height)
+    {
+        switch(guiStatus)
+        {
+            case 0:
+            {
+                getUiLeftMenu().updateCPsPosition();
+                getUiRightMenu().updateTLGsPosition();
+                break;
+            }
+            case 1:
+            {
+                break;
+            }
+            case 2:
+            {
+                break;
+            }
+        }
+        
     }
     private void initSceneHandler()
     {
@@ -230,7 +305,8 @@ public class UIControll {
     public void addBackground(ImageView bg)
     {
         backgroundGroup.getChildren().add(bg);
-        uiTopMenu.setEditBackground(true);
+        if(guiStatus==0)
+            uiTopMenu.setEditBackground(true);
     }
     public void removeBackground(ImageView bg)
     {
@@ -339,12 +415,22 @@ public class UIControll {
     }
     public void setEditMode(boolean edit)
     {
-        moveStatus=2;
+        setDrawMode(edit);
         getUiTopMenu().setEditBackground(edit);
-        moveCanvas.setVisible(edit);
+        
+    }
+    public void setDrawMode(boolean draw)
+    {
+        moveStatus=2;
+        moveCanvas.setVisible(draw);
     }
     public void showRoads(boolean show)
     {
+        curvesGroup.setVisible(show);
+        segmentsGroup.setVisible(show);
+        connectsGroup.setVisible(show);
+        controlsGroup.setVisible(show);
+        arrowsGroup.setVisible(show);/*
         for (MyCurve curve : curves) {
             curve.getCurve().setVisible(show);
             curve.getEndControll().getControll().setVisible(show);
@@ -368,7 +454,11 @@ public class UIControll {
                 RoadSegment segment = rs.getValue();
                 segment.setVisible(false);
             }
-        }
+        }*/
+    }
+    public RoadSegment getRandomStartCar()
+    {
+        return getRandomStart(startCarSegments);
     }
     public void newMyCar()
     {
@@ -547,6 +637,10 @@ public class UIControll {
 
     public boolean wantDrive() {
         return wantDrive;
+    }
+
+    public UITestMenu getUiTestMenu() {
+        return uiTestMenu;
     }
     
 }

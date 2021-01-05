@@ -18,6 +18,8 @@ import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 
 /**
  *
@@ -36,7 +38,7 @@ public class Animation {
     private Map<Vehicle, List<String>> statisticsDistanceMap =new HashMap<>();
     public Animation()
     {
-        startAnimation();
+            startAnimation();
     }
     public void stopAnimation()
     {
@@ -61,6 +63,14 @@ public class Animation {
             statisticsDistanceMap.put(vehicle, new ArrayList<>());
         });
     }
+    public void removeAllVehicles()
+    {
+        List<Vehicle> vehiclesToRemove=new ArrayList<>();
+        vehiclesToRemove.addAll(vehiclesToRemove);
+        for (Vehicle vehicle : vehiclesToRemove) {
+            removeVehicle(vehicle);
+        }
+    }
     public void removeVehicle(Vehicle vehicle)
     {
         Platform.runLater(() -> {
@@ -76,12 +86,43 @@ public class Animation {
             @Override
             public void run(){
                     tick();
-               
+                    checkColission();
             }
         };
         timer.schedule(timerTask, 20, 20);
 
         
+    }
+    private void checkColission()
+    {
+        for (int i = 0; i < vehicles.size(); i++) {
+            Vehicle vehicle1=vehicles.get(i);
+            for (int j = 0; j < vehicles.size(); j++) {
+                Vehicle vehicle2=vehicles.get(j);
+                if(!vehicle1.equals(vehicle2))
+                {
+                    if(!vehicle1.isRemoving())
+                    {
+                        boolean colission = checkColl(vehicle1.getControlRectangle(), vehicle2.getControlRectangle());
+                        if(colission)
+                        {
+                            vehicle1.crash();
+                            if(!vehicle2.isRemoving())
+                                vehicle2.crash();
+                            break;
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+    public boolean checkColl(Rectangle r1, Rectangle r2)
+    {
+         if(Shape.intersect(r1, r2).getBoundsInLocal().getWidth()>10)
+             return true;
+         else
+             return false;
     }
     private void tick()
     {
@@ -100,7 +141,7 @@ public class Animation {
         List<Vehicle> vehs=new ArrayList<>();
         vehs.addAll(vehicles);
         for (Vehicle vehicle : vehs) {
-            vehicle.removeCar();
+            vehicle.removeVehicle();
         }
     }
     public void setZoomRatio(double zoomRatio)

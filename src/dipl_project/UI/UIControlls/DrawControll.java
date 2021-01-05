@@ -118,9 +118,8 @@ public  class DrawControll {
             double newWidth=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setWidth(oldWidth+newWidth);
             moveCanvas.setWidth(oldWidth+newWidth);
-            ui.getUiLeftMenu().updateCPsPosition();
-            ui.getUiTopMenu().updateMenuSize((double)newValue);
-            ui.getUiRightMenu().updateTLGsPosition();
+            ui.updateWidth((double)newValue);
+            
             EditationControll.setCanvasSize(oldWidth+newWidth, canvas.getHeight());
         });
         ui.getPrimaryStage().heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
@@ -128,8 +127,8 @@ public  class DrawControll {
             double newHeight=newValue.doubleValue()-oldValue.doubleValue();
             canvas.setHeight(oldHeight+newHeight);
             moveCanvas.setHeight(oldHeight+newHeight);
-            ui.getUiLeftMenu().updateCPsPosition();
-            ui.getUiRightMenu().updateTLGsPosition();
+            ui.updateheight((double)newValue);
+            
             EditationControll.setCanvasSize(canvas.getWidth(), oldHeight+newHeight);
         });
         canvasHandlers();
@@ -250,14 +249,17 @@ public  class DrawControll {
         moveCanvas.setOnScroll(new EventHandler<ScrollEvent>() {
             @Override
             public void handle(ScrollEvent event) {
-                if(ui.getMoveStatus()==1)
-                {
-                    BackgroundControll.zoomBackground(event.getDeltaY());
-                }
-                else if(ui.getMoveStatus()==2)
-                {
-                    EditationControll.zoomAll(event.getDeltaY());
-                }
+
+                    if(ui.getMoveStatus()==1)
+                    {
+                        BackgroundControll.zoomBackground(event.getDeltaY());
+                    }
+                    else if(ui.getMoveStatus()==2)
+                    {
+                        EditationControll.zoomAll(event.getDeltaY());
+                    }
+                
+                
             }
         });
     
@@ -374,8 +376,10 @@ public  class DrawControll {
         for (TrafficLight trafficLight : tls) {
             trafficLight.removeTL();
         }
-        Dipl_project.getTlc().cleanTLG();
+        if(ui.getGuiStatus()==0)
+            Dipl_project.getTlc().cleanTLG();
         BackgroundControll.removeBG();
+        Dipl_project.getAnim().removeAllVehicles();
     }
 
     public int getIdLastConnect() {

@@ -6,6 +6,7 @@
 package dipl_project.TrafficLights;
 
 import dipl_project.Dipl_project;
+import dipl_project.UI.UIControlls.UIControll;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -32,7 +33,6 @@ public class TrafficLightsControll {
     private TimerTask timerTask;
     private List<TrafficLightsGroup> tlsGroups=new ArrayList<>();
     private ListView trafficLightsGroups=new ListView<>();
-        
     public TrafficLightsControll()
     {
         trafficLightsGroups.setFocusTraversable(false);
@@ -171,9 +171,13 @@ public class TrafficLightsControll {
                activateTLs();
                timeSeconds++;
                 
-               if(timeSeconds>maxTime)
+                if(timeSeconds>maxTime)
                    timeSeconds=0;
-               Dipl_project.getUI().getUiRightMenu().setTime(timeSeconds);
+                
+                if(Dipl_project.getUI().getGuiStatus()==0)
+                {
+                    Dipl_project.getUI().getUiRightMenu().setTime(timeSeconds);
+                }
             }
         };
         timer.schedule(timerTask, 1000, 1000);

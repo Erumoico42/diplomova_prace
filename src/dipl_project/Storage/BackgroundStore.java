@@ -150,8 +150,12 @@ public class BackgroundStore {
                 if(!bgImage.isError())
                 {
                      BackgroundControll.setBackground(position.getX(), position.getY(), Double.valueOf(angle),  Double.valueOf(width), Double.valueOf(height),Double.valueOf(resRatio), source);  
-                     Dipl_project.getUI().getUiTopMenu().setEditBackground(false);
-                     Dipl_project.getUI().getUiTopMenu().enableRemoveBG(true);
+                     if(Dipl_project.getUI().getGuiStatus()==0)
+                     {
+                         Dipl_project.getUI().getUiTopMenu().setEditBackground(false);
+                        Dipl_project.getUI().getUiTopMenu().enableRemoveBG(true);
+                     }
+                     
                 }
         }
     }
