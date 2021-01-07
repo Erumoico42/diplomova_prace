@@ -9,6 +9,7 @@ import dipl_project.TrafficLights.TrafficLight;
 import dipl_project.Dipl_project;
 import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
+import dipl_project.Roads.RoadCreator;
 import dipl_project.UI.UIControlls.DrawControll;
 import dipl_project.UI.UIControlls.EditationControll;
 import java.io.File;
@@ -102,6 +103,7 @@ public  class StorageControll {
             new StreetStore(doc, null).loadStreet(tls);
             new BackgroundStore(doc, null).loadBackground();
             EditationControll.resetZoom();
+            Dipl_project.getDC().newRoad();
             
         } catch (ParserConfigurationException | SAXException | IOException ex) {
             throw new Error(ex);

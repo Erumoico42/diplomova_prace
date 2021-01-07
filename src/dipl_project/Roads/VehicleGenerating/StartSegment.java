@@ -111,27 +111,29 @@ public class StartSegment {
             if(rsFirst!=null)
             {
                 if(rsFirst.getVehicle()!=null)
+                {
                     empty=false;
+                    break;
+                }
                 for (RoadSegment roadSegment : rsFirst.getRsSameWay()) {
                     if(roadSegment.getVehicle()!=null)
                     {
                         empty=false;
                         break;
                     }
-                    
                 }
                 for (RoadSegment rsSecond : rsFirst.getRsNext()) {
+                    if(rsSecond.getVehicle()!=null)
+                    {
+                        empty=false;
+                        break;
+                    }
                     for (RoadSegment roadSegment : rsSecond.getRsSameWay()) {
                         if(roadSegment.getVehicle()!=null)
                         {
                             empty=false;
                             break;
                         }
-                    }
-                    if(rsSecond.getVehicle()!=null)
-                    {
-                        empty=false;
-                        break;
                     }
                 }
             }
@@ -140,7 +142,6 @@ public class StartSegment {
     }
     public void newVehicle()
     {
-        
     }
     public void stopGenerator()
     {

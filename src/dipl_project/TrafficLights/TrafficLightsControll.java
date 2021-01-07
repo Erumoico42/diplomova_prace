@@ -174,7 +174,7 @@ public class TrafficLightsControll {
                 if(timeSeconds>maxTime)
                    timeSeconds=0;
                 
-                if(Dipl_project.getUI().getGuiStatus()==0)
+                if(Dipl_project.getUI().getGuiStatus().equals("-e"))
                 {
                     Dipl_project.getUI().getUiRightMenu().setTime(timeSeconds);
                 }

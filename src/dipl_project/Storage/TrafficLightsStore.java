@@ -131,6 +131,7 @@ public class TrafficLightsStore {
             ui.addTL(newTL);
             trafficLights.put(idTL, newTL);
             Dipl_project.getDC().addTrafficLight(newTL);
+            newTL.deselectTL();
         }
         loadTLGroups();
         dc.setIdLastTL(maxId);

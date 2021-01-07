@@ -6,13 +6,20 @@
 package dipl_project.UI.GUI.TestMenu;
 
 import dipl_project.Dipl_project;
+import dipl_project.Simulation.Player;
 import dipl_project.Simulation.SimulationControll;
+import dipl_project.Storage.PlayerStore;
 import dipl_project.TrafficLights.TrafficLight;
+import dipl_project.UI.UIControlls.EditationControll;
 import dipl_project.UI.UIControlls.UIControll;
+import dipl_project.Vehicles.MyCar;
 import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
@@ -21,7 +28,10 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
@@ -30,6 +40,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 
 /**
  *
@@ -39,14 +50,15 @@ public class UITestMenu {
     private Image imgPlayIcon=new Image(Dipl_project.class.getResource("Resources/menuIcons/playIcon.png").toString());
     private Image imgPauseIcon=new Image(Dipl_project.class.getResource("Resources/menuIcons/pauseIcon.png").toString());
     private Image imgTLIcon=new Image(Dipl_project.class.getResource("Resources/menuIcons/trafficLightIcon.png").toString());
+    private Image imgMyCar=new Image(Dipl_project.class.getResource("Resources/vehicles/my-car.png").toString());
     private MenuItem openFile;
-    private MenuItem addMyCar;
     private AnchorPane ap;
     private final UIControll ui;
     private final Group root;
-    private MenuItem statistics;
+    private MenuItem topList;
     private Button btnRunSimulation;
     private Button btnTLPlay;
+    private Button btnAddMyCar;
     private Group simulationGroup, leftGroup;
     private boolean onofTLS=true;
     private Group statisticGroup;
@@ -59,14 +71,29 @@ public class UITestMenu {
     private Rectangle simulationBG;
     private Rectangle statisticsBG;
     private CheckMenuItem showStatistics;
+    private UITestInitMenu testInitMenu;
+    private PlayerStore playerStore;
+    private Stage statisticsStage;
+    private TableView<Object> playersTable;
+    private boolean carExist=false;
     public UITestMenu(Group root, UIControll ui)
     {
+        
         this.ui=ui;
         this.root=root;
         initMenu();
         initSimulationMenu();
         initStatisticMenu();
         root.getChildren().addAll(leftGroup);
+        playerStore = new PlayerStore();
+        playerStore.loadTopList();
+        initStatisticsTable();
+        
+    }
+    public void showInitMenu()
+    {
+        ui.getRoot().setDisable(true);
+        testInitMenu=new UITestInitMenu(ui);
     }
     private void initMenu()
     {
@@ -81,41 +108,34 @@ public class UITestMenu {
                 ui.setWantDrive(false);
                 ui.showRoads(false);
                 Dipl_project.getSc().removeMyCar();
-                addMyCar.setDisable(false);
+                btnAddMyCar.setDisable(false);
                 resetStatistics();
             }
         });
         file.getItems().addAll(openFile);
         
         
-        Menu driving=new Menu("Řízení");
-        addMyCar=new MenuItem("Začít řídit");
-        addMyCar.setOnAction(new EventHandler<ActionEvent>() {
+        Menu statistics=new Menu("Statistiky");
+
+        topList=new MenuItem("Žebříček");
+        topList.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if(!ui.wantDrive())
-                {
-                    ui.setWantDrive(true);
-                    ui.newMyCar();
-                    addMyCar.setDisable(true);
-                    
-                }
-                
+                statisticsStage.show();
             }
         });
-        statistics=new MenuItem("Žebříček");
         showStatistics=new CheckMenuItem("Zobrazit data");
         showStatistics.setSelected(true);
         showStatistics.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-
+                
                 statisticGroup.setVisible(showStatistics.isSelected());  
             }
         });
-        driving.getItems().addAll(addMyCar,statistics,showStatistics);
+        statistics.getItems().addAll(topList,showStatistics);
         
-        menu.getMenus().addAll(file,driving);
+        menu.getMenus().addAll(file,statistics);
         
         ap=new AnchorPane();
         ap.setPrefSize(1200, 0);
@@ -248,10 +268,40 @@ public class UITestMenu {
         btnTLPlay.setLayoutX(80);
         btnTLPlay.setLayoutY(22);
         
+
+        
+        ImageView ivMyRun=new ImageView(imgMyCar);
+        ivMyRun.setFitHeight(45);
+        ivMyRun.setPreserveRatio(true);
+        btnAddMyCar=new Button();
+        btnAddMyCar.setGraphic(ivMyRun);
+        btnAddMyCar.setLayoutX(120);
+        btnAddMyCar.setLayoutY(10);
+        btnAddMyCar.setMinSize(50, 50);
+        btnAddMyCar.setMaxSize(50, 50);
+        btnAddMyCar.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(!ui.wantDrive())
+                {
+                    ui.setWantDrive(true);
+                    ui.newMyCar();
+                    btnAddMyCar.setDisable(true);
+                }
+                else
+                {
+                    MyCar myCar= Dipl_project.getSc().getMyCar();
+                    myCar.initNewRoad();
+                    btnAddMyCar.setDisable(true);
+                    
+                }
+            }
+        });
         
         
         
-        simulationGroup.getChildren().addAll(simulationBG,iconTLRun,btnTLPlay,btnRunSimulation);
+        
+        simulationGroup.getChildren().addAll(simulationBG,iconTLRun,btnTLPlay,btnRunSimulation,btnAddMyCar);
         leftGroup.getChildren().addAll(simulationGroup);
         
     }
@@ -310,4 +360,96 @@ public class UITestMenu {
     public void setRedCount(String count) {
         setLblText(redCount,count);
     }
+
+    public UITestInitMenu getInitMenu() {
+        return testInitMenu;
+    }
+
+    public void savePlayer() {
+        if(testInitMenu!=null)
+            playerStore.saveTopList(testInitMenu.getPlayer());
+    }
+    private void initStatisticsTable()
+    {
+        Group statGroup = new Group();
+        Scene statScene = new Scene(statGroup, 980, 400);
+        
+        statisticsStage = new Stage();
+        statisticsStage.setTitle("Seznam hráčů");
+        statisticsStage.setScene(statScene);
+        statisticsStage.heightProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            playersTable.setMinHeight((double)newValue);
+            playersTable.setMaxHeight((double)newValue);
+        });
+        statisticsStage.widthProperty().addListener((ObservableValue<? extends Number> observable, Number oldValue, Number newValue) -> {
+            playersTable.setMinWidth((double)newValue);
+            playersTable.setMaxWidth((double)newValue);
+        });
+        playersTable = new TableView<>();
+        playersTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+        TableColumn name = new TableColumn("Jméno");
+        name.setMinWidth(80);
+        name.setResizable(false);
+        name.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("name"));  
+        
+        TableColumn totalRuns = new TableColumn("Počet kol");
+        totalRuns.setMinWidth(40);
+        totalRuns.setResizable(false);
+        totalRuns.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("runCount"));
+        
+        TableColumn avgTime = new TableColumn("Průměrný čas");
+        avgTime.setMinWidth(120);
+
+        avgTime.setResizable(false);
+        avgTime.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("avgTime"));
+        
+        TableColumn crashCount = new TableColumn("Počet nehod");
+        crashCount.setMinWidth(100);
+        crashCount.setResizable(false);
+        crashCount.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("crashCount"));
+        
+        TableColumn redCount = new TableColumn("Průjezd na červenou");
+        redCount.setMinWidth(160);
+        redCount.setResizable(false);
+        redCount.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("redCount"));
+        
+        TableColumn fastRun = new TableColumn("Nejlepší kolo");
+        fastRun.setMinWidth(120);
+        fastRun.setResizable(false);
+        fastRun.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("fastRun"));
+        
+        TableColumn slowRun = new TableColumn("Nejhorší kolo");
+        slowRun.setMinWidth(120);
+        slowRun.setResizable(false);
+        slowRun.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("slowRun"));
+        
+        TableColumn marks = new TableColumn("Hodnocení");
+        marks.setMinWidth(90);
+        marks.setResizable(false);
+        marks.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("mark"));
+        
+        TableColumn dates = new TableColumn("Datum");
+        dates.setMinWidth(140);
+        dates.setResizable(false);
+        dates.setCellValueFactory(
+                new PropertyValueFactory<Player, String>("date"));
+        
+        playersTable.getColumns().addAll(name, marks, totalRuns, avgTime, fastRun, slowRun, crashCount,   redCount, dates);
+        statGroup.getChildren().addAll(playersTable);
+        playersTable.getItems().addAll(playerStore.getPlayers());
+    }
+
+    public void setEnableAddCar() {
+        btnAddMyCar.setDisable(false);
+    }
+    
 }

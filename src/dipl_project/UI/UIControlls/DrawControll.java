@@ -376,7 +376,7 @@ public  class DrawControll {
         for (TrafficLight trafficLight : tls) {
             trafficLight.removeTL();
         }
-        if(ui.getGuiStatus()==0)
+        if(ui.getGuiStatus().equals("-e"))
             Dipl_project.getTlc().cleanTLG();
         BackgroundControll.removeBG();
         Dipl_project.getAnim().removeAllVehicles();

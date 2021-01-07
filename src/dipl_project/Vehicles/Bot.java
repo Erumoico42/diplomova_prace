@@ -17,6 +17,7 @@ public class Bot extends Vehicle {
         super(startSegment);
     }
 
+
     @Override
     public void tick() {
         super.tick(); //To change body of generated methods, choose Tools | Templates.

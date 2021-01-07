@@ -29,27 +29,29 @@ public class VehicleToRemove {
         timerTask = new TimerTask() {
             @Override
             public void run(){
-               
-                System.out.println(countOfCrash);
                vehicle.showCrash(countOfCrash%2==0);
                countOfCrash--;
                if(countOfCrash==0)
                {
-                   cancelCountDown();
+                   removeVehicle();
                }
             }
         };
         timer.schedule(timerTask, 500, 500);
 
     }
-    private void cancelCountDown()
+    private void removeVehicle()
     {
-        timer.cancel();
-        timerTask.cancel();
+        stopCountDown();
         vehicle.showCrash(false);
         if(vehicle instanceof MyCar)
             ((MyCar)vehicle).newRoad();
         else
             vehicle.removeVehicle();
+    }
+
+    public void stopCountDown() {
+        timer.cancel();
+        timerTask.cancel();
     }
 }

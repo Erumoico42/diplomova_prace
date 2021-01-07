@@ -64,12 +64,6 @@ public class MyCar extends Vehicle{
         uiTest.setRunTime(getTimeFromMiliseconds(runTime));
         checkLightsRun();
     }
-    
-    @Override
-    public void move(double t)
-    {
-        super.move(t);
-    }
     @Override
     public void crash()
     {
@@ -103,12 +97,8 @@ public class MyCar extends Vehicle{
         uiTest.setRunTime(getTimeFromMiliseconds(runTime));
         uiTest.setRedCount(String.valueOf(redCount));
 
-        RoadSegment rsStart=Dipl_project.getUI().getRandomStartCar();
-        if(rsStart==null)
-            rsStart=Dipl_project.getUI().getStarCarSegments().get(0).getStartRS();
-        generateStreet(rsStart);
-        nextSegment();
-        setPoints();
+        initNewRoad();
+        
         
         setSpeed(0);
         setForce(0);
@@ -119,6 +109,13 @@ public class MyCar extends Vehicle{
         move(0.01);
         tick();
         failedTLs.clear();
+    }
+    public void initNewRoad()
+    {
+
+        generateStreet(Dipl_project.getUI().getStartNoCare());
+        nextSegment();
+        setPoints();
     }
     private String getTimeFromMiliseconds(long time)
     {

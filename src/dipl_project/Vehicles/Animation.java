@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -28,14 +26,17 @@ import javafx.scene.shape.Shape;
 public class Animation {
     private DecimalFormat df=new DecimalFormat("##.######");
     private List<Vehicle> vehicles=new ArrayList<>();
-    private TimerTask timerTask;
-    private Timer timer;
+    private TimerTask animationTimerTask;
+    private Timer animationTimer;
     private double zoomRatio=1;
-    private FileWriter speedStatistic, angleStatistic,distanceStatistic;
+    private FileWriter speedStatistic, angleStatistic;
     private int vehID=0;
-    private Map<Vehicle, List<String>> statisticsSpeedMap =new HashMap<>();
-    private Map<Vehicle, List<String>> statisticsAngleMap =new HashMap<>();
-    private Map<Vehicle, List<String>> statisticsDistanceMap =new HashMap<>();
+    private final Map<Vehicle, List<String>> statisticsSpeedMap =new HashMap<>();
+    private final Map<Vehicle, List<String>> statisticsAngleMap =new HashMap<>();
+    private final Map<Vehicle, List<String>> statisticsDistanceMap =new HashMap<>();
+    private List<VehicleToRemove> removingVehicle=new ArrayList<>();
+    private Timer colissionTimer;
+    private TimerTask colissionTimerTask;
     public Animation()
     {
             startAnimation();
@@ -43,12 +44,22 @@ public class Animation {
     public void stopAnimation()
     {
         
-        timerTask.cancel();
-        timer.cancel();
+        animationTimerTask.cancel();
+        animationTimer.cancel();
         for (Vehicle vehicle : vehicles) {
             vehicle.stopBlink();
         }
-        saveStatisticData();
+        for (VehicleToRemove vehicleToRemove : removingVehicle) {
+            vehicleToRemove.stopCountDown();
+        }
+        stopCheckColissions();
+        //saveStatisticData();
+    }
+    public void stopCheckColissions()
+    {
+        
+        colissionTimerTask.cancel();
+        colissionTimer.cancel();
     }
     public void addVehicle(Vehicle vehicle)
     {
@@ -81,17 +92,27 @@ public class Animation {
     public void startAnimation()
     {
         
-        timer=new Timer();
-        timerTask = new TimerTask() {
+        animationTimer=new Timer();
+        animationTimerTask = new TimerTask() {
             @Override
             public void run(){
                     tick();
+            }
+        };
+        animationTimer.schedule(animationTimerTask, 20, 20);
+        startCheckColissions();
+        
+    }
+    public void startCheckColissions()
+    {
+        colissionTimer=new Timer();
+        colissionTimerTask = new TimerTask() {
+            @Override
+            public void run(){
                     checkColission();
             }
         };
-        timer.schedule(timerTask, 20, 20);
-
-        
+        colissionTimer.schedule(colissionTimerTask, 200, 200);
     }
     private void checkColission()
     {
@@ -166,6 +187,13 @@ public class Animation {
             vehicle.move();
         }
     }
+    public void moveVehiclesByPx(double x, double y)
+    {
+        
+        for (Vehicle vehicle : vehicles) {
+            vehicle.moveByPx(x, y);
+        }
+    }
     public List<Vehicle> getVehicles()
     {
         return vehicles;
@@ -224,5 +252,9 @@ public class Animation {
     private  void addDistanceStat(Vehicle veh, String value)
     {
         statisticsDistanceMap.get(veh).add(value);
+    }
+
+    void addRemovingVehicle(VehicleToRemove vehicle) {
+        removingVehicle.add(vehicle);
     }
 }

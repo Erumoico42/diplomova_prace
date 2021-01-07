@@ -17,7 +17,9 @@ import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.VehicleGenerating.StartSegment;
 import dipl_project.Simulation.SimulationControll;
+import dipl_project.Storage.PlayerStore;
 import dipl_project.UI.GUI.TestMenu.UITestMenu;
+import dipl_project.Vehicles.MyCar;
 import dipl_project.Vehicles.Vehicle;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ import javafx.util.Pair;
  * @author Honza
  */
 public class UIControll {
-    private int guiStatus=0;
+    private String guiStatus;
     private Image imgSwitchGreen=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchGreen.png").toString());
     private Image imgSwitchRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchRed.png").toString());
     private Image imgSwitchOrange=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchOrange.png").toString());
@@ -74,12 +76,12 @@ public class UIControll {
     private UILeftMenu uiLeftMenu;
     private UIRightMenu uiRightMenu;
     private UITestMenu uiTestMenu;
-    public UIControll(Stage primaryStage) {
+    public UIControll(Stage primaryStage, String[] args) {
         this.primaryStage=primaryStage;
         root = new Group(); ;
         initComponents();
         
-       initMenu();
+       initMenu(args);
         
         scene = new Scene(root, initialSizeX, initialSizeY);
         primaryStage.setTitle("Diplomová práce");
@@ -90,43 +92,48 @@ public class UIControll {
         
     }
 
-    public int getGuiStatus() {
+    public String getGuiStatus() {
         return guiStatus;
     }
-    
-    private void initMenu()
+    private void initMenu(String[] args)
     {
-        guiStatus=0;
+        for (String arg : args) {
+            if(arg.split("=").length==2){
+                guiStatus=arg.split("=")[1];
+                break;
+            }
+        }
+        guiStatus="-t";
         
         switch(guiStatus)
         {
-            case 0:
+            case "-e":
             {
                 uiTopMenu=new UITopMenu(root, this);
                 uiLeftMenu = new UILeftMenu(root,this);
                 uiRightMenu = new UIRightMenu(root, this);
                 break;
             }
-            case 1:
+            case "-t":
             {
+                
                 uiTestMenu=new UITestMenu(root, this);
                 break;
             }
-            case 2:
+            case "-s":
             {
                 break;
             }
         }
          
     }
+    
     private void initStageHandler()
     {
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                Dipl_project.getAnim().stopAnimation();
-                Dipl_project.getSc().stopVehicleGenerator();
-                Dipl_project.getTlc().stopTrafficLights();
+                Dipl_project.closeApp();
             }
         });
     }
@@ -134,19 +141,19 @@ public class UIControll {
     {
         switch(guiStatus)
         {
-            case 0:
+            case "-e":
             {
                 getUiLeftMenu().updateCPsPosition();
                 getUiTopMenu().updateMenuSize(width);
                 getUiRightMenu().updateTLGsPosition();
                 break;
             }
-            case 1:
+            case "-t":
             {
-                uiTestMenu.updateMenuSize(width);
+                getUiTestMenu().updateMenuSize(width);
                 break;
             }
-            case 2:
+            case "-s":
             {
                 break;
             }
@@ -157,17 +164,17 @@ public class UIControll {
     {
         switch(guiStatus)
         {
-            case 0:
+            case "-e":
             {
                 getUiLeftMenu().updateCPsPosition();
                 getUiRightMenu().updateTLGsPosition();
                 break;
             }
-            case 1:
+            case "-t":
             {
                 break;
             }
-            case 2:
+            case "-s":
             {
                 break;
             }
@@ -305,7 +312,7 @@ public class UIControll {
     public void addBackground(ImageView bg)
     {
         backgroundGroup.getChildren().add(bg);
-        if(guiStatus==0)
+        if(guiStatus.equals("-e"))
             uiTopMenu.setEditBackground(true);
     }
     public void removeBackground(ImageView bg)
@@ -464,7 +471,7 @@ public class UIControll {
     {
         if(wantDrive)
         {
-            RoadSegment rs=getRandomStart(startCarSegments);
+            RoadSegment rs=getStartNoCare();
             if(rs!=null)
                 Dipl_project.getSc().newMyCar(rs);
         }
@@ -557,6 +564,38 @@ public class UIControll {
     {
         return popupShown;
     }
+    public RoadSegment getStartNoCare()
+    {
+        StartSegment ret=startCarSegments.get((int)(Math.random()*startCarSegments.size()));
+        RoadSegment rsStart=ret.getStartRS();
+        if(rsStart!=null)
+        {
+            Vehicle veh=rsStart.getVehicle();
+            if(veh!=null)
+                veh.removeVehicle();
+            for (RoadSegment roadSegment : rsStart.getRsSameWay()) {
+                veh=roadSegment.getVehicle();
+                if(veh!=null)
+                    veh.removeVehicle();
+                for (RoadSegment roadSegment2 : roadSegment.getRsSameWay()) {
+                    veh=roadSegment2.getVehicle();
+                    if(veh!=null)
+                        veh.removeVehicle();
+                }
+            }
+            for (RoadSegment roadSegment : rsStart.getRsNext()) {
+                veh=roadSegment.getVehicle();
+                if(veh!=null)
+                    veh.removeVehicle();
+                for (RoadSegment roadSegment2 : roadSegment.getRsSameWay()) {
+                    veh=roadSegment2.getVehicle();
+                    if(veh!=null)
+                        veh.removeVehicle();
+                }
+            }
+        }
+        return ret.getStartRS();
+    }
     public RoadSegment getRandomStart(List<StartSegment> startSegm)
     {
         
@@ -641,6 +680,14 @@ public class UIControll {
 
     public UITestMenu getUiTestMenu() {
         return uiTestMenu;
+    }
+    
+    public void savePlayer() {
+        if(uiTestMenu!=null)
+        {
+            uiTestMenu.savePlayer();
+            
+        }
     }
     
 }

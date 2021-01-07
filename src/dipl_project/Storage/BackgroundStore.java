@@ -150,7 +150,7 @@ public class BackgroundStore {
                 if(!bgImage.isError())
                 {
                      BackgroundControll.setBackground(position.getX(), position.getY(), Double.valueOf(angle),  Double.valueOf(width), Double.valueOf(height),Double.valueOf(resRatio), source);  
-                     if(Dipl_project.getUI().getGuiStatus()==0)
+                     if(Dipl_project.getUI().getGuiStatus().equals("-e"))
                      {
                          Dipl_project.getUI().getUiTopMenu().setEditBackground(false);
                         Dipl_project.getUI().getUiTopMenu().enableRemoveBG(true);

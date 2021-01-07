@@ -64,6 +64,8 @@ public class Vehicle {
     private double distanceToCheck;
     private boolean carFoundStreet;
     private boolean removing=false;
+    private double lastMoveX;
+    private double lastMoveY;
     public Vehicle(RoadSegment startSegment)
     {
         animation=Dipl_project.getAnim();
@@ -270,6 +272,7 @@ public class Vehicle {
     }
     public void removeVehicle()
     {
+        actualSegment.setVehicle(null);
         animation.removeVehicle(this);
     }
     public Rectangle getControlRectangle() {
@@ -294,6 +297,18 @@ public class Vehicle {
         xLast=x0;
         yLast=y0;
     }
+    protected void setPosition(double x, double y)
+    {
+        iv.setX(x);
+        iv.setY(y); 
+        
+        ivMaskBlinker.setX(breaksLayout+x);
+        ivMaskBlinker.setY(y); 
+        ivMaskBreaks.setX(breaksLayout+x);
+        ivMaskBreaks.setY(y); 
+        controlRectangle.setX(x-controlWidth/2);
+        controlRectangle.setY(y-controlHeight/2);
+    }
     protected void move(double t)
     {
         double t2=t*t;
@@ -301,7 +316,6 @@ public class Vehicle {
         double x = (x0+(t*x1)+(t2*x2)+(t3*x3));
         double y = (y0+(t*y1)+(t2*y2)+(t3*y3)); 
         double updatedAngle=Math.toDegrees(MyMath.angle(x, y,xLast, yLast));
-        
         if(updatedAngle!=0){
             double lastUpdatedAngle=angle;
             angle=updatedAngle;
@@ -314,20 +328,13 @@ public class Vehicle {
             ivMaskBreaks.setRotate(angle);
             //controlRectangle.setRotate(angle);
         }
+        lastMoveX=xLast-x;
+        lastMoveY=yLast-y;
         xLast=x;
         yLast=y;
         lastPosition=new MyPoint(newPosition.getX(),newPosition.getY());
         newPosition=new MyPoint((x-vehWidth/2), (y-vehHeight/2));
-        
-        iv.setX(newPosition.getX());
-        iv.setY(newPosition.getY()); 
-        
-        ivMaskBlinker.setX(breaksLayout+newPosition.getX());
-        ivMaskBlinker.setY(newPosition.getY()); 
-        ivMaskBreaks.setX(breaksLayout+newPosition.getX());
-        ivMaskBreaks.setY(newPosition.getY()); 
-        controlRectangle.setX(x-controlWidth/2);
-        controlRectangle.setY(y-controlHeight/2);
+        setPosition(newPosition.getX(),newPosition.getY());
         
     }
     private void setMoveValuesBySegmentCoef()
@@ -341,6 +348,10 @@ public class Vehicle {
     {
         setPoints();
         move(time);
+    }
+    public void moveByPx(double x, double y)
+    {
+        setPosition(newPosition.getX()+x, newPosition.getY()+y);
     }
     public void tick()
     {
@@ -386,7 +397,14 @@ public class Vehicle {
     public MyPoint getNewPosition() {
         return newPosition;
     }
-
+    public double getLastMoveX()
+    {
+        return lastMoveX;
+    }
+    public double getLastMoveY()
+    {
+        return lastMoveY;
+    }
     public MyPoint getLastPosition() {
         return lastPosition;
     }
@@ -604,7 +622,7 @@ public class Vehicle {
                             
                             if(dist<1 || distMinus==-1)
                                 setForce(-maxForce);
-                            fuzzySpeed(dist, getSpeed()-speedNextCar);
+                            fuzzySpeed(dist-0.3, getSpeed()-speedNextCar);
                                 carFound=true;
                             
                             
@@ -821,7 +839,9 @@ public class Vehicle {
 
     protected void crash() {
         setRemoving(true);
-        new VehicleToRemove(this);
+        animation.addRemovingVehicle(new VehicleToRemove(this));
+        
+        pause();
         setSpeed(0);
         setForce(0);
     }

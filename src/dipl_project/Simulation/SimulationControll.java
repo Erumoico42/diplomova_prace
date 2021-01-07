@@ -182,5 +182,9 @@ public class SimulationControll {
     public boolean simulationRun() {
         return simulationRun;
     }
+
+    public MyCar getMyCar() {
+        return mycar;
+    }
 }
 

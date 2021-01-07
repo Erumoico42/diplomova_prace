@@ -9,6 +9,7 @@ import dipl_project.Roads.Connect;
 import dipl_project.Roads.MyCurve;
 import dipl_project.Roads.RoadSegment;
 import dipl_project.Vehicles.Car;
+import dipl_project.Vehicles.Vehicle;
 
 /**
  *
@@ -22,6 +23,7 @@ public class StartCar extends StartSegment {
     @Override
     public void newVehicle()
     {
-        new Car(super.startRS);
+        Vehicle vehicle = new Car(super.startRS);
+        startRS.setVehicle(vehicle);
     }
 }

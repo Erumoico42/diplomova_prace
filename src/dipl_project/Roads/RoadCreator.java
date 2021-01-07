@@ -111,7 +111,6 @@ public class RoadCreator {
                         rsNew.setId(idMax);
                         rsNew.setVisible(false);
                         idMax++;
-                        rsNew.setSegmentLenght(MyMath.length(rsNew.getP0(), rsNew.getP3()));
                         connect.addConnectSegment(rsNew, startCurve, endCurve);
                     }
                     else
@@ -123,10 +122,23 @@ public class RoadCreator {
                     }
                     double lenght=MyMath.length(rsNew.getP0(), rsNew.getP3());
                     rsNew.setSegmentLenght(lenght);
-                    Point p1=MyMath.rotate(rsNew.getP0(), lenght/3,  MyMath.angle(rsNew.getP0(),rsEnd.getP2()));
+                    Point p1;
+                    Point p2;
+                    if(lenght>5)
+                    {
+                        p1=MyMath.rotate(rsNew.getP0(), lenght/3,  MyMath.angle(rsNew.getP0(),rsEnd.getP2()));
+
+                        p2=MyMath.rotate(rsNew.getP3(), lenght/3, MyMath.angle(rsStart.getP0(),rsStart.getP1()));
+                    }
+                    else
+                    {
+                        p1=MyMath.rotate(rsNew.getP0(), 2,  MyMath.angle(rsNew.getP0(),rsEnd.getP2()));
+                        
+
+                        p2=MyMath.rotate(rsNew.getP3(), 2, MyMath.angle(rsStart.getP0(),rsStart.getP1()));
+                        
+                    }
                     rsNew.setP1(p1);
-                    
-                    Point p2=MyMath.rotate(rsNew.getP3(), lenght/3, MyMath.angle(rsStart.getP0(),rsStart.getP1()));
                     rsNew.setP2(p2);
                     connectSegments(rsEnd, rsNew);
                     connectSegments(rsNew, rsStart);
@@ -185,7 +197,6 @@ public class RoadCreator {
         }
         startCarSegments.clear();
         startCarSegments.addAll(newStartsCar);
-        
         for (StartSegment startTramSegment : startTramSegments) {
             if(!startTramSegment.getStartConnect().getEndCurves().isEmpty())
                 startTramSegment.getMc().setStartStreet(null);

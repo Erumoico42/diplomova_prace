@@ -125,7 +125,7 @@ public class UITopMenu {
         Menu driving=new Menu("Řízení");
         addMyCar=new CheckMenuItem("Chci řídit");
         driving.getItems().add(addMyCar);
-        menu.getMenus().addAll(file,edit,background, driving);
+        menu.getMenus().addAll(file,edit,background);
         
         ap=new AnchorPane();
         ap.setPrefSize(1200, 0);
