@@ -7,6 +7,9 @@ package dipl_project.Vehicles;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import javafx.animation.FadeTransition;
+import javafx.animation.ScaleTransition;
+import javafx.util.Duration;
 
 /**
  *
@@ -21,15 +24,30 @@ public class VehicleToRemove {
     {
         this.vehicle=vehicle;
         startCountDown();
+        
     }
     public void startCountDown()
     {
+        ScaleTransition st=new ScaleTransition(Duration.millis(1000), vehicle.getIvMaskBreaks());
+        
+        st.setByX(0.5);
+        st.setByY(0.5);
+        st.setCycleCount(5);
+        st.setAutoReverse(true);
+        st.play();
+        FadeTransition ft = new FadeTransition(Duration.millis(1000), vehicle.getIvMaskBreaks());
+        ft.setFromValue(1.0);
+        ft.setToValue(0.3);
+        ft.setCycleCount(5);
+        ft.setAutoReverse(true);
+        ft.play();
+        
+        vehicle.showCrash(true);
         
         timer=new Timer();
         timerTask = new TimerTask() {
             @Override
             public void run(){
-               vehicle.showCrash(countOfCrash%2==0);
                countOfCrash--;
                if(countOfCrash==0)
                {

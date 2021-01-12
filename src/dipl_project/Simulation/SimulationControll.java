@@ -123,6 +123,7 @@ public class SimulationControll {
         {
             changeSpeedLoop=false;
             cancelChangeSpeed();
+            mycar.showBreaks(false);
         }
         
     }
@@ -135,9 +136,17 @@ public class SimulationControll {
                     changeSpeedLoop=true;
 
                     if(event.getCode()==KeyCode.UP)
+                    {
+                        mycar.showBreaks(false);
                         myCarSpeedChange=mycar.getMaxForce()*4;
+                    }
+                        
                     if(event.getCode()==KeyCode.DOWN)
+                    {
+                        mycar.showBreaks(true);
                         myCarSpeedChange=-mycar.getMaxForce()*4;
+                    }
+                        
                     changeSpeedLoop();
                 }
             }

@@ -42,7 +42,6 @@ public class MyCar extends Vehicle{
         super.setForce(0);
         super.setSpeed(0);
         setMyCarImage();
-        setBreaksLayout(-5);
         super.setVehicleLenght(0);
         
     }
@@ -83,6 +82,7 @@ public class MyCar extends Vehicle{
     }
     public void newRoad()
     {
+        showCrash(false);
         setRemoving(false);
         runCount++;
         if(runTime>slowRun)

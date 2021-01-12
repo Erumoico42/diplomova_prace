@@ -391,7 +391,7 @@ public class Vehicle {
     public void updateSpeed(double speed)
     {
         this.speed+=speed;
-        updateSpeed();
+        //updateSpeed();
     }
 
     public MyPoint getNewPosition() {
@@ -417,28 +417,31 @@ public class Vehicle {
         double newSpeedCoef=speedCoef+forceCoef;
         
         double newSpeed=speed+force;
-        
             if(newSpeedCoef < speedCoef)
             {
                 breakCountDown=10;
                 changedForce=!defCar.equals(carBreak);
                 defCar=carBreak;
                 if(!removing)
-                    setBreaks(carBreak);
+                {
+                    showBreaks(true);
+                    
+                }
+                    
                 if((100/speedCoef)*newSpeedCoef<20)
                 {
                     newSpeedCoef=speedCoef;
                 }
                     
             }
-            else
+            else if(!this.getClass().equals(MyCar.class))
             {
                 breakCountDown--;
                 if(breakCountDown<0)
                 {
                     changedForce=!defCar.equals(actualCar);
                     if(!removing)
-                        setBreaks(null);
+                        showBreaks(false);
                     
                 }
             }
@@ -761,6 +764,13 @@ public class Vehicle {
         if(newForce>maxForce)
             newForce=maxForce;
         force = newForce;
+    }
+    public void showBreaks(boolean show)
+    {
+        if(show)
+            setBreaks(carBreak);
+        else
+            setBreaks(null);
     }
     private void setBreaks(Image img)
     {

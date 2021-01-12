@@ -103,7 +103,7 @@ public class UIControll {
                 break;
             }
         }
-        //guiStatus="-t";
+        guiStatus="-t";
         
         switch(guiStatus)
         {
