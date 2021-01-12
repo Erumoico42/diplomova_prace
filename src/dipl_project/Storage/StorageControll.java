@@ -101,7 +101,7 @@ public  class StorageControll {
             new EditationStore(doc, null).loadEditation();
             Map<Integer, TrafficLight> tls = new TrafficLightsStore(doc, null).loadTrafficLights();
             new StreetStore(doc, null).loadStreet(tls);
-            new BackgroundStore(doc, null).loadBackground();
+            new BackgroundStore(doc, null).loadBackground(input.getPath());
             EditationControll.resetZoom();
             Dipl_project.getDC().newRoad();
             

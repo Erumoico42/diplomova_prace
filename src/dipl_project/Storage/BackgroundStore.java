@@ -103,7 +103,7 @@ public class BackgroundStore {
             extension = bgSource.substring(i+1);
         }
         String newBGPath=savePath+"\\"+destFile.getName().split(".xml")[0]+"-bg."+extension;
-
+        //System.out.println(destFile.getName().split(".xml")[0]+"-bg."+extension);
         InputStream is=null;
         OutputStream os=null;
         try{
@@ -128,11 +128,10 @@ public class BackgroundStore {
             }
         }
         String ret="file:/"+newBGPath;
-        return ret;
+        return (destFile.getName().split(".xml")[0]+"-bg."+extension);
     }
-    public void loadBackground()
+    public void loadBackground(String path)
     {
-        
             NodeList bg=doc.getElementsByTagName("background");
             Node background=bg.item(0);
             boolean isnull= Boolean.parseBoolean(background.getAttributes().getNamedItem("isNull").getNodeValue());
@@ -146,10 +145,11 @@ public class BackgroundStore {
                 String p= background.getAttributes().getNamedItem("position").getNodeValue();
                 String[] pos=p.split(",");
                 Point position=new Point(Integer.parseInt(pos[0]),Integer.parseInt(pos[1]));
-                Image bgImage=new Image(source);
+                String bgPath="file:/"+path.substring(0, path.lastIndexOf('\\')+1)+source;
+                Image bgImage=new Image(bgPath);
                 if(!bgImage.isError())
                 {
-                     BackgroundControll.setBackground(position.getX(), position.getY(), Double.valueOf(angle),  Double.valueOf(width), Double.valueOf(height),Double.valueOf(resRatio), source);  
+                     BackgroundControll.setBackground(position.getX(), position.getY(), Double.valueOf(angle),  Double.valueOf(width), Double.valueOf(height),Double.valueOf(resRatio), bgPath);  
                      if(Dipl_project.getUI().getGuiStatus().equals("-e"))
                      {
                          Dipl_project.getUI().getUiTopMenu().setEditBackground(false);

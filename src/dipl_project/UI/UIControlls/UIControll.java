@@ -47,7 +47,7 @@ import javafx.util.Pair;
  * @author Honza
  */
 public class UIControll {
-    private String guiStatus;
+    private String guiStatus="-t";
     private Image imgSwitchGreen=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchGreen.png").toString());
     private Image imgSwitchRed=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchRed.png").toString());
     private Image imgSwitchOrange=new Image(Dipl_project.class.getResource("Resources/trafficLights/switchOrange.png").toString());
@@ -103,7 +103,7 @@ public class UIControll {
                 break;
             }
         }
-        guiStatus="-t";
+        //guiStatus="-t";
         
         switch(guiStatus)
         {
@@ -122,6 +122,12 @@ public class UIControll {
             }
             case "-s":
             {
+                break;
+            }
+            default:
+            {
+                guiStatus="-t";
+                uiTestMenu=new UITestMenu(root, this);
                 break;
             }
         }
