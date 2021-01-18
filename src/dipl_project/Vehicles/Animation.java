@@ -70,9 +70,9 @@ public class Animation {
             vehID++;
             vehicle.changeValues(zoomRatio);
             Dipl_project.getUI().addVehicle(vehicle);
-            statisticsSpeedMap.put(vehicle, new ArrayList<>());
-            statisticsAngleMap.put(vehicle, new ArrayList<>());
-            statisticsDistanceMap.put(vehicle, new ArrayList<>());
+            //statisticsSpeedMap.put(vehicle, new ArrayList<>());
+            //statisticsAngleMap.put(vehicle, new ArrayList<>());
+            //statisticsDistanceMap.put(vehicle, new ArrayList<>());
         });
     }
     public void removeAllVehicles()
@@ -152,9 +152,9 @@ public class Animation {
         for (Vehicle vehicle : vehicles) {
             vehicle.tick();
             //tickSaveData(vehicle);
-            addSpeedStat(vehicle,df.format(vehicle.getStatSpeed()));
-            addAngleStat(vehicle,df.format(vehicle.getDAngle()));
-            addDistanceStat(vehicle,df.format(vehicle.getStatDistance()));
+            //addSpeedStat(vehicle,df.format(vehicle.getStatSpeed()));
+            //addAngleStat(vehicle,df.format(vehicle.getDAngle()));
+            //addDistanceStat(vehicle,df.format(vehicle.getStatDistance()));
         }
         });
     }
