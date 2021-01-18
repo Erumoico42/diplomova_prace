@@ -32,7 +32,7 @@ public class Car extends Bot{
         Image carLeft= new Image(Dipl_project.class.getResource("Resources/vehicles/blinker-l.png").toString());
         Image carRight= new Image(Dipl_project.class.getResource("Resources/vehicles/blinker-r.png").toString());
         Image carBreak= new Image(Dipl_project.class.getResource("Resources/vehicles/breaks.png").toString());
-        initVehicleImage(carDef, carLeft, carRight, carBreak, 40, 40, 34, 14);
+        initVehicleImage(carDef, carLeft, carRight, carBreak, 40, 40, 34, 17);
 
     }
 }

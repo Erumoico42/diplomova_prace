@@ -47,7 +47,6 @@ public class PlayerStore {
             path=path.substring(0, path.lastIndexOf("/"))+"/topList.xml";
             path=path.replaceAll("/", "\\\\");
             input=new File(path);
-            
             if(input.exists()){
                 
                 DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();

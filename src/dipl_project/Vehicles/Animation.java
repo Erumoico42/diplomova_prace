@@ -43,9 +43,10 @@ public class Animation {
     }
     public void stopAnimation()
     {
-        
-        animationTimerTask.cancel();
-        animationTimer.cancel();
+        if(animationTimerTask!=null)
+            animationTimerTask.cancel();
+        if(animationTimer!=null)
+            animationTimer.cancel();
         for (Vehicle vehicle : vehicles) {
             vehicle.stopBlink();
         }

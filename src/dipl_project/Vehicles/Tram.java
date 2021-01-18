@@ -19,7 +19,7 @@ public class Tram extends Bot{
         super(startSegment);
         setVehicleLenght(2);
         Image tramDef=new Image(Dipl_project.class.getResource("Resources/vehicles/tram.png").toString());
-        initVehicleImage(tramDef,tramDef,tramDef,tramDef, 80, 40, 70, 35);
+        initVehicleImage(tramDef,tramDef,tramDef,tramDef, 80, 40, 70, 30);
     }
     
 }

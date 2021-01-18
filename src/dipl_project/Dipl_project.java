@@ -38,7 +38,7 @@ public class Dipl_project extends Application {
     public void start(Stage primaryStage) {
         tlc=new TrafficLightsControll();
         rc=new RoadCreator();
-        ui=new UIControll(primaryStage,arg);
+        ui=new UIControll(primaryStage);
         dc=new DrawControll(ui, rc);
         ui.setDc(dc);
         anim=new Animation();
@@ -46,6 +46,7 @@ public class Dipl_project extends Application {
         stc=new StorageControll();
         ui.setSc(sc);
         loadRules();
+        ui.initMenu(arg);
         if(ui.getUiTestMenu()!=null)
             ui.getUiTestMenu().showInitMenu();
     }

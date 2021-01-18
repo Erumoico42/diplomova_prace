@@ -18,6 +18,7 @@ import dipl_project.Roads.RoadSegment;
 import dipl_project.Roads.VehicleGenerating.StartSegment;
 import dipl_project.Simulation.SimulationControll;
 import dipl_project.Storage.PlayerStore;
+import dipl_project.Storage.SleeperStore;
 import dipl_project.UI.GUI.TestMenu.UITestMenu;
 import dipl_project.Vehicles.MyCar;
 import dipl_project.Vehicles.Vehicle;
@@ -25,6 +26,8 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -39,7 +42,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
 /**
@@ -59,7 +65,7 @@ public class UIControll {
     private ContextMenu popupClick, popupTL;
     private MenuItem popupSplit, popupRemove, popupRemoveTL;
     private Canvas canvas, moveCanvas;
-    
+    private boolean enableMouseMoveExit=false;
     
     private List<MyCurve> curves=new ArrayList<>();
     private List<RoadSegment> segments=new ArrayList<>();
@@ -76,14 +82,14 @@ public class UIControll {
     private UILeftMenu uiLeftMenu;
     private UIRightMenu uiRightMenu;
     private UITestMenu uiTestMenu;
-    public UIControll(Stage primaryStage, String[] args) {
+    public UIControll(Stage primaryStage) {
         this.primaryStage=primaryStage;
         root = new Group(); ;
         initComponents();
-        
-       initMenu(args);
-        
         scene = new Scene(root, initialSizeX, initialSizeY);
+       
+        
+        
         primaryStage.setTitle("Diplomová práce");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -95,7 +101,7 @@ public class UIControll {
     public String getGuiStatus() {
         return guiStatus;
     }
-    private void initMenu(String[] args)
+    public void initMenu(String[] args)
     {
         for (String arg : args) {
             if(arg.split("=").length==2){
@@ -103,8 +109,6 @@ public class UIControll {
                 break;
             }
         }
-        guiStatus="-t";
-        
         switch(guiStatus)
         {
             case "-e":
@@ -122,6 +126,10 @@ public class UIControll {
             }
             case "-s":
             {
+                showRoads(false);
+                runScreenSaver();
+                new SleeperStore().loadScreenSaverConfig();
+                
                 break;
             }
             default:
@@ -133,7 +141,36 @@ public class UIControll {
         }
          
     }
-    
+    private void runScreenSaver()
+    {
+        
+        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+        primaryStage.setFullScreen(true);
+        try {
+            Thread.sleep(5);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(UIControll.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        scene.setFill(Color.BLACK);
+        scene.setOnMouseMoved(new EventHandler<MouseEvent>() {
+            
+            @Override
+            public void handle(MouseEvent event) {
+                
+                if(enableMouseMoveExit)
+                    Dipl_project.closeApp();
+                enableMouseMoveExit=true;
+            }
+        });
+        
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                Dipl_project.closeApp();
+            }
+        });
+        
+    }
     private void initStageHandler()
     {
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
