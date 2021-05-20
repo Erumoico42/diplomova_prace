@@ -101,6 +101,8 @@ public class UIControll {
     public String getGuiStatus() {
         return guiStatus;
     }
+    
+    //rozpoznani modu aplikace podle parametru
     public void initMenu(String[] args)
     {
         for (String arg : args) {
