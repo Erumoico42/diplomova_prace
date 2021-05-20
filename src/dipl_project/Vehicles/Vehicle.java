@@ -172,6 +172,8 @@ public class Vehicle {
     {
         this.breaksLayout=breaksLayout;
     }
+    
+    //vygenerovani cesty, po ktere pojede vozidlo
     protected void generateStreet(RoadSegment start)
     {
         road.clear();
@@ -409,6 +411,7 @@ public class Vehicle {
         return lastPosition;
     }
     
+    //zmena rychlosti na zaklade zoomu
     public void updateSpeed() {
         
         forceCoef =force*segmentLenghtKoef;
@@ -500,6 +503,7 @@ public class Vehicle {
         this.speed = speed;
     }
     
+   
     public void colisionDetect()
     {
         
@@ -516,6 +520,9 @@ public class Vehicle {
     {
         return carFoundStreet;
     }
+    
+    //nalezení vozidla na krizovatce
+    //neni zcela spolehlive a presne, jedna z věcí ktera by potrebovala doladit
     protected boolean findCarCross(RoadSegment us, int nextDist, double actDist, int minDist)
     {
         
@@ -593,6 +600,9 @@ public class Vehicle {
     {
         return distanceToCheck;
     }
+    
+    //nalezení vozidla na stejné ceste
+    //velmi nárocné na vykon, dalo by se zjednodusit
     private boolean findNextCar()
     {
         boolean carFound=false;
