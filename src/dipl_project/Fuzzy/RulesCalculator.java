@@ -23,6 +23,7 @@ public class RulesCalculator {
         this.rules=rules;
     }
     
+    //urceni aktivovanych pravidel podle zadanych hodnot
     private void setValues(double...inputValues)
     {
         firedOutputs=new ArrayList<>();
@@ -50,6 +51,8 @@ public class RulesCalculator {
         setValues(inputValues);
         return defuzzificationCOG();
     }
+    
+    //defuzzyfikace vypoctenych hodnot
     private double defuzzificationCOG()
     {
         double[]valuesMatrix=outputVariable.getValues();
