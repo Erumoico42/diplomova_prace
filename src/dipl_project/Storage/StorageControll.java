@@ -54,12 +54,11 @@ public  class StorageControll {
             Element root=doc.createElement("root");
             doc.appendChild(root);
             
-            //EditationControll.zoomBack();
+            //ukladani jako celek je zbytecne slozite napsane, urcite by se dalo vyresit mnohem jednoduseji
             new BackgroundStore(doc, root).saveBackground(file);
             new StreetStore(doc, root).saveStreet();
             new TrafficLightsStore(doc, root).saveTrafficLights();
             new EditationStore(doc,root).saveEditation();
-            //EditationControll.zoomRev();
             
             TransformerFactory tfc=TransformerFactory.newInstance();
             Transformer tf=tfc.newTransformer();
