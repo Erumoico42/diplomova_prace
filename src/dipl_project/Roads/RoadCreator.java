@@ -42,6 +42,8 @@ public class RoadCreator {
     {
         newSegment=enable;
     }
+    
+    //rozdeleni krivky na segmenty
     public void createRoad(List<Connect> connects, List<MyCurve> curves)
     {
         this.curves=curves;
@@ -204,6 +206,8 @@ public class RoadCreator {
         startTramSegments.clear();
         startTramSegments.addAll(newStartsTram);
     }
+    
+    //vytvoreni segmentu pro kratke krivky
     private void newShortCurveSegment(MyCurve mc)
     {
         Point p0mc=new Point(mc.getP0());
@@ -419,7 +423,7 @@ public class RoadCreator {
             
         }
     }
-    
+    //detekce blizkych silnic - pripojeni, rozdeleni 
     private void checkSameWay(Connect connect)
     { 
         
